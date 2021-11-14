@@ -3,12 +3,12 @@ package checks
 import (
 	"fmt"
 	"github.com/arelate/gog_media"
+	"github.com/arelate/vangogh_api/cli/expand"
+	"github.com/arelate/vangogh_api/cli/remove"
 	"github.com/arelate/vangogh_extracts"
 	"github.com/arelate/vangogh_products"
 	"github.com/arelate/vangogh_properties"
 	"github.com/boggydigital/nod"
-	"github.com/boggydigital/vangogh_api/cli/expand"
-	"github.com/boggydigital/vangogh_api/cli/remove"
 )
 
 func LocalOnlySplitProducts(mt gog_media.Media, fix bool) error {

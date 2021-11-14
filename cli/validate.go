@@ -6,6 +6,8 @@ import (
 	"errors"
 	"fmt"
 	"github.com/arelate/gog_media"
+	"github.com/arelate/vangogh_api/cli/url_helpers"
+	"github.com/arelate/vangogh_api/cli/validation"
 	"github.com/arelate/vangogh_downloads"
 	"github.com/arelate/vangogh_extracts"
 	"github.com/arelate/vangogh_products"
@@ -15,8 +17,6 @@ import (
 	"github.com/boggydigital/dolo"
 	"github.com/boggydigital/gost"
 	"github.com/boggydigital/nod"
-	"github.com/boggydigital/vangogh_api/cli/url_helpers"
-	"github.com/boggydigital/vangogh_api/cli/validation"
 	"net/url"
 	"os"
 )

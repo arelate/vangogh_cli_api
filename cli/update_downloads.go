@@ -2,14 +2,14 @@ package cli
 
 import (
 	"github.com/arelate/gog_media"
+	"github.com/arelate/vangogh_api/cli/hours"
+	"github.com/arelate/vangogh_api/cli/itemize"
+	"github.com/arelate/vangogh_api/cli/url_helpers"
 	"github.com/arelate/vangogh_downloads"
 	"github.com/arelate/vangogh_extracts"
 	"github.com/arelate/vangogh_products"
 	"github.com/arelate/vangogh_properties"
 	"github.com/boggydigital/nod"
-	"github.com/boggydigital/vangogh_api/cli/hours"
-	"github.com/boggydigital/vangogh_api/cli/itemize"
-	"github.com/boggydigital/vangogh_api/cli/url_helpers"
 	"net/url"
 	"time"
 )

@@ -1,10 +1,10 @@
 package url_helpers
 
 import (
+	"github.com/arelate/vangogh_api/cli/lines"
 	"github.com/arelate/vangogh_extracts"
 	"github.com/arelate/vangogh_properties"
 	"github.com/boggydigital/gost"
-	"github.com/boggydigital/vangogh_api/cli/lines"
 	"net/url"
 )
 

@@ -1,15 +1,15 @@
 package cli
 
 import (
+	"github.com/arelate/vangogh_api/cli/http_client"
+	"github.com/arelate/vangogh_api/cli/itemize"
+	"github.com/arelate/vangogh_api/cli/url_helpers"
 	"github.com/arelate/vangogh_extracts"
 	"github.com/arelate/vangogh_properties"
 	"github.com/arelate/vangogh_urls"
 	"github.com/boggydigital/dolo"
 	"github.com/boggydigital/gost"
 	"github.com/boggydigital/nod"
-	"github.com/boggydigital/vangogh_api/cli/http_client"
-	"github.com/boggydigital/vangogh_api/cli/itemize"
-	"github.com/boggydigital/vangogh_api/cli/url_helpers"
 	"github.com/boggydigital/yt_urls"
 	"net/url"
 )

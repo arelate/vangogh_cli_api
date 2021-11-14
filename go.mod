@@ -1,4 +1,4 @@
-module github.com/boggydigital/vangogh_api
+module github.com/arelate/vangogh_api
 
 go 1.17
 

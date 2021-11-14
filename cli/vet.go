@@ -2,10 +2,10 @@ package cli
 
 import (
 	"github.com/arelate/gog_media"
+	"github.com/arelate/vangogh_api/cli/checks"
+	"github.com/arelate/vangogh_api/cli/url_helpers"
 	"github.com/arelate/vangogh_downloads"
 	"github.com/boggydigital/nod"
-	"github.com/boggydigital/vangogh_api/cli/checks"
-	"github.com/boggydigital/vangogh_api/cli/url_helpers"
 	"net/url"
 )
 

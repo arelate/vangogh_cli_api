@@ -2,6 +2,8 @@ package cli
 
 import (
 	"fmt"
+	"github.com/arelate/vangogh_api/cli/itemize"
+	"github.com/arelate/vangogh_api/cli/url_helpers"
 	"github.com/arelate/vangogh_extracts"
 	"github.com/arelate/vangogh_images"
 	"github.com/arelate/vangogh_properties"
@@ -9,8 +11,6 @@ import (
 	"github.com/boggydigital/dolo"
 	"github.com/boggydigital/gost"
 	"github.com/boggydigital/nod"
-	"github.com/boggydigital/vangogh_api/cli/itemize"
-	"github.com/boggydigital/vangogh_api/cli/url_helpers"
 	"net/url"
 	"path/filepath"
 )

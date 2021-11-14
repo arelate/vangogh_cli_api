@@ -1,12 +1,12 @@
 package cli
 
 import (
+	"github.com/arelate/vangogh_api/cli/expand"
+	"github.com/arelate/vangogh_api/cli/url_helpers"
 	"github.com/arelate/vangogh_extracts"
 	"github.com/arelate/vangogh_properties"
 	"github.com/boggydigital/gost"
 	"github.com/boggydigital/nod"
-	"github.com/boggydigital/vangogh_api/cli/expand"
-	"github.com/boggydigital/vangogh_api/cli/url_helpers"
 	"net/url"
 )
 

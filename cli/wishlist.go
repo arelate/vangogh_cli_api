@@ -3,12 +3,12 @@ package cli
 import (
 	"github.com/arelate/gog_media"
 	"github.com/arelate/gog_urls"
+	"github.com/arelate/vangogh_api/cli/http_client"
+	"github.com/arelate/vangogh_api/cli/remove"
+	"github.com/arelate/vangogh_api/cli/url_helpers"
 	"github.com/arelate/vangogh_products"
 	"github.com/arelate/vangogh_values"
 	"github.com/boggydigital/nod"
-	"github.com/boggydigital/vangogh_api/cli/http_client"
-	"github.com/boggydigital/vangogh_api/cli/remove"
-	"github.com/boggydigital/vangogh_api/cli/url_helpers"
 	"net/http"
 	"net/url"
 )

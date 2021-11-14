@@ -2,9 +2,9 @@ package cli
 
 import (
 	"github.com/arelate/gog_auth"
-	"github.com/boggydigital/vangogh_api/cli/cookies"
-	"github.com/boggydigital/vangogh_api/cli/http_client"
-	"github.com/boggydigital/vangogh_api/cli/input"
+	"github.com/arelate/vangogh_api/cli/cookies"
+	"github.com/arelate/vangogh_api/cli/http_client"
+	"github.com/arelate/vangogh_api/cli/input"
 	"net/url"
 )
 

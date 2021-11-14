@@ -2,9 +2,9 @@ package cli
 
 import (
 	"fmt"
+	"github.com/arelate/vangogh_api/cli/url_helpers"
+	"github.com/arelate/vangogh_api/rest/v1"
 	"github.com/boggydigital/nod"
-	"github.com/boggydigital/vangogh_api/cli/url_helpers"
-	"github.com/boggydigital/vangogh_api/rest/v1"
 	"net/http"
 	"net/url"
 	"strconv"
