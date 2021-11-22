@@ -33,19 +33,19 @@ func (kis *kvasIndexSetter) Exists(int) bool {
 	return false
 }
 
-func (kis *kvasIndexSetter) Set(index int, src io.ReadCloser, completion chan bool, errors chan error) {
+func (kis *kvasIndexSetter) Set(index int, src io.ReadCloser, results chan *dolo.IndexResult, errors chan *dolo.IndexError) {
 
 	defer src.Close()
 
 	if index < 0 || index >= len(kis.ids) {
-		errors <- fmt.Errorf("id index out of bounds")
+		errors <- dolo.NewIndexError(index, fmt.Errorf("id index out of bounds"))
 	}
 
 	if err := kis.valueSet.Set(kis.ids[index], src); err != nil {
-		errors <- err
+		errors <- dolo.NewIndexError(index, err)
 	}
 
-	completion <- true
+	results <- dolo.NewIndexResult(index, true)
 }
 
 func (kis *kvasIndexSetter) Get(key string) (io.ReadCloser, error) {
