@@ -2,15 +2,21 @@ package v1
 
 import (
 	"github.com/arelate/vangogh_urls"
+	"io"
 	"net/http"
-	"path"
 )
 
-func GetImage(w http.ResponseWriter, r *http.Request) {
+func GetImages(w http.ResponseWriter, r *http.Request) {
 
-	// GET /v1/image?id
+	// GET /v1/images?id
 
-	imageId := path.Base(r.URL.Path)
+	q := r.URL.Query()
+	imageId := q.Get("id")
+	if imageId == "" {
+		w.WriteHeader(400)
+		_, _ = io.WriteString(w, "empty image-id")
+		return
+	}
 	if localImagePath := vangogh_urls.LocalImagePath(imageId); localImagePath != "" {
 		http.ServeFile(w, r, localImagePath)
 	} else {

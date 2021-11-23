@@ -34,8 +34,8 @@ func Serve(port int) error {
 		"/v1/indexes":  v1.GetIndexes,
 		"/v1/extracts": v1.GetExtracts,
 		"/v1/data":     v1.GetData,
-		"/v1/image":    v1.GetImage,
-		"/v1/video":    v1.GetVideo,
+		"/v1/images":   v1.GetImages,
+		"/v1/videos":   v1.GetVideos,
 	}
 
 	for p, h := range v1PatternHandlers {
