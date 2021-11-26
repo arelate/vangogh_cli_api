@@ -63,6 +63,18 @@ func RequiredAndIncluded(createdAfter int64) (gost.StrSet, error) {
 		}
 	}
 
+	//newLicSet contains all product types at the moment, we need to filter to GAME types only,
+	//since other types won't have account-products / details data available remotely
+	for _, id := range newLicSet.All() {
+		apv2, err := vrApv2.ApiProductV2(id)
+		if err != nil {
+			return nil, raia.EndWithError(err)
+		}
+		if apv2.Embedded.ProductType != "GAME" {
+			newLicSet.Remove(id)
+		}
+	}
+
 	raia.EndWithResult(itemizationResult(newLicSet))
 
 	return newLicSet, nil
