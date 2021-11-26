@@ -74,7 +74,8 @@ func Extract(modifiedAfter int64, mt gog_media.Media, properties []string) error
 
 			propValues, err := vangogh_properties.GetProperties(id, vr, missingProps)
 			if err != nil {
-				return pta.EndWithError(err)
+				pta.Error(err)
+				continue
 			}
 
 			for prop, values := range propValues {
