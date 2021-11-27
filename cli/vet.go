@@ -79,13 +79,13 @@ func Vet(
 		}
 	}
 
-	if vetOpts.localOnlyData {
+	if vetOpts.invalidData {
 		if err := checks.InvalidLocalProductData(mt, fix); err != nil {
 			return sda.EndWithError(err)
 		}
 	}
 
-	if vetOpts.invalidData {
+	if vetOpts.unresolvedManualUrls {
 		if err := checks.UnresolvedManualUrls(mt, operatingSystems, downloadTypes, langCodes, fix); err != nil {
 			return sda.EndWithError(err)
 		}
