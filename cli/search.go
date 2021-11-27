@@ -60,7 +60,6 @@ func Search(query map[string][]string) error {
 	}
 
 	itp, err := expand.IdsToPropertyLists(
-		"found products:",
 		results,
 		propertyFilter,
 		//similarly for propertyFilter (see comment above) - expand all properties to display
@@ -71,7 +70,7 @@ func Search(query map[string][]string) error {
 		return sa.EndWithError(err)
 	}
 
-	sa.EndWithSummary(itp)
+	sa.EndWithSummary("found products:", itp)
 
 	return nil
 }

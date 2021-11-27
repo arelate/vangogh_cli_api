@@ -90,7 +90,7 @@ func Owned(idSet gost.StrSet) error {
 		}
 	}
 
-	oa.EndWithSummary(ownSummary)
+	oa.EndWithSummary("ownership results:", ownSummary)
 
 	return nil
 }

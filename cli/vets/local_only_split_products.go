@@ -1,4 +1,4 @@
-package checks
+package vets
 
 import (
 	"fmt"
@@ -35,7 +35,6 @@ func LocalOnlySplitProducts(mt gog_media.Media, fix bool) error {
 		if localOnlyProducts.Len() > 0 {
 
 			summary, err := expand.IdsToPropertyLists(
-				fmt.Sprintf("found %d:", localOnlyProducts.Len()),
 				localOnlyProducts.All(),
 				nil,
 				[]string{vangogh_properties.TitleProperty},
@@ -46,7 +45,7 @@ func LocalOnlySplitProducts(mt gog_media.Media, fix bool) error {
 				continue
 			}
 
-			pa.EndWithSummary(summary)
+			pa.EndWithSummary(fmt.Sprintf("found %d:", localOnlyProducts.Len()), summary)
 
 			if fix {
 				fa := nod.Begin(" removing local only %s...", splitPt)

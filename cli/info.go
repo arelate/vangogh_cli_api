@@ -47,7 +47,6 @@ func Info(idSet gost.StrSet, allText, images, videoId bool) error {
 	}
 
 	itp, err := expand.IdsToPropertyLists(
-		"",
 		idSet.All(),
 		nil,
 		propSet.All(),
@@ -57,7 +56,7 @@ func Info(idSet gost.StrSet, allText, images, videoId bool) error {
 		return ia.EndWithError(err)
 	}
 
-	ia.EndWithSummary(itp)
+	ia.EndWithSummary("", itp)
 
 	return nil
 }

@@ -1,4 +1,4 @@
-package checks
+package vets
 
 import (
 	"fmt"
@@ -74,7 +74,7 @@ func InvalidLocalProductData(mt gog_media.Media, fix bool) error {
 			if len(ids) == 0 {
 				continue
 			}
-			ptStr := fmt.Sprintf("problems with %s:", pt)
+			ptStr := fmt.Sprintf("%s:", pt)
 			summary[ptStr] = make([]string, len(ids))
 			for i := 0; i < len(ids); i++ {
 				prodStr := ids[i]
@@ -84,7 +84,12 @@ func InvalidLocalProductData(mt gog_media.Media, fix bool) error {
 				summary[ptStr][i] = prodStr
 			}
 		}
-		ilpa.EndWithSummary(summary)
+
+		heading := "found problems:"
+		if fix {
+			heading = "fixing problems:"
+		}
+		ilpa.EndWithSummary(heading, summary)
 	}
 
 	return nil

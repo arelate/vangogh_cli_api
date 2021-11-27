@@ -102,7 +102,7 @@ func Validate(
 		}
 	}
 
-	va.EndWithSummary(summary)
+	va.EndWithSummary("", summary)
 
 	return nil
 }

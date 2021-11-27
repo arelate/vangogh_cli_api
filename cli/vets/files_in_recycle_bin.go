@@ -1,4 +1,4 @@
-package checks
+package vets
 
 import (
 	"github.com/arelate/vangogh_urls"

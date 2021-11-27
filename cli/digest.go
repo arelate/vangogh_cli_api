@@ -53,7 +53,7 @@ func Digest(property string) error {
 		summary[""] = append(summary[""], fmt.Sprintf("%s: %d items", key, distValues[key]))
 	}
 
-	da.EndWithSummary(summary)
+	da.EndWithSummary("digested properties:", summary)
 
 	return nil
 }

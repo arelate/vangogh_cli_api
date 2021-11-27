@@ -88,7 +88,7 @@ func Cleanup(
 		summary[spaceSavingsSummary] = []string{
 			fmt.Sprintf("%.2fGB", float64(cd.totalBytes)/math.Pow(1000, 3)),
 		}
-		ca.EndWithSummary(summary)
+		ca.EndWithSummary("cleanup summary:", summary)
 	} else {
 		ca.EndWithResult("done")
 	}

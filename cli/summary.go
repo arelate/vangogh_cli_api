@@ -101,7 +101,7 @@ func Summary(mt gog_media.Media, since int64) error {
 		}
 	}
 
-	sa.EndWithSummary(summary)
+	sa.EndWithSummary("", summary)
 
 	return nil
 }

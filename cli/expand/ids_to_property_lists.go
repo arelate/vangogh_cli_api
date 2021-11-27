@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/arelate/vangogh_extracts"
 	"github.com/arelate/vangogh_properties"
-	"github.com/arelate/vangogh_sets"
 	"github.com/boggydigital/gost"
 	"sort"
 	"strings"
@@ -16,7 +15,6 @@ const (
 )
 
 func IdsToPropertyLists(
-	heading string,
 	ids []string,
 	propertyFilter map[string][]string,
 	properties []string,
@@ -33,14 +31,9 @@ func IdsToPropertyLists(
 		}
 	}
 
-	idSet := vangogh_sets.IdSetWith(ids...)
-
 	itps := make(map[string][]string)
-	if heading != "" {
-		itps[heading] = []string{}
-	}
 
-	for _, id := range idSet.Sort(exl, DefaultSort, DefaultDesc) {
+	for _, id := range ids {
 		itp, err := item(id, propertyFilter, propSet.All(), exl)
 		if err != nil {
 			return itps, err

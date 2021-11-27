@@ -1,6 +1,7 @@
-package checks
+package vets
 
 import (
+	"fmt"
 	"github.com/arelate/gog_media"
 	"github.com/arelate/vangogh_api/cli/expand"
 	"github.com/arelate/vangogh_downloads"
@@ -70,22 +71,21 @@ func UnresolvedManualUrls(
 		cumu.EndWithResult("all good")
 	} else {
 
-		heading := "found problems:"
-		if fix {
-			heading = "found problems (you need to run get-downloads to fix):"
-		}
-
 		summary, err := expand.IdsToPropertyLists(
-			heading,
 			unresolvedIds.All(),
 			nil,
 			[]string{vangogh_properties.TitleProperty},
 			exl)
 
+		heading := fmt.Sprintf("found %d problems:", unresolvedIds.Len())
+		if fix {
+			heading = "found problems (run get-downloads to fix):"
+		}
+
 		if err != nil {
 			return cumu.EndWithError(err)
 		}
-		cumu.EndWithSummary(summary)
+		cumu.EndWithSummary(heading, summary)
 	}
 
 	return nil

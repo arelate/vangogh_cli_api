@@ -2,8 +2,8 @@ package cli
 
 import (
 	"github.com/arelate/gog_media"
-	"github.com/arelate/vangogh_api/cli/checks"
 	"github.com/arelate/vangogh_api/cli/url_helpers"
+	"github.com/arelate/vangogh_api/cli/vets"
 	"github.com/arelate/vangogh_downloads"
 	"github.com/boggydigital/nod"
 	"net/url"
@@ -68,25 +68,25 @@ func Vet(
 	defer sda.End()
 
 	if vetOpts.localOnlyData {
-		if err := checks.LocalOnlySplitProducts(mt, fix); err != nil {
+		if err := vets.LocalOnlySplitProducts(mt, fix); err != nil {
 			return sda.EndWithError(err)
 		}
 	}
 
 	if vetOpts.recycleBin {
-		if err := checks.FilesInRecycleBin(fix); err != nil {
+		if err := vets.FilesInRecycleBin(fix); err != nil {
 			return sda.EndWithError(err)
 		}
 	}
 
 	if vetOpts.invalidData {
-		if err := checks.InvalidLocalProductData(mt, fix); err != nil {
+		if err := vets.InvalidLocalProductData(mt, fix); err != nil {
 			return sda.EndWithError(err)
 		}
 	}
 
 	if vetOpts.unresolvedManualUrls {
-		if err := checks.UnresolvedManualUrls(mt, operatingSystems, downloadTypes, langCodes, fix); err != nil {
+		if err := vets.UnresolvedManualUrls(mt, operatingSystems, downloadTypes, langCodes, fix); err != nil {
 			return sda.EndWithError(err)
 		}
 	}
