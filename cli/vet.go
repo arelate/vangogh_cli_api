@@ -9,6 +9,39 @@ import (
 	"net/url"
 )
 
+const (
+	VetOptionLocalOnlyData        = "local-only-data"
+	VetOptionRecycleBin           = "recycle-bin"
+	VetOptionInvalidData          = "invalid-data"
+	VetOptionUnresolvedManualUrls = "unresolved-manual-urls"
+)
+
+type vetOptions struct {
+	localOnlyData        bool
+	recycleBin           bool
+	invalidData          bool
+	unresolvedManualUrls bool
+}
+
+func initVetOptions(u *url.URL) *vetOptions {
+
+	vo := &vetOptions{
+		localOnlyData:        url_helpers.Flag(u, VetOptionLocalOnlyData),
+		recycleBin:           url_helpers.Flag(u, VetOptionRecycleBin),
+		invalidData:          url_helpers.Flag(u, VetOptionInvalidData),
+		unresolvedManualUrls: url_helpers.Flag(u, VetOptionUnresolvedManualUrls),
+	}
+
+	if url_helpers.Flag(u, "all") {
+		vo.localOnlyData = !url_helpers.Flag(u, NegOpt(VetOptionLocalOnlyData))
+		vo.recycleBin = !url_helpers.Flag(u, NegOpt(VetOptionRecycleBin))
+		vo.invalidData = !url_helpers.Flag(u, NegOpt(VetOptionInvalidData))
+		vo.unresolvedManualUrls = !url_helpers.Flag(u, NegOpt(VetOptionUnresolvedManualUrls))
+	}
+
+	return vo
+}
+
 func VetHandler(u *url.URL) error {
 	mt := gog_media.Parse(url_helpers.Value(u, "media"))
 
@@ -16,12 +49,16 @@ func VetHandler(u *url.URL) error {
 	downloadTypes := url_helpers.DownloadTypes(u)
 	langCodes := url_helpers.Values(u, "language-code")
 
+	vetOpts := initVetOptions(u)
+
 	fix := url_helpers.Flag(u, "fix")
-	return Vet(mt, operatingSystems, downloadTypes, langCodes, fix)
+
+	return Vet(mt, vetOpts, operatingSystems, downloadTypes, langCodes, fix)
 }
 
 func Vet(
 	mt gog_media.Media,
+	vetOpts *vetOptions,
 	operatingSystems []vangogh_downloads.OperatingSystem,
 	downloadTypes []vangogh_downloads.DownloadType,
 	langCodes []string,
@@ -30,20 +67,28 @@ func Vet(
 	sda := nod.Begin("vetting local data...")
 	defer sda.End()
 
-	if err := checks.LocalOnlySplitProducts(mt, fix); err != nil {
-		return sda.EndWithError(err)
+	if vetOpts.localOnlyData {
+		if err := checks.LocalOnlySplitProducts(mt, fix); err != nil {
+			return sda.EndWithError(err)
+		}
 	}
 
-	if err := checks.FilesInRecycleBin(fix); err != nil {
-		return sda.EndWithError(err)
+	if vetOpts.recycleBin {
+		if err := checks.FilesInRecycleBin(fix); err != nil {
+			return sda.EndWithError(err)
+		}
 	}
 
-	if err := checks.InvalidLocalProductData(mt, fix); err != nil {
-		return sda.EndWithError(err)
+	if vetOpts.localOnlyData {
+		if err := checks.InvalidLocalProductData(mt, fix); err != nil {
+			return sda.EndWithError(err)
+		}
 	}
 
-	if err := checks.UnresolvedManualUrls(mt, operatingSystems, downloadTypes, langCodes, fix); err != nil {
-		return sda.EndWithError(err)
+	if vetOpts.invalidData {
+		if err := checks.UnresolvedManualUrls(mt, operatingSystems, downloadTypes, langCodes, fix); err != nil {
+			return sda.EndWithError(err)
+		}
 	}
 
 	//products with values different from extracts

@@ -13,28 +13,59 @@ import (
 	"github.com/boggydigital/gost"
 	"github.com/boggydigital/nod"
 	"net/url"
+	"strings"
 	"time"
 )
+
+const (
+	SyncOptionData             = "data"
+	SyncOptionImages           = "images"
+	SyncOptionScreenshots      = "screenshots"
+	SyncOptionVideos           = "videos"
+	SyncOptionDownloadsUpdates = "downloads-updates"
+	negativePrefix             = "no-"
+)
+
+type syncOptions struct {
+	data             bool
+	images           bool
+	screenshots      bool
+	videos           bool
+	downloadsUpdates bool
+}
+
+func NegOpt(option string) string {
+	if !strings.HasPrefix(option, negativePrefix) {
+		return negativePrefix + option
+	}
+	return option
+}
+
+func initSyncOptions(u *url.URL) *syncOptions {
+
+	so := &syncOptions{
+		data:             url_helpers.Flag(u, SyncOptionData),
+		images:           url_helpers.Flag(u, SyncOptionImages),
+		screenshots:      url_helpers.Flag(u, SyncOptionScreenshots),
+		videos:           url_helpers.Flag(u, SyncOptionVideos),
+		downloadsUpdates: url_helpers.Flag(u, SyncOptionDownloadsUpdates),
+	}
+
+	if url_helpers.Flag(u, "all") {
+		so.data = !url_helpers.Flag(u, NegOpt(SyncOptionData))
+		so.images = !url_helpers.Flag(u, NegOpt(SyncOptionImages))
+		so.screenshots = !url_helpers.Flag(u, NegOpt(SyncOptionScreenshots))
+		so.videos = !url_helpers.Flag(u, NegOpt(SyncOptionVideos))
+		so.downloadsUpdates = !url_helpers.Flag(u, NegOpt(SyncOptionDownloadsUpdates))
+	}
+
+	return so
+}
 
 func SyncHandler(u *url.URL) error {
 	mt := gog_media.Parse(url_helpers.Value(u, "media"))
 
-	data := url_helpers.Flag(u, "data")
-	images := url_helpers.Flag(u, "images")
-	screenshots := url_helpers.Flag(u, "screenshots")
-	videos := url_helpers.Flag(u, "videos")
-	downloadsUpdates := url_helpers.Flag(u, "downloads-updates")
-	all := url_helpers.Flag(u, "all")
-	if all {
-		data, images, screenshots, videos, downloadsUpdates = true, true, true, true, true
-	}
-
-	data = data && !url_helpers.Flag(u, "no-data")
-	images = images && !url_helpers.Flag(u, "no-images")
-	screenshots = screenshots && !url_helpers.Flag(u, "no-screenshots")
-	videos = videos && !url_helpers.Flag(u, "no-videos")
-	downloadsUpdates = downloadsUpdates && !url_helpers.Flag(u, "no-downloads-updates")
-	updatesOnly := url_helpers.Flag(u, "updates-only")
+	syncOpts := initSyncOptions(u)
 
 	sha, err := hours.Atoi(url_helpers.Value(u, "since-hours-ago"))
 	if err != nil {
@@ -45,22 +76,26 @@ func SyncHandler(u *url.URL) error {
 	downloadTypes := url_helpers.DownloadTypes(u)
 	langCodes := url_helpers.Values(u, "language-code")
 
+	updatesOnly := url_helpers.Flag(u, "updates-only")
+
 	return Sync(
 		mt,
 		sha,
-		data, images, screenshots, videos, downloadsUpdates, updatesOnly,
+		syncOpts,
 		operatingSystems,
 		downloadTypes,
-		langCodes)
+		langCodes,
+		updatesOnly)
 }
 
 func Sync(
 	mt gog_media.Media,
 	sinceHoursAgo int,
-	data, images, screenshots, videos, downloadsUpdates, updatesOnly bool,
+	syncOpts *syncOptions,
 	operatingSystems []vangogh_downloads.OperatingSystem,
 	downloadTypes []vangogh_downloads.DownloadType,
-	langCodes []string) error {
+	langCodes []string,
+	updatesOnly bool) error {
 
 	var syncStart int64
 	if sinceHoursAgo > 0 {
@@ -72,7 +107,7 @@ func Sync(
 	sa := nod.Begin("syncing source data...")
 	defer sa.End()
 
-	if data {
+	if syncOpts.data {
 		//get array and paged data
 		paData := vangogh_products.Array()
 		paData = append(paData, vangogh_products.Paged()...)
@@ -97,10 +132,10 @@ func Sync(
 	}
 
 	// get images
-	if images {
+	if syncOpts.images {
 		imageTypes := make([]vangogh_images.ImageType, 0, len(vangogh_images.All()))
 		for _, it := range vangogh_images.All() {
-			if !screenshots && it == vangogh_images.Screenshots {
+			if !syncOpts.screenshots && it == vangogh_images.Screenshots {
 				continue
 			}
 			imageTypes = append(imageTypes, it)
@@ -111,14 +146,14 @@ func Sync(
 	}
 
 	// get videos
-	if videos {
+	if syncOpts.videos {
 		if err := GetVideos(gost.NewStrSet(), true); err != nil {
 			return sa.EndWithError(err)
 		}
 	}
 
 	// get downloads updates
-	if downloadsUpdates {
+	if syncOpts.downloadsUpdates {
 		if err := UpdateDownloads(
 			mt,
 			operatingSystems,
