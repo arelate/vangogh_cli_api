@@ -13,7 +13,7 @@ require (
 	github.com/arelate/vangogh_products v0.1.4
 	github.com/arelate/vangogh_properties v0.1.1
 	github.com/arelate/vangogh_sets v0.1.1
-	github.com/arelate/vangogh_urls v0.1.1
+	github.com/arelate/vangogh_urls v0.1.2
 	github.com/arelate/vangogh_values v0.1.3
 	github.com/boggydigital/dolo v0.2.2
 	github.com/boggydigital/gost v0.1.1
