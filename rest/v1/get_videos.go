@@ -2,7 +2,6 @@ package v1
 
 import (
 	"github.com/arelate/vangogh_urls"
-	"io"
 	"net/http"
 )
 
@@ -10,16 +9,20 @@ func GetVideos(w http.ResponseWriter, r *http.Request) {
 
 	// GET /v1/videos?id
 
+	if r.Method != http.MethodGet {
+		http.Error(w, "unsupported method", 405)
+		return
+	}
+
 	q := r.URL.Query()
 	videoId := q.Get("id")
 	if videoId == "" {
-		w.WriteHeader(400)
-		_, _ = io.WriteString(w, "empty video-id")
+		http.Error(w, "empty video-id", 400)
 		return
 	}
 	if localVideoPath := vangogh_urls.LocalVideoPath(videoId); localVideoPath != "" {
 		http.ServeFile(w, r, localVideoPath)
 	} else {
-		w.WriteHeader(404)
+		http.NotFound(w, r)
 	}
 }
