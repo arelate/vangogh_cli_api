@@ -17,7 +17,7 @@ func GetVideos(w http.ResponseWriter, r *http.Request) {
 	q := r.URL.Query()
 	videoId := q.Get("id")
 	if videoId == "" {
-		http.Error(w, "empty video-id", 400)
+		http.Error(w, "empty video id", 400)
 		return
 	}
 	if localVideoPath := vangogh_urls.LocalVideoPath(videoId); localVideoPath != "" {
