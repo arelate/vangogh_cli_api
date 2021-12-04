@@ -35,6 +35,8 @@ func GetDownloadsHandler(u *url.URL) error {
 	downloadTypes := url_helpers.DownloadTypes(u)
 	langCodes := url_helpers.Values(u, "language-code")
 
+	tempDir := url_helpers.Value(u, "temp-directory")
+
 	missing := url_helpers.Flag(u, "missing")
 
 	forceUpdate := url_helpers.Flag(u, "force-update")
@@ -45,6 +47,7 @@ func GetDownloadsHandler(u *url.URL) error {
 		operatingSystems,
 		downloadTypes,
 		langCodes,
+		tempDir,
 		missing,
 		forceUpdate)
 }
@@ -55,13 +58,14 @@ func GetDownloads(
 	operatingSystems []vangogh_downloads.OperatingSystem,
 	downloadTypes []vangogh_downloads.DownloadType,
 	langCodes []string,
+	tempDir string,
 	missing,
 	forceUpdate bool) error {
 
 	gda := nod.NewProgress("downloading product files...")
 	defer gda.End()
 
-	cj, err := cooja.NewJar(gogHosts, tempDirectory)
+	cj, err := cooja.NewJar(gogHosts, tempDir)
 	if err != nil {
 		return gda.EndWithError(err)
 	}
@@ -100,6 +104,7 @@ func GetDownloads(
 
 	gdd := &getDownloadsDelegate{
 		exl:         exl,
+		tempDir:     tempDir,
 		forceUpdate: forceUpdate,
 	}
 
@@ -122,6 +127,7 @@ func GetDownloads(
 
 type getDownloadsDelegate struct {
 	exl         *vangogh_extracts.ExtractsList
+	tempDir     string
 	forceUpdate bool
 }
 
@@ -134,7 +140,7 @@ func (gdd *getDownloadsDelegate) Process(_, slug string, list vangogh_downloads.
 		return nil
 	}
 
-	cj, err := cooja.NewJar(gogHosts, tempDirectory)
+	cj, err := cooja.NewJar(gogHosts, gdd.tempDir)
 	if err != nil {
 		return sda.EndWithError(err)
 	}

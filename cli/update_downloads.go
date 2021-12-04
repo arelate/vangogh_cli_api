@@ -27,9 +27,11 @@ func UpdateDownloadsHandler(u *url.URL) error {
 	}
 	since := time.Now().Unix() - int64(sha*60*60)
 
+	tempDir := url_helpers.Value(u, "temp-directory")
+
 	updatesOnly := url_helpers.Flag(u, "updates-only")
 
-	return UpdateDownloads(mt, operatingSystems, downloadTypes, langCodes, since, updatesOnly)
+	return UpdateDownloads(mt, operatingSystems, downloadTypes, langCodes, since, tempDir, updatesOnly)
 }
 
 func UpdateDownloads(
@@ -38,6 +40,7 @@ func UpdateDownloads(
 	downloadTypes []vangogh_downloads.DownloadType,
 	langCodes []string,
 	since int64,
+	tempDir string,
 	updatesOnly bool) error {
 
 	uda := nod.Begin("itemizing updated downloads...")
@@ -107,6 +110,7 @@ func UpdateDownloads(
 		operatingSystems,
 		downloadTypes,
 		langCodes,
+		tempDir,
 		false,
 		true)
 }

@@ -19,15 +19,17 @@ func WishlistHandler(u *url.URL) error {
 	addProductIds := url_helpers.Values(u, "add")
 	removeProductIds := url_helpers.Values(u, "remove")
 
-	return Wishlist(mt, addProductIds, removeProductIds)
+	tempDir := url_helpers.Value(u, "temp-directory")
+
+	return Wishlist(mt, addProductIds, removeProductIds, tempDir)
 }
 
-func Wishlist(mt gog_media.Media, addProductIds, removeProductIds []string) error {
+func Wishlist(mt gog_media.Media, addProductIds, removeProductIds []string, tempDir string) error {
 
 	wa := nod.Begin("performing requested wishlist operations...")
 	defer wa.End()
 
-	cj, err := cooja.NewJar(gogHosts, tempDirectory)
+	cj, err := cooja.NewJar(gogHosts, tempDir)
 	if err != nil {
 		return wa.EndWithError(err)
 	}

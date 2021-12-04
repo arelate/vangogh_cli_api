@@ -29,6 +29,8 @@ func GetDataHandler(u *url.URL) error {
 	denyIdsFile := url_helpers.Value(u, "deny-ids-file")
 	denyIds := lines.Read(denyIdsFile)
 
+	tempDir := url_helpers.Value(u, "temp-directory")
+
 	updated := url_helpers.Flag(u, "updated")
 	since := time.Now().Unix()
 	if updated {
@@ -36,7 +38,7 @@ func GetDataHandler(u *url.URL) error {
 	}
 	missing := url_helpers.Flag(u, "missing")
 
-	return GetData(idSet, denyIds, pt, mt, since, missing, updated)
+	return GetData(idSet, denyIds, pt, mt, since, tempDir, missing, updated)
 }
 
 //GetData gets remote data from GOG.com and stores as local products (splitting as paged data if needed)
@@ -46,6 +48,7 @@ func GetData(
 	pt vangogh_products.ProductType,
 	mt gog_media.Media,
 	since int64,
+	tempDir string,
 	missing bool,
 	updated bool) error {
 
@@ -62,7 +65,7 @@ func GetData(
 		return nil
 	}
 
-	cj, err := cooja.NewJar(gogHosts, tempDirectory)
+	cj, err := cooja.NewJar(gogHosts, tempDir)
 	if err != nil {
 		return gda.EndWithError(err)
 	}

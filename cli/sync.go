@@ -76,6 +76,8 @@ func SyncHandler(u *url.URL) error {
 	downloadTypes := url_helpers.DownloadTypes(u)
 	langCodes := url_helpers.Values(u, "language-code")
 
+	tempDir := url_helpers.Value(u, "temp-directory")
+
 	updatesOnly := url_helpers.Flag(u, "updates-only")
 
 	return Sync(
@@ -85,6 +87,7 @@ func SyncHandler(u *url.URL) error {
 		operatingSystems,
 		downloadTypes,
 		langCodes,
+		tempDir,
 		updatesOnly)
 }
 
@@ -95,6 +98,7 @@ func Sync(
 	operatingSystems []vangogh_downloads.OperatingSystem,
 	downloadTypes []vangogh_downloads.DownloadType,
 	langCodes []string,
+	tempDir string,
 	updatesOnly bool) error {
 
 	var syncStart int64
@@ -112,7 +116,7 @@ func Sync(
 		paData := vangogh_products.Array()
 		paData = append(paData, vangogh_products.Paged()...)
 		for _, pt := range paData {
-			if err := GetData(gost.NewStrSet(), nil, pt, mt, syncStart, false, false); err != nil {
+			if err := GetData(gost.NewStrSet(), nil, pt, mt, syncStart, tempDir, false, false); err != nil {
 				return sa.EndWithError(err)
 			}
 		}
@@ -120,7 +124,7 @@ func Sync(
 		//get main - detail data
 		for _, pt := range vangogh_products.Detail() {
 			denyIds := lines.Read(vangogh_urls.AbsSkiplistPath(pt))
-			if err := GetData(gost.NewStrSet(), denyIds, pt, mt, syncStart, true, true); err != nil {
+			if err := GetData(gost.NewStrSet(), denyIds, pt, mt, syncStart, tempDir, true, true); err != nil {
 				return sa.EndWithError(err)
 			}
 		}
@@ -160,6 +164,7 @@ func Sync(
 			downloadTypes,
 			langCodes,
 			syncStart,
+			tempDir,
 			updatesOnly); err != nil {
 			return sa.EndWithError(err)
 		}

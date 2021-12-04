@@ -31,10 +31,12 @@ func TagHandler(u *url.URL) error {
 	operation := url_helpers.Value(u, "operation")
 	tagName := url_helpers.Value(u, "tag-name")
 
-	return Tag(idSet, operation, tagName)
+	tempDir := url_helpers.Value(u, "temp-directory")
+
+	return Tag(idSet, operation, tagName, tempDir)
 }
 
-func Tag(idSet gost.StrSet, operation, tagName string) error {
+func Tag(idSet gost.StrSet, operation, tagName, tempDir string) error {
 
 	ta := nod.Begin("performing requested tag operation...")
 	defer ta.End()
@@ -61,20 +63,20 @@ func Tag(idSet gost.StrSet, operation, tagName string) error {
 
 	switch operation {
 	case createOp:
-		return createTag(tagName, exl)
+		return createTag(tagName, exl, tempDir)
 	case deleteOp:
-		return deleteTag(tagName, tagId, exl)
+		return deleteTag(tagName, tagId, exl, tempDir)
 	case addOp:
-		return addTag(idSet, tagName, tagId, exl)
+		return addTag(idSet, tagName, tagId, exl, tempDir)
 	case removeOp:
-		return removeTag(idSet, tagName, tagId, exl)
+		return removeTag(idSet, tagName, tagId, exl, tempDir)
 	default:
 		return ta.EndWithError(fmt.Errorf("unknown tag operation %s", operation))
 	}
 }
 
-func postResp(url *url.URL, respVal interface{}) error {
-	cj, err := cooja.NewJar(gogHosts, tempDirectory)
+func postResp(url *url.URL, respVal interface{}, tempDir string) error {
+	cj, err := cooja.NewJar(gogHosts, tempDir)
 	if err != nil {
 		return err
 	}
@@ -111,7 +113,7 @@ func tagIdByName(tagName string, exl *vangogh_extracts.ExtractsList) (string, er
 	return tagIds[0], nil
 }
 
-func createTag(tagName string, exl *vangogh_extracts.ExtractsList) error {
+func createTag(tagName string, exl *vangogh_extracts.ExtractsList, tempDir string) error {
 
 	cta := nod.Begin(" creating tag %s...", tagName)
 	defer cta.End()
@@ -122,7 +124,7 @@ func createTag(tagName string, exl *vangogh_extracts.ExtractsList) error {
 
 	createTagUrl := gog_urls.CreateTag(tagName)
 	var ctResp gog_types.CreateTagResp
-	if err := postResp(createTagUrl, &ctResp); err != nil {
+	if err := postResp(createTagUrl, &ctResp, tempDir); err != nil {
 		return cta.EndWithError(err)
 	}
 	if ctResp.Id == "" {
@@ -138,7 +140,7 @@ func createTag(tagName string, exl *vangogh_extracts.ExtractsList) error {
 	return nil
 }
 
-func deleteTag(tagName, tagId string, exl *vangogh_extracts.ExtractsList) error {
+func deleteTag(tagName, tagId string, exl *vangogh_extracts.ExtractsList, tempDir string) error {
 
 	dta := nod.Begin(" deleting tag %s...", tagName)
 	defer dta.End()
@@ -149,7 +151,7 @@ func deleteTag(tagName, tagId string, exl *vangogh_extracts.ExtractsList) error 
 
 	deleteTagUrl := gog_urls.DeleteTag(tagId)
 	var dtResp gog_types.DeleteTagResp
-	if err := postResp(deleteTagUrl, &dtResp); err != nil {
+	if err := postResp(deleteTagUrl, &dtResp, tempDir); err != nil {
 		return dta.EndWithError(err)
 	}
 	if dtResp.Status != "deleted" {
@@ -165,7 +167,7 @@ func deleteTag(tagName, tagId string, exl *vangogh_extracts.ExtractsList) error 
 	return nil
 }
 
-func addTag(idSet gost.StrSet, tagName, tagId string, exl *vangogh_extracts.ExtractsList) error {
+func addTag(idSet gost.StrSet, tagName, tagId string, exl *vangogh_extracts.ExtractsList, tempDir string) error {
 
 	ata := nod.NewProgress(" adding tag %s to item(s)...", tagName)
 	defer ata.End()
@@ -179,7 +181,7 @@ func addTag(idSet gost.StrSet, tagName, tagId string, exl *vangogh_extracts.Extr
 	for _, id := range idSet.All() {
 		addTagUrl := gog_urls.AddTag(id, tagId)
 		var artResp gog_types.AddRemoveTagResp
-		if err := postResp(addTagUrl, &artResp); err != nil {
+		if err := postResp(addTagUrl, &artResp, tempDir); err != nil {
 			return ata.EndWithError(err)
 		}
 		if !artResp.Success {
@@ -198,7 +200,7 @@ func addTag(idSet gost.StrSet, tagName, tagId string, exl *vangogh_extracts.Extr
 	return nil
 }
 
-func removeTag(idSet gost.StrSet, tagName, tagId string, exl *vangogh_extracts.ExtractsList) error {
+func removeTag(idSet gost.StrSet, tagName, tagId string, exl *vangogh_extracts.ExtractsList, tempDir string) error {
 
 	rta := nod.NewProgress(" removing tag %s from item(s)...", tagName)
 	defer rta.End()
@@ -212,7 +214,7 @@ func removeTag(idSet gost.StrSet, tagName, tagId string, exl *vangogh_extracts.E
 	for _, id := range idSet.All() {
 		removeTagUrl := gog_urls.RemoveTag(id, tagId)
 		var artResp gog_types.AddRemoveTagResp
-		if err := postResp(removeTagUrl, &artResp); err != nil {
+		if err := postResp(removeTagUrl, &artResp, tempDir); err != nil {
 			return rta.EndWithError(err)
 		}
 		if !artResp.Success {
