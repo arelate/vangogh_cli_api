@@ -135,7 +135,7 @@ func GetImages(
 			urls = append(urls, srcUrls...)
 
 			for _, srcUrl := range srcUrls {
-				dstDir := vangogh_urls.ImageDir(srcUrl.Path)
+				dstDir := vangogh_urls.AbsDirByImageId(srcUrl.Path)
 				filenames = append(filenames, filepath.Join(dstDir, srcUrl.Path))
 			}
 		}

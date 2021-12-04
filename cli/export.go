@@ -44,7 +44,7 @@ func Export() error {
 
 	files := make([]string, 0)
 
-	if err := filepath.Walk(vangogh_urls.MetadataDir(), func(f string, fi os.FileInfo, err error) error {
+	if err := filepath.Walk(vangogh_urls.AbsMetadataDir(), func(f string, fi os.FileInfo, err error) error {
 		if fi.IsDir() {
 			return nil
 		}

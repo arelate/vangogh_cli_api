@@ -32,7 +32,7 @@ func FilesInRecycleBin(fix bool) error {
 			rfa := nod.NewProgress(" emptying recycle bin...")
 			rfa.TotalInt(recycleBinFiles.Len())
 			for file := range recycleBinFiles {
-				if err := os.Remove(filepath.Join(vangogh_urls.RecycleBinDir(), file)); err != nil {
+				if err := os.Remove(filepath.Join(vangogh_urls.AbsRecycleBinDir(), file)); err != nil {
 					return rfa.EndWithError(err)
 				}
 				rfa.Increment()

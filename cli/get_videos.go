@@ -106,7 +106,7 @@ func GetVideos(idSet gost.StrSet, missing bool) error {
 					continue
 				}
 
-				dir := vangogh_urls.VideoDir(videoId)
+				dir := vangogh_urls.AbsDirByVideoId(videoId)
 
 				u, err := url.Parse(vidUrl.Url)
 				if err != nil {

@@ -54,7 +54,7 @@ func (kis *kvasIndexSetter) Get(key string) (io.ReadCloser, error) {
 
 func NewKvasIndexSetter(pt vangogh_products.ProductType, mt gog_media.Media, ids []string) (*kvasIndexSetter, error) {
 
-	localDir, err := vangogh_urls.LocalProductsDir(pt, mt)
+	localDir, err := vangogh_urls.AbsLocalProductsDir(pt, mt)
 	if err != nil {
 		return nil, err
 	}

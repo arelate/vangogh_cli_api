@@ -97,7 +97,7 @@ func Cleanup(
 }
 
 func moveToRecycleBin(fp string) error {
-	rbFilepath := filepath.Join(vangogh_urls.RecycleBinDir(), fp)
+	rbFilepath := filepath.Join(vangogh_urls.AbsRecycleBinDir(), fp)
 	rbDir, _ := filepath.Split(rbFilepath)
 	if _, err := os.Stat(rbDir); os.IsNotExist(err) {
 		if err := os.MkdirAll(rbDir, 0755); err != nil {
@@ -131,7 +131,7 @@ func (cd *cleanupDelegate) Process(_ string, slug string, list vangogh_downloads
 	expectedSet := gost.NewStrSet()
 
 	//pDir = s/slug
-	pDir, err := vangogh_urls.ProductDownloadsRelDir(slug)
+	pDir, err := vangogh_urls.RelProductDownloadsDir(slug)
 	if err != nil {
 		return csa.EndWithError(err)
 	}
@@ -170,7 +170,7 @@ func (cd *cleanupDelegate) Process(_ string, slug string, list vangogh_downloads
 
 	for _, unexpectedFile := range unexpectedFiles {
 		//restore absolute from local_filename to s/slug/local_filename
-		downloadFilename := vangogh_urls.DownloadRelToAbs(filepath.Join(pDir, unexpectedFile))
+		downloadFilename := vangogh_urls.DownloadDirRelToAbs(filepath.Join(pDir, unexpectedFile))
 		if stat, err := os.Stat(downloadFilename); err == nil {
 			cd.totalBytes += stat.Size()
 		} else if os.IsNotExist(err) {

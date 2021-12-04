@@ -51,12 +51,12 @@ func missingDetail(
 
 	missingIdSet := gost.NewStrSet()
 
-	mainDestUrl, err := vangogh_urls.LocalProductsDir(mainPt, mt)
+	mainDestUrl, err := vangogh_urls.AbsLocalProductsDir(mainPt, mt)
 	if err != nil {
 		return missingIdSet, mda.EndWithError(err)
 	}
 
-	detailDestUrl, err := vangogh_urls.LocalProductsDir(detailPt, mt)
+	detailDestUrl, err := vangogh_urls.AbsLocalProductsDir(detailPt, mt)
 	if err != nil {
 		return missingIdSet, mda.EndWithError(err)
 	}

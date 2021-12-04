@@ -8,7 +8,7 @@ import (
 )
 
 func Data(ids []string, pt vangogh_products.ProductType, mt gog_media.Media) error {
-	ptDir, err := vangogh_urls.LocalProductsDir(pt, mt)
+	ptDir, err := vangogh_urls.AbsLocalProductsDir(pt, mt)
 	if err != nil {
 		return err
 	}

@@ -119,7 +119,7 @@ func Sync(
 
 		//get main - detail data
 		for _, pt := range vangogh_products.Detail() {
-			denyIds := lines.Read(vangogh_urls.Denylist(pt))
+			denyIds := lines.Read(vangogh_urls.AbsSkiplistPath(pt))
 			if err := GetData(gost.NewStrSet(), denyIds, pt, mt, syncStart, true, true); err != nil {
 				return sa.EndWithError(err)
 			}

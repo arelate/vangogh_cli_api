@@ -20,7 +20,7 @@ func GetImages(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "empty image id", 400)
 		return
 	}
-	if localImagePath := vangogh_urls.LocalImagePath(imageId); localImagePath != "" {
+	if localImagePath := vangogh_urls.AbsLocalImagePath(imageId); localImagePath != "" {
 		http.ServeFile(w, r, localImagePath)
 	} else {
 		http.NotFound(w, r)

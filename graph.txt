@@ -1,49 +1,49 @@
-match_node v0.1.4 @no-deps
-nod v0.1.5 @no-deps
-kvas v0.2.1 @no-deps
-gost v0.1.1 @no-deps
-clo v0.2.5 @no-deps
+match_node@v0.1.4 @no-deps
+nod@v0.1.6 @no-deps
+kvas@v0.2.1 @no-deps
+gost@v0.1.1 @no-deps
+clo@v0.2.5 @no-deps
 
 gog_media v0.1.4 @no-deps
 gog_types v0.1.9 @no-deps
 
-vangogh_images v0.1.3 @no-deps
+vangogh_images@v0.1.3 @no-deps
 
-yt_urls v0.1.3
+yt_urls@v0.1.3
 - match_node
 
-dolo v0.2.1
+dolo@v0.2.1
 - nod
 
-froth v0.1.1
+froth@v0.1.1
 - kvas
 
-gog_urls v0.2.0
+gog_urls@v0.2.0
 - gog_media
 - gog_types
 
-gog_auth_urls v0.1.4
+gog_auth_urls@v0.1.4
 - gog_urls
 - gog_media //indirect
 - gog_types //indirect
 
-gog_auth v0.1.4
+gog_auth@v0.1.4
 - gog_auth_urls
 - gog_types
 - match_node
 
-vangogh_products v0.1.4
+vangogh_products@v0.1.4
 - gog_media
 - vangogh_images
 
-vangogh_urls v0.1.1
+vangogh_urls@v0.1.5
 - gog_media
 - gog_urls
 - vangogh_images
 - vangogh_products
 - gost
 
-vangogh_values v0.1.3
+vangogh_values@v0.1.5
 - kvas
 - gog_media
 - gog_types
@@ -53,7 +53,7 @@ vangogh_values v0.1.3
 - gog_urls //indirect
 - vangogh_images //indirect
 
-vangogh_properties v0.1.1
+vangogh_properties@v0.1.2
 - froth
 - gog_types
 - gog_urls
@@ -65,7 +65,7 @@ vangogh_properties v0.1.1
 - kvas //indirect
 - gog_media //indirect
 
-vangogh_extracts v0.1.1
+vangogh_extracts@v0.1.2
 - froth
 - vangogh_properties
 - vangogh_urls
@@ -78,7 +78,7 @@ vangogh_extracts v0.1.1
 - vangogh_products //indirect
 - vangogh_values //indirect
 
-vangogh_downloads v0.1.1
+vangogh_downloads@v0.1.2
 - gog_media
 - gog_types
 - vangogh_extracts
@@ -93,19 +93,19 @@ vangogh_downloads v0.1.1
 - froth //indirect
 - kvas //indirect
 
-vangogh_sets v0.1.1
-gost
-vangogh_extracts
-gog_media //indirect
-gog_types //indirect
-gog_urls //indirect
-vangogh_images //indirect
-vangogh_products //indirect
-vangogh_properties //indirect
-vangogh_urls //indirect
-vangogh_values //indirect
-froth //indirect
-kvas //indirect
+vangogh_sets@v0.1.2
+- gost
+- vangogh_extracts
+- gog_media //indirect
+- gog_types //indirect
+- gog_urls //indirect
+- vangogh_images //indirect
+- vangogh_products //indirect
+- vangogh_properties //indirect
+- vangogh_urls //indirect
+- vangogh_values //indirect
+- froth //indirect
+- kvas //indirect
 
 vangogh_api v0.1.2
 - dolo

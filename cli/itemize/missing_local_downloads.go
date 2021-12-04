@@ -78,7 +78,7 @@ func (mdd *missingDownloadsDelegate) Process(id, slug string, list vangogh_downl
 	}
 
 	//pDir = s/slug
-	relDir, err := vangogh_urls.ProductDownloadsRelDir(slug)
+	relDir, err := vangogh_urls.RelProductDownloadsDir(slug)
 	if err != nil {
 		return err
 	}
@@ -115,7 +115,7 @@ func (mdd *missingDownloadsDelegate) Process(id, slug string, list vangogh_downl
 	}
 
 	// 3
-	absDir, err := vangogh_urls.ProductDownloadsAbsDir(slug)
+	absDir, err := vangogh_urls.AbsProductDownloadsDir(slug)
 	if err != nil {
 		return err
 	}

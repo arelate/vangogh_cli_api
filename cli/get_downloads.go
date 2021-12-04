@@ -182,7 +182,7 @@ func (gdd *getDownloadsDelegate) downloadManualUrl(
 		if localPath, ok := gdd.exl.Get(vangogh_properties.LocalManualUrl, dl.ManualUrl); ok {
 			//localFilename would be a relative path for a download - s/slug,
 			//and RelToAbs would convert this to downloads/s/slug
-			if _, err := os.Stat(vangogh_urls.DownloadRelToAbs(localPath)); err == nil {
+			if _, err := os.Stat(vangogh_urls.DownloadDirRelToAbs(localPath)); err == nil {
 				_, localFilename := filepath.Split(localPath)
 				lfa := nod.Begin(" %s", localFilename)
 				lfa.EndWithResult("already exists")
@@ -214,7 +214,7 @@ func (gdd *getDownloadsDelegate) downloadManualUrl(
 	//3
 	_, filename := path.Split(resolvedUrl.Path)
 	//ProductDownloadsAbsDir would return absolute dir path, e.g. downloads/s/slug
-	pAbsDir, err := vangogh_urls.ProductDownloadsAbsDir(slug)
+	pAbsDir, err := vangogh_urls.AbsProductDownloadsDir(slug)
 	if err != nil {
 		return dmua.EndWithError(err)
 	}
@@ -249,7 +249,7 @@ func (gdd *getDownloadsDelegate) downloadManualUrl(
 
 	//6
 	//ProductDownloadsRelDir would return relative (to downloads/ root) dir path, e.g. s/slug
-	pRelDir, err := vangogh_urls.ProductDownloadsRelDir(slug)
+	pRelDir, err := vangogh_urls.RelProductDownloadsDir(slug)
 	//we need to add suffix to a dir path, e.g. dlc, extras
 	relDir := filepath.Join(pRelDir, dl.DirSuffix())
 	if err != nil {

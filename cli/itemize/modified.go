@@ -23,7 +23,7 @@ func Modified(
 		return nil, nil
 	}
 
-	destUrl, err := vangogh_urls.LocalProductsDir(pt, mt)
+	destUrl, err := vangogh_urls.AbsLocalProductsDir(pt, mt)
 	if err != nil {
 		return nil, ma.EndWithError(err)
 	}

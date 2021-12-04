@@ -59,7 +59,7 @@ func Pages(sourcePt vangogh_products.ProductType, mt gog_media.Media, timestamp 
 			return spa.EndWithError(err)
 		}
 
-		detailDstUrl, err := vangogh_urls.LocalProductsDir(splitPt, mt)
+		detailDstUrl, err := vangogh_urls.AbsLocalProductsDir(splitPt, mt)
 		if err != nil {
 			return spa.EndWithError(err)
 		}

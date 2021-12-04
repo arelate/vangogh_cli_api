@@ -138,7 +138,7 @@ func validateManualUrl(
 
 	//absolute path (given a downloads/ root) for a s/slug/local_filename,
 	//e.g. downloads/s/slug/local_filename
-	absLocalFile := vangogh_urls.DownloadRelToAbs(localFile)
+	absLocalFile := vangogh_urls.DownloadDirRelToAbs(localFile)
 	if !vangogh_urls.CanValidate(absLocalFile) {
 		mua.EndWithResult(ErrValidationNotSupported.Error())
 		return ErrValidationNotSupported
