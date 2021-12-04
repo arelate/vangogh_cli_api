@@ -107,7 +107,7 @@ vangogh_sets@v0.1.2
 - froth //indirect
 - kvas //indirect
 
-vangogh_api v0.1.2
+vangogh_api@v0.2.4
 - dolo
 - gost
 - kvas
