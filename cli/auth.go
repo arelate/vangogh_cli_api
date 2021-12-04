@@ -8,7 +8,7 @@ import (
 	"net/url"
 )
 
-const tempDirectory = "/var/tmp/vangogh"
+const tempDirectory = "/var/tmp"
 
 var gogHosts = []string{gog_urls.GogHost}
 
