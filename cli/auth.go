@@ -8,21 +8,20 @@ import (
 	"net/url"
 )
 
-const tempDirectory = "/var/tmp"
-
 var gogHosts = []string{gog_urls.GogHost}
 
 func AuthHandler(u *url.URL) error {
 	q := u.Query()
 	username := q.Get("username")
 	password := q.Get("password")
+	tempDir := q.Get("temp-directory")
 
-	return Auth(username, password)
+	return Auth(username, password, tempDir)
 }
 
-func Auth(username, password string) error {
+func Auth(username, password, tempDir string) error {
 
-	cj, err := cooja.NewJar(gogHosts, tempDirectory)
+	cj, err := cooja.NewJar(gogHosts, tempDir)
 	if err != nil {
 		return err
 	}
