@@ -5,13 +5,13 @@ import (
 	"github.com/arelate/gog_auth"
 	"github.com/arelate/gog_media"
 	"github.com/arelate/gog_urls"
-	"github.com/arelate/vangogh_api/cli/http_client"
 	"github.com/arelate/vangogh_api/cli/itemize"
 	"github.com/arelate/vangogh_api/cli/url_helpers"
 	"github.com/arelate/vangogh_downloads"
 	"github.com/arelate/vangogh_extracts"
 	"github.com/arelate/vangogh_properties"
 	"github.com/arelate/vangogh_urls"
+	"github.com/boggydigital/cooja"
 	"github.com/boggydigital/dolo"
 	"github.com/boggydigital/gost"
 	"github.com/boggydigital/nod"
@@ -61,12 +61,12 @@ func GetDownloads(
 	gda := nod.NewProgress("downloading product files...")
 	defer gda.End()
 
-	httpClient, err := http_client.Default()
+	cj, err := cooja.NewJar(gogHosts, tempDirectory)
 	if err != nil {
 		return gda.EndWithError(err)
 	}
 
-	li, err := gog_auth.LoggedIn(httpClient)
+	li, err := gog_auth.LoggedIn(cj.GetClient())
 	if err != nil {
 		return gda.EndWithError(err)
 	}
@@ -134,10 +134,12 @@ func (gdd *getDownloadsDelegate) Process(_, slug string, list vangogh_downloads.
 		return nil
 	}
 
-	httpClient, err := http_client.Default()
+	cj, err := cooja.NewJar(gogHosts, tempDirectory)
 	if err != nil {
 		return sda.EndWithError(err)
 	}
+
+	hc := cj.GetClient()
 
 	//there is no need to use internal httpClient with cookie support for downloading
 	//manual downloads, so we're going to rely on default http.Client
@@ -145,7 +147,7 @@ func (gdd *getDownloadsDelegate) Process(_, slug string, list vangogh_downloads.
 	dlClient := dolo.NewClient(defaultClient, dolo.Defaults())
 
 	for _, dl := range list {
-		if err := gdd.downloadManualUrl(slug, &dl, httpClient, dlClient); err != nil {
+		if err := gdd.downloadManualUrl(slug, &dl, hc, dlClient); err != nil {
 			sda.Error(err)
 		}
 	}

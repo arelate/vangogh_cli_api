@@ -2,11 +2,15 @@ package cli
 
 import (
 	"github.com/arelate/gog_auth"
-	"github.com/arelate/vangogh_api/cli/cookies"
-	"github.com/arelate/vangogh_api/cli/http_client"
+	"github.com/arelate/gog_urls"
 	"github.com/arelate/vangogh_api/cli/input"
+	"github.com/boggydigital/cooja"
 	"net/url"
 )
+
+const tempDirectory = "/var/tmp/vangogh"
+
+var gogHosts = []string{gog_urls.GogHost}
 
 func AuthHandler(u *url.URL) error {
 	q := u.Query()
@@ -18,12 +22,14 @@ func AuthHandler(u *url.URL) error {
 
 func Auth(username, password string) error {
 
-	httpClient, err := http_client.Default()
+	cj, err := cooja.NewJar(gogHosts, tempDirectory)
 	if err != nil {
 		return err
 	}
 
-	li, err := gog_auth.LoggedIn(httpClient)
+	hc := cj.GetClient()
+
+	li, err := gog_auth.LoggedIn(hc)
 	if err != nil {
 		return err
 	}
@@ -32,9 +38,9 @@ func Auth(username, password string) error {
 		return nil
 	}
 
-	if err := gog_auth.Login(httpClient, username, password, input.RequestText); err != nil {
+	if err := gog_auth.Login(hc, username, password, input.RequestText); err != nil {
 		return err
 	}
 
-	return cookies.SaveJar(httpClient.Jar)
+	return cj.Save()
 }

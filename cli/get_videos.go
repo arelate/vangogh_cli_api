@@ -1,7 +1,6 @@
 package cli
 
 import (
-	"github.com/arelate/vangogh_api/cli/http_client"
 	"github.com/arelate/vangogh_api/cli/itemize"
 	"github.com/arelate/vangogh_api/cli/url_helpers"
 	"github.com/arelate/vangogh_extracts"
@@ -62,11 +61,6 @@ func GetVideos(idSet gost.StrSet, missing bool) error {
 		return nil
 	}
 
-	httpClient, err := http_client.Default()
-	if err != nil {
-		return gva.EndWithError(err)
-	}
-
 	gva.TotalInt(idSet.Len())
 
 	for _, id := range idSet.All() {
@@ -80,7 +74,7 @@ func GetVideos(idSet gost.StrSet, missing bool) error {
 
 		va := nod.Begin("%s %s", id, title)
 
-		dl := dolo.NewClient(httpClient, dolo.Defaults())
+		dl := dolo.DefaultClient
 
 		for _, videoId := range videoIds {
 

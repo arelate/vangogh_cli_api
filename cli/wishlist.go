@@ -3,11 +3,11 @@ package cli
 import (
 	"github.com/arelate/gog_media"
 	"github.com/arelate/gog_urls"
-	"github.com/arelate/vangogh_api/cli/http_client"
 	"github.com/arelate/vangogh_api/cli/remove"
 	"github.com/arelate/vangogh_api/cli/url_helpers"
 	"github.com/arelate/vangogh_products"
 	"github.com/arelate/vangogh_values"
+	"github.com/boggydigital/cooja"
 	"github.com/boggydigital/nod"
 	"net/http"
 	"net/url"
@@ -27,10 +27,12 @@ func Wishlist(mt gog_media.Media, addProductIds, removeProductIds []string) erro
 	wa := nod.Begin("performing requested wishlist operations...")
 	defer wa.End()
 
-	httpClient, err := http_client.Default()
+	cj, err := cooja.NewJar(gogHosts, tempDirectory)
 	if err != nil {
 		return wa.EndWithError(err)
 	}
+
+	hc := cj.GetClient()
 
 	vrStoreProducts, err := vangogh_values.NewReader(vangogh_products.StoreProducts, mt)
 	if err != nil {
@@ -38,13 +40,13 @@ func Wishlist(mt gog_media.Media, addProductIds, removeProductIds []string) erro
 	}
 
 	if len(addProductIds) > 0 {
-		if err := wishlistAdd(addProductIds, httpClient, vrStoreProducts, mt); err != nil {
+		if err := wishlistAdd(addProductIds, hc, vrStoreProducts, mt); err != nil {
 			return wa.EndWithError(err)
 		}
 	}
 
 	if len(removeProductIds) > 0 {
-		if err := wishlistRemove(removeProductIds, httpClient, vrStoreProducts, mt); err != nil {
+		if err := wishlistRemove(removeProductIds, hc, vrStoreProducts, mt); err != nil {
 			return wa.EndWithError(err)
 		}
 	}

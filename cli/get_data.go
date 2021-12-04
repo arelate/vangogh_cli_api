@@ -5,12 +5,12 @@ import (
 	"github.com/arelate/gog_auth"
 	"github.com/arelate/gog_media"
 	"github.com/arelate/vangogh_api/cli/fetch"
-	"github.com/arelate/vangogh_api/cli/http_client"
 	"github.com/arelate/vangogh_api/cli/itemize"
 	"github.com/arelate/vangogh_api/cli/lines"
 	"github.com/arelate/vangogh_api/cli/split"
 	"github.com/arelate/vangogh_api/cli/url_helpers"
 	"github.com/arelate/vangogh_products"
+	"github.com/boggydigital/cooja"
 	"github.com/boggydigital/gost"
 	"github.com/boggydigital/nod"
 	"net/url"
@@ -62,13 +62,15 @@ func GetData(
 		return nil
 	}
 
-	httpClient, err := http_client.Default()
+	cj, err := cooja.NewJar(gogHosts, tempDirectory)
 	if err != nil {
 		return gda.EndWithError(err)
 	}
 
+	hc := cj.GetClient()
+
 	if vangogh_products.RequiresAuth(pt) {
-		li, err := gog_auth.LoggedIn(httpClient)
+		li, err := gog_auth.LoggedIn(hc)
 		if err != nil {
 			return gda.EndWithError(err)
 		}
@@ -79,7 +81,7 @@ func GetData(
 	}
 
 	if vangogh_products.IsPaged(pt) {
-		if err := fetch.Pages(pt, mt, httpClient, gda); err != nil {
+		if err := fetch.Pages(pt, mt, hc, gda); err != nil {
 			return gda.EndWithError(err)
 		}
 		return split.Pages(pt, mt, since)
@@ -88,7 +90,7 @@ func GetData(
 	if vangogh_products.IsArray(pt) {
 		// using "licences" as id, since that's how we store that data in kvas
 		ids := []string{vangogh_products.Licences.String()}
-		if err := fetch.Items(ids, pt, mt, httpClient); err != nil {
+		if err := fetch.Items(ids, pt, mt, hc); err != nil {
 			return gda.EndWithError(err)
 		}
 		return split.Pages(pt, mt, since)
@@ -101,5 +103,5 @@ func GetData(
 
 	approvedIds := idSet.Except(gost.NewStrSetWith(denyIds...))
 
-	return fetch.Items(approvedIds, pt, mt, httpClient)
+	return fetch.Items(approvedIds, pt, mt, hc)
 }

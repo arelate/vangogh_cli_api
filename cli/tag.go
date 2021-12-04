@@ -5,10 +5,10 @@ import (
 	"fmt"
 	"github.com/arelate/gog_types"
 	"github.com/arelate/gog_urls"
-	"github.com/arelate/vangogh_api/cli/http_client"
 	"github.com/arelate/vangogh_api/cli/url_helpers"
 	"github.com/arelate/vangogh_extracts"
 	"github.com/arelate/vangogh_properties"
+	"github.com/boggydigital/cooja"
 	"github.com/boggydigital/gost"
 	"github.com/boggydigital/nod"
 	"net/url"
@@ -74,12 +74,14 @@ func Tag(idSet gost.StrSet, operation, tagName string) error {
 }
 
 func postResp(url *url.URL, respVal interface{}) error {
-	httpClient, err := http_client.Default()
+	cj, err := cooja.NewJar(gogHosts, tempDirectory)
 	if err != nil {
 		return err
 	}
 
-	resp, err := httpClient.Post(url.String(), "", nil)
+	hc := cj.GetClient()
+
+	resp, err := hc.Post(url.String(), "", nil)
 	if err != nil {
 		return err
 	}
