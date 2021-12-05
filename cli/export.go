@@ -4,6 +4,7 @@ import (
 	"archive/tar"
 	"compress/gzip"
 	"fmt"
+	"github.com/arelate/vangogh_api/cli/url_helpers"
 	"github.com/arelate/vangogh_urls"
 	"github.com/boggydigital/nod"
 	"io"
@@ -14,23 +15,27 @@ import (
 )
 
 func ExportHandler(u *url.URL) error {
-	return Export()
+	tempDir := url_helpers.Value(u, "temp-directory")
+
+	return Export(tempDir)
 }
 
-func Export() error {
+func Export(tempDir string) error {
 
 	ea := nod.NewProgress("exporting metadata...")
 	defer ea.End()
 
-	exportedFilename := fmt.Sprintf(
+	efn := fmt.Sprintf(
 		"export-%s.tar.gz",
 		time.Now().Format("2006-01-02-15-04-05"))
 
-	if _, err := os.Stat(exportedFilename); os.IsExist(err) {
+	exportedPath := filepath.Join(tempDir, efn)
+
+	if _, err := os.Stat(exportedPath); os.IsExist(err) {
 		return ea.EndWithError(err)
 	}
 
-	file, err := os.Create(exportedFilename)
+	file, err := os.Create(exportedPath)
 	if err != nil {
 		return ea.EndWithError(err)
 	}
@@ -86,7 +91,7 @@ func Export() error {
 		ea.Increment()
 	}
 
-	ea.EndWithResult("%s is ready", exportedFilename)
+	ea.EndWithResult("%s is ready", exportedPath)
 
 	return nil
 }
