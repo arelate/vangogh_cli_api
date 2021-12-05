@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"github.com/arelate/gog_media"
 	"github.com/arelate/vangogh_api/cli/hours"
-	"github.com/arelate/vangogh_api/cli/url_helpers"
 	"github.com/arelate/vangogh_extracts"
 	"github.com/arelate/vangogh_products"
 	"github.com/arelate/vangogh_properties"
+	"github.com/arelate/vangogh_urls"
 	"github.com/arelate/vangogh_values"
 	"github.com/boggydigital/nod"
 	"net/url"
@@ -38,15 +38,15 @@ var filterUpdatedProductTypes = map[vangogh_products.ProductType]bool{
 }
 
 func SummaryHandler(u *url.URL) error {
-	sha, err := hours.Atoi(url_helpers.Value(u, "since-hours-ago"))
+	sha, err := hours.Atoi(vangogh_urls.UrlValue(u, "since-hours-ago"))
 	if err != nil {
 		return err
 	}
 	since := time.Now().Unix() - int64(sha*60*60)
 
-	mt := gog_media.Parse(url_helpers.Value(u, "media"))
-
-	return Summary(mt, since)
+	return Summary(
+		vangogh_urls.UrlMedia(u),
+		since)
 }
 
 func Summary(mt gog_media.Media, since int64) error {

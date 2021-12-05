@@ -21,14 +21,10 @@ func GetImagesHandler(u *url.URL) error {
 		return err
 	}
 
-	imageTypes := url_helpers.Values(u, "image-type")
-	its := make([]vangogh_images.ImageType, 0, len(imageTypes))
-	for _, imageType := range imageTypes {
-		its = append(its, vangogh_images.Parse(imageType))
-	}
-	missing := url_helpers.Flag(u, "missing")
-
-	return GetImages(idSet, its, missing)
+	return GetImages(
+		idSet,
+		vangogh_urls.UrlImageTypes(u),
+		vangogh_urls.UrlFlag(u, "missing"))
 }
 
 //GetImages fetches remote images for a given type (box-art, screenshots, background, etc.).

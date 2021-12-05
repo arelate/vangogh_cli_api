@@ -29,27 +29,15 @@ func GetDownloadsHandler(u *url.URL) error {
 		return err
 	}
 
-	mt := gog_media.Parse(url_helpers.Value(u, "media"))
-
-	operatingSystems := url_helpers.OperatingSystems(u)
-	downloadTypes := url_helpers.DownloadTypes(u)
-	langCodes := url_helpers.Values(u, "language-code")
-
-	tempDir := url_helpers.Value(u, "temp-directory")
-
-	missing := url_helpers.Flag(u, "missing")
-
-	forceUpdate := url_helpers.Flag(u, "force-update")
-
 	return GetDownloads(
 		idSet,
-		mt,
-		operatingSystems,
-		downloadTypes,
-		langCodes,
-		tempDir,
-		missing,
-		forceUpdate)
+		vangogh_urls.UrlMedia(u),
+		vangogh_downloads.UrlOperatingSystems(u),
+		vangogh_downloads.UrlDownloadTypes(u),
+		vangogh_urls.UrlValues(u, "language-code"),
+		vangogh_urls.UrlValue(u, "temp-directory"),
+		vangogh_urls.UrlFlag(u, "missing"),
+		vangogh_urls.UrlFlag(u, "force-update"))
 }
 
 func GetDownloads(

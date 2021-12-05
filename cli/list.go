@@ -8,6 +8,7 @@ import (
 	"github.com/arelate/vangogh_api/cli/url_helpers"
 	"github.com/arelate/vangogh_products"
 	"github.com/arelate/vangogh_properties"
+	"github.com/arelate/vangogh_urls"
 	"github.com/arelate/vangogh_values"
 	"github.com/boggydigital/gost"
 	"github.com/boggydigital/nod"
@@ -21,7 +22,7 @@ func ListHandler(u *url.URL) error {
 		return err
 	}
 
-	sha, err := hours.Atoi(url_helpers.Value(u, "since-hours-ago"))
+	sha, err := hours.Atoi(vangogh_urls.UrlValue(u, "since-hours-ago"))
 	if err != nil {
 		return err
 	}
@@ -31,12 +32,12 @@ func ListHandler(u *url.URL) error {
 		since = time.Now().Add(-time.Hour * time.Duration(sha)).Unix()
 	}
 
-	pt := vangogh_products.Parse(url_helpers.Value(u, "product-type"))
-	mt := gog_media.Parse(url_helpers.Value(u, "media"))
-
-	properties := url_helpers.Values(u, "property")
-
-	return List(idSet, since, pt, mt, properties)
+	return List(
+		idSet,
+		since,
+		vangogh_urls.UrlProductType(u),
+		vangogh_urls.UrlMedia(u),
+		vangogh_urls.UrlProperties(u))
 }
 
 //List prints products of a certain type and media.

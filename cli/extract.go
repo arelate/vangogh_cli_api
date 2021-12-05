@@ -3,10 +3,10 @@ package cli
 import (
 	"github.com/arelate/gog_media"
 	"github.com/arelate/vangogh_api/cli/extract"
-	"github.com/arelate/vangogh_api/cli/url_helpers"
 	"github.com/arelate/vangogh_extracts"
 	"github.com/arelate/vangogh_products"
 	"github.com/arelate/vangogh_properties"
+	"github.com/arelate/vangogh_urls"
 	"github.com/arelate/vangogh_values"
 	"github.com/boggydigital/gost"
 	"github.com/boggydigital/nod"
@@ -15,8 +15,10 @@ import (
 )
 
 func ExtractHandler(u *url.URL) error {
-	mt := gog_media.Parse(url_helpers.Value(u, "media"))
-	return Extract(0, mt, url_helpers.Values(u, "property"))
+	return Extract(
+		0,
+		vangogh_urls.UrlMedia(u),
+		vangogh_urls.UrlProperties(u))
 }
 
 func Extract(modifiedAfter int64, mt gog_media.Media, properties []string) error {

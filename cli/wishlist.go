@@ -4,8 +4,8 @@ import (
 	"github.com/arelate/gog_media"
 	"github.com/arelate/gog_urls"
 	"github.com/arelate/vangogh_api/cli/remove"
-	"github.com/arelate/vangogh_api/cli/url_helpers"
 	"github.com/arelate/vangogh_products"
+	"github.com/arelate/vangogh_urls"
 	"github.com/arelate/vangogh_values"
 	"github.com/boggydigital/cooja"
 	"github.com/boggydigital/nod"
@@ -14,14 +14,11 @@ import (
 )
 
 func WishlistHandler(u *url.URL) error {
-	mt := gog_media.Parse(url_helpers.Value(u, "media"))
-
-	addProductIds := url_helpers.Values(u, "add")
-	removeProductIds := url_helpers.Values(u, "remove")
-
-	tempDir := url_helpers.Value(u, "temp-directory")
-
-	return Wishlist(mt, addProductIds, removeProductIds, tempDir)
+	return Wishlist(
+		vangogh_urls.UrlMedia(u),
+		vangogh_urls.UrlValues(u, "add"),
+		vangogh_urls.UrlValues(u, "remove"),
+		vangogh_urls.UrlValue(u, "temp-directory"))
 }
 
 func Wishlist(mt gog_media.Media, addProductIds, removeProductIds []string, tempDir string) error {

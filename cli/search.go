@@ -2,9 +2,9 @@ package cli
 
 import (
 	"github.com/arelate/vangogh_api/cli/expand"
-	"github.com/arelate/vangogh_api/cli/url_helpers"
 	"github.com/arelate/vangogh_extracts"
 	"github.com/arelate/vangogh_properties"
+	"github.com/arelate/vangogh_urls"
 	"github.com/boggydigital/gost"
 	"github.com/boggydigital/nod"
 	"net/url"
@@ -12,11 +12,13 @@ import (
 
 func SearchHandler(u *url.URL) error {
 	query := make(map[string][]string)
+
 	for _, prop := range vangogh_properties.Searchable() {
-		if values := url_helpers.Values(u, prop); len(values) > 0 {
+		if values := vangogh_urls.UrlValues(u, prop); len(values) > 0 {
 			query[prop] = values
 		}
 	}
+
 	return Search(query)
 }
 

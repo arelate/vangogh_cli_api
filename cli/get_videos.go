@@ -24,9 +24,9 @@ func GetVideosHandler(u *url.URL) error {
 		return err
 	}
 
-	missing := url_helpers.Flag(u, "missing")
-
-	return GetVideos(idSet, missing)
+	return GetVideos(
+		idSet,
+		vangogh_urls.UrlFlag(u, "missing"))
 }
 
 func GetVideos(idSet gost.StrSet, missing bool) error {

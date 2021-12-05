@@ -1,7 +1,9 @@
 package v1
 
 import (
+	"fmt"
 	"github.com/arelate/vangogh_urls"
+	"github.com/boggydigital/nod"
 	"net/http"
 )
 
@@ -9,20 +11,25 @@ func GetVideos(w http.ResponseWriter, r *http.Request) {
 
 	// GET /v1/videos?id
 
+	nod.Log("GET %v", r.URL)
+
 	if r.Method != http.MethodGet {
-		http.Error(w, "unsupported method", 405)
+		err := fmt.Errorf("unsupported method")
+		http.Error(w, nod.Error(err).Error(), 405)
 		return
 	}
 
 	q := r.URL.Query()
 	videoId := q.Get("id")
 	if videoId == "" {
-		http.Error(w, "empty video id", 400)
+		err := fmt.Errorf("empty video id")
+		http.Error(w, nod.Error(err).Error(), 400)
 		return
 	}
 	if localVideoPath := vangogh_urls.AbsLocalVideoPath(videoId); localVideoPath != "" {
 		http.ServeFile(w, r, localVideoPath)
 	} else {
+		_ = nod.Error(fmt.Errorf("local video path for video id %s is empty", videoId))
 		http.NotFound(w, r)
 	}
 }

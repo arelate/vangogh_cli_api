@@ -5,6 +5,7 @@ import (
 	"github.com/arelate/vangogh_api/cli/url_helpers"
 	"github.com/arelate/vangogh_extracts"
 	"github.com/arelate/vangogh_properties"
+	"github.com/arelate/vangogh_urls"
 	"github.com/boggydigital/gost"
 	"github.com/boggydigital/nod"
 	"net/url"
@@ -16,11 +17,11 @@ func InfoHandler(u *url.URL) error {
 		return err
 	}
 
-	allText := url_helpers.Flag(u, "all-text")
-	images := url_helpers.Flag(u, "images")
-	videoId := url_helpers.Flag(u, "video-id")
-
-	return Info(idSet, allText, images, videoId)
+	return Info(
+		idSet,
+		vangogh_urls.UrlFlag(u, "all-text"),
+		vangogh_urls.UrlFlag(u, "images"),
+		vangogh_urls.UrlFlag(u, "video-id"))
 }
 
 func Info(idSet gost.StrSet, allText, images, videoId bool) error {

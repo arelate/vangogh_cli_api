@@ -4,7 +4,6 @@ import (
 	"archive/tar"
 	"compress/gzip"
 	"fmt"
-	"github.com/arelate/vangogh_api/cli/url_helpers"
 	"github.com/arelate/vangogh_urls"
 	"github.com/boggydigital/nod"
 	"io"
@@ -15,9 +14,8 @@ import (
 )
 
 func ExportHandler(u *url.URL) error {
-	tempDir := url_helpers.Value(u, "temp-directory")
-
-	return Export(tempDir)
+	return Export(
+		vangogh_urls.UrlValue(u, "temp-directory"))
 }
 
 func Export(tempDir string) error {

@@ -4,6 +4,7 @@ import (
 	"github.com/arelate/vangogh_api/cli/lines"
 	"github.com/arelate/vangogh_extracts"
 	"github.com/arelate/vangogh_properties"
+	"github.com/arelate/vangogh_urls"
 	"github.com/boggydigital/gost"
 	"net/url"
 )
@@ -35,9 +36,9 @@ func SlugIds(exl *vangogh_extracts.ExtractsList, slugs []string) (slugId gost.St
 
 func IdSet(u *url.URL) (idSet gost.StrSet, err error) {
 
-	idSet = gost.NewStrSetWith(Values(u, "id")...)
+	idSet = gost.NewStrSetWith(vangogh_urls.UrlValues(u, "id")...)
 
-	if Flag(u, "read-ids") {
+	if vangogh_urls.UrlFlag(u, "read-ids") {
 		pipedIds, err := lines.ReadPipedIds()
 		if err != nil {
 			return idSet, err
@@ -45,7 +46,7 @@ func IdSet(u *url.URL) (idSet gost.StrSet, err error) {
 		idSet.AddSet(pipedIds)
 	}
 
-	slugs := Values(u, "slug")
+	slugs := vangogh_urls.UrlValues(u, "slug")
 
 	slugIds, err := SlugIds(nil, slugs)
 	if err != nil {

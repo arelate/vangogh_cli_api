@@ -4,34 +4,32 @@ import (
 	"github.com/arelate/gog_media"
 	"github.com/arelate/vangogh_api/cli/hours"
 	"github.com/arelate/vangogh_api/cli/itemize"
-	"github.com/arelate/vangogh_api/cli/url_helpers"
 	"github.com/arelate/vangogh_downloads"
 	"github.com/arelate/vangogh_extracts"
 	"github.com/arelate/vangogh_products"
 	"github.com/arelate/vangogh_properties"
+	"github.com/arelate/vangogh_urls"
 	"github.com/boggydigital/nod"
 	"net/url"
 	"time"
 )
 
 func UpdateDownloadsHandler(u *url.URL) error {
-	mt := gog_media.Parse(url_helpers.Value(u, "media"))
 
-	operatingSystems := url_helpers.OperatingSystems(u)
-	downloadTypes := url_helpers.DownloadTypes(u)
-	langCodes := url_helpers.Values(u, "language-code")
-
-	sha, err := hours.Atoi(url_helpers.Value(u, "since-hours-ago"))
+	sha, err := hours.Atoi(vangogh_urls.UrlValue(u, "since-hours-ago"))
 	if err != nil {
 		return err
 	}
 	since := time.Now().Unix() - int64(sha*60*60)
 
-	tempDir := url_helpers.Value(u, "temp-directory")
-
-	updatesOnly := url_helpers.Flag(u, "updates-only")
-
-	return UpdateDownloads(mt, operatingSystems, downloadTypes, langCodes, since, tempDir, updatesOnly)
+	return UpdateDownloads(
+		vangogh_urls.UrlMedia(u),
+		vangogh_downloads.UrlOperatingSystems(u),
+		vangogh_downloads.UrlDownloadTypes(u),
+		vangogh_urls.UrlValues(u, "language-code"),
+		since,
+		vangogh_urls.UrlValue(u, "temp-directory"),
+		vangogh_urls.UrlFlag(u, "updates-only"))
 }
 
 func UpdateDownloads(

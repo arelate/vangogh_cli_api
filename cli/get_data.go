@@ -10,6 +10,7 @@ import (
 	"github.com/arelate/vangogh_api/cli/split"
 	"github.com/arelate/vangogh_api/cli/url_helpers"
 	"github.com/arelate/vangogh_products"
+	"github.com/arelate/vangogh_urls"
 	"github.com/boggydigital/cooja"
 	"github.com/boggydigital/gost"
 	"github.com/boggydigital/nod"
@@ -23,28 +24,30 @@ func GetDataHandler(u *url.URL) error {
 		return err
 	}
 
-	pt := vangogh_products.Parse(url_helpers.Value(u, "product-type"))
-	mt := gog_media.Parse(url_helpers.Value(u, "media"))
+	skipIdsFile := vangogh_urls.UrlValue(u, "skip-ids-file")
+	skipIds := lines.Read(skipIdsFile)
 
-	denyIdsFile := url_helpers.Value(u, "deny-ids-file")
-	denyIds := lines.Read(denyIdsFile)
-
-	tempDir := url_helpers.Value(u, "temp-directory")
-
-	updated := url_helpers.Flag(u, "updated")
+	updated := vangogh_urls.UrlFlag(u, "updated")
 	since := time.Now().Unix()
 	if updated {
 		since = time.Now().Add(-time.Hour * 24).Unix()
 	}
-	missing := url_helpers.Flag(u, "missing")
 
-	return GetData(idSet, denyIds, pt, mt, since, tempDir, missing, updated)
+	return GetData(
+		idSet,
+		skipIds,
+		vangogh_urls.UrlProductType(u),
+		vangogh_urls.UrlMedia(u),
+		since,
+		vangogh_urls.UrlValue(u, "temp-directory"),
+		vangogh_urls.UrlFlag(u, "missing"),
+		updated)
 }
 
 //GetData gets remote data from GOG.com and stores as local products (splitting as paged data if needed)
 func GetData(
 	idSet gost.StrSet,
-	denyIds []string,
+	skipIds []string,
 	pt vangogh_products.ProductType,
 	mt gog_media.Media,
 	since int64,
@@ -104,7 +107,7 @@ func GetData(
 		return gda.EndWithError(err)
 	}
 
-	approvedIds := idSet.Except(gost.NewStrSetWith(denyIds...))
+	approvedIds := idSet.Except(gost.NewStrSetWith(skipIds...))
 
 	return fetch.Items(approvedIds, pt, mt, hc)
 }

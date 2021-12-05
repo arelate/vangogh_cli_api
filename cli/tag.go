@@ -8,6 +8,7 @@ import (
 	"github.com/arelate/vangogh_api/cli/url_helpers"
 	"github.com/arelate/vangogh_extracts"
 	"github.com/arelate/vangogh_properties"
+	"github.com/arelate/vangogh_urls"
 	"github.com/boggydigital/cooja"
 	"github.com/boggydigital/gost"
 	"github.com/boggydigital/nod"
@@ -28,12 +29,11 @@ func TagHandler(u *url.URL) error {
 		return err
 	}
 
-	operation := url_helpers.Value(u, "operation")
-	tagName := url_helpers.Value(u, "tag-name")
-
-	tempDir := url_helpers.Value(u, "temp-directory")
-
-	return Tag(idSet, operation, tagName, tempDir)
+	return Tag(
+		idSet,
+		vangogh_urls.UrlValue(u, "operation"),
+		vangogh_urls.UrlValue(u, "tag-name"),
+		vangogh_urls.UrlValue(u, "temp-directory"))
 }
 
 func Tag(idSet gost.StrSet, operation, tagName, tempDir string) error {

@@ -26,16 +26,14 @@ func CleanupHandler(u *url.URL) error {
 		return err
 	}
 
-	mt := gog_media.Parse(url_helpers.Value(u, "media"))
-
-	operatingSystems := url_helpers.OperatingSystems(u)
-	downloadTypes := url_helpers.DownloadTypes(u)
-	langCodes := url_helpers.Values(u, "language-code")
-
-	all := url_helpers.Flag(u, "all")
-	test := url_helpers.Flag(u, "test")
-
-	return Cleanup(idSet, mt, operatingSystems, downloadTypes, langCodes, all, test)
+	return Cleanup(
+		idSet,
+		vangogh_urls.UrlMedia(u),
+		vangogh_downloads.UrlOperatingSystems(u),
+		vangogh_downloads.UrlDownloadTypes(u),
+		vangogh_urls.UrlValues(u, "language-code"),
+		vangogh_urls.UrlFlag(u, "all"),
+		vangogh_urls.UrlFlag(u, "test"))
 }
 
 func Cleanup(

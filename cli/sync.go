@@ -4,7 +4,6 @@ import (
 	"github.com/arelate/gog_media"
 	"github.com/arelate/vangogh_api/cli/hours"
 	"github.com/arelate/vangogh_api/cli/lines"
-	"github.com/arelate/vangogh_api/cli/url_helpers"
 	"github.com/arelate/vangogh_downloads"
 	"github.com/arelate/vangogh_images"
 	"github.com/arelate/vangogh_products"
@@ -44,51 +43,41 @@ func NegOpt(option string) string {
 func initSyncOptions(u *url.URL) *syncOptions {
 
 	so := &syncOptions{
-		data:             url_helpers.Flag(u, SyncOptionData),
-		images:           url_helpers.Flag(u, SyncOptionImages),
-		screenshots:      url_helpers.Flag(u, SyncOptionScreenshots),
-		videos:           url_helpers.Flag(u, SyncOptionVideos),
-		downloadsUpdates: url_helpers.Flag(u, SyncOptionDownloadsUpdates),
+		data:             vangogh_urls.UrlFlag(u, SyncOptionData),
+		images:           vangogh_urls.UrlFlag(u, SyncOptionImages),
+		screenshots:      vangogh_urls.UrlFlag(u, SyncOptionScreenshots),
+		videos:           vangogh_urls.UrlFlag(u, SyncOptionVideos),
+		downloadsUpdates: vangogh_urls.UrlFlag(u, SyncOptionDownloadsUpdates),
 	}
 
-	if url_helpers.Flag(u, "all") {
-		so.data = !url_helpers.Flag(u, NegOpt(SyncOptionData))
-		so.images = !url_helpers.Flag(u, NegOpt(SyncOptionImages))
-		so.screenshots = !url_helpers.Flag(u, NegOpt(SyncOptionScreenshots))
-		so.videos = !url_helpers.Flag(u, NegOpt(SyncOptionVideos))
-		so.downloadsUpdates = !url_helpers.Flag(u, NegOpt(SyncOptionDownloadsUpdates))
+	if vangogh_urls.UrlFlag(u, "all") {
+		so.data = !vangogh_urls.UrlFlag(u, NegOpt(SyncOptionData))
+		so.images = !vangogh_urls.UrlFlag(u, NegOpt(SyncOptionImages))
+		so.screenshots = !vangogh_urls.UrlFlag(u, NegOpt(SyncOptionScreenshots))
+		so.videos = !vangogh_urls.UrlFlag(u, NegOpt(SyncOptionVideos))
+		so.downloadsUpdates = !vangogh_urls.UrlFlag(u, NegOpt(SyncOptionDownloadsUpdates))
 	}
 
 	return so
 }
 
 func SyncHandler(u *url.URL) error {
-	mt := gog_media.Parse(url_helpers.Value(u, "media"))
-
 	syncOpts := initSyncOptions(u)
 
-	sha, err := hours.Atoi(url_helpers.Value(u, "since-hours-ago"))
+	sha, err := hours.Atoi(vangogh_urls.UrlValue(u, "since-hours-ago"))
 	if err != nil {
 		return err
 	}
 
-	operatingSystems := url_helpers.OperatingSystems(u)
-	downloadTypes := url_helpers.DownloadTypes(u)
-	langCodes := url_helpers.Values(u, "language-code")
-
-	tempDir := url_helpers.Value(u, "temp-directory")
-
-	updatesOnly := url_helpers.Flag(u, "updates-only")
-
 	return Sync(
-		mt,
+		vangogh_urls.UrlMedia(u),
 		sha,
 		syncOpts,
-		operatingSystems,
-		downloadTypes,
-		langCodes,
-		tempDir,
-		updatesOnly)
+		vangogh_downloads.UrlOperatingSystems(u),
+		vangogh_downloads.UrlDownloadTypes(u),
+		vangogh_urls.UrlValues(u, "language-code"),
+		vangogh_urls.UrlValue(u, "temp-directory"),
+		vangogh_urls.UrlFlag(u, "updates-only"))
 }
 
 func Sync(

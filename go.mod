@@ -7,13 +7,13 @@ require (
 	github.com/arelate/gog_media v0.1.4
 	github.com/arelate/gog_types v0.1.9
 	github.com/arelate/gog_urls v0.2.0
-	github.com/arelate/vangogh_downloads v0.1.2
+	github.com/arelate/vangogh_downloads v0.1.4
 	github.com/arelate/vangogh_extracts v0.1.2
 	github.com/arelate/vangogh_images v0.1.3
 	github.com/arelate/vangogh_products v0.1.4
 	github.com/arelate/vangogh_properties v0.1.2
 	github.com/arelate/vangogh_sets v0.1.2
-	github.com/arelate/vangogh_urls v0.1.5
+	github.com/arelate/vangogh_urls v0.1.10
 	github.com/arelate/vangogh_values v0.1.5
 	github.com/boggydigital/cooja v0.1.4
 	github.com/boggydigital/dolo v0.2.2
@@ -29,3 +29,5 @@ require (
 	github.com/boggydigital/match_node v0.1.4 // indirect
 	golang.org/x/net v0.0.0-20211203184738-4852103109b8 // indirect
 )
+
+replace github.com/boggydigital/nod => ../nod

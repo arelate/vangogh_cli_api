@@ -3,15 +3,16 @@ package cli
 import (
 	"fmt"
 	"github.com/arelate/vangogh_api/cli/expand"
-	"github.com/arelate/vangogh_api/cli/url_helpers"
 	"github.com/arelate/vangogh_extracts"
+	"github.com/arelate/vangogh_urls"
 	"github.com/boggydigital/gost"
 	"github.com/boggydigital/nod"
 	"net/url"
 )
 
 func DigestHandler(u *url.URL) error {
-	return Digest(url_helpers.Value(u, "property"))
+	return Digest(
+		vangogh_urls.UrlProperty(u))
 }
 
 func Digest(property string) error {
