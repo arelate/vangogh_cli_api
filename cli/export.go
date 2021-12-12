@@ -71,7 +71,12 @@ func Export(tempDir string) error {
 			return ea.EndWithError(err)
 		}
 
-		header.Name = filepath.ToSlash(f)
+		rp, err := filepath.Rel(vangogh_urls.Pwd(), f)
+		if err != nil {
+			return ea.EndWithError(err)
+		}
+
+		header.Name = filepath.ToSlash(rp)
 
 		if err := tw.WriteHeader(header); err != nil {
 			return ea.EndWithError(err)

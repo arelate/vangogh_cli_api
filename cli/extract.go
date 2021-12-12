@@ -93,6 +93,19 @@ func Extract(modifiedAfter int64, mt gog_media.Media, properties []string) error
 		}
 
 		for prop, extracts := range missingPropExtracts {
+
+			//TODO: This seems like a good place to diff extracts per id with existing values
+			//and track additional values as a changelist
+			//for id, values := range extracts {
+			//	exValues, ok := exl.GetAllRaw(prop, id)
+			//	if !ok {
+			//		fmt.Printf("NEW %s for %s %s: %v\n", prop, pt, id, values)
+			//	}
+			//	if len(values) != len(exValues) {
+			//		fmt.Printf("CHANGED %s for %s %s: %v -> %v\n", prop, pt, id, exValues, values)
+			//	}
+			//}
+
 			if err := exl.SetMany(prop, extracts); err != nil {
 				return pta.EndWithError(err)
 			}
