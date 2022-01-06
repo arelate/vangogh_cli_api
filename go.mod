@@ -19,8 +19,8 @@ require (
 	github.com/boggydigital/dolo v0.2.2
 	github.com/boggydigital/gost v0.1.1
 	github.com/boggydigital/kvas v0.2.1
-	github.com/boggydigital/nod v0.1.7
-	github.com/boggydigital/yt_urls v0.1.3
+	github.com/boggydigital/nod v0.1.9
+	github.com/boggydigital/yt_urls v0.1.5
 )
 
 require (
@@ -28,5 +28,5 @@ require (
 	github.com/boggydigital/froth v0.1.1 // indirect
 	github.com/boggydigital/match_node v0.1.4 // indirect
 	github.com/boggydigital/wits v0.1.0 // indirect
-	golang.org/x/net v0.0.0-20211209124913-491a49abca63 // indirect
+	golang.org/x/net v0.0.0-20220105145211-5b0dc2dfae98 // indirect
 )

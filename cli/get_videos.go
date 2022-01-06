@@ -10,6 +10,7 @@ import (
 	"github.com/boggydigital/gost"
 	"github.com/boggydigital/nod"
 	"github.com/boggydigital/yt_urls"
+	"net/http"
 	"net/url"
 )
 
@@ -78,7 +79,7 @@ func GetVideos(idSet gost.StrSet, missing bool) error {
 
 		for _, videoId := range videoIds {
 
-			vp, err := yt_urls.GetVideoPage(videoId)
+			vp, err := yt_urls.GetVideoPage(http.DefaultClient, videoId)
 			if err != nil {
 				va.Error(err)
 				if addErr := exl.Add(vangogh_properties.MissingVideoUrlProperty, videoId, err.Error()); addErr != nil {
