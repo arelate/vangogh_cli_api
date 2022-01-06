@@ -11,7 +11,7 @@ import (
 	"github.com/arelate/vangogh_extracts"
 	"github.com/arelate/vangogh_properties"
 	"github.com/arelate/vangogh_urls"
-	"github.com/boggydigital/cooja"
+	"github.com/boggydigital/coost"
 	"github.com/boggydigital/dolo"
 	"github.com/boggydigital/gost"
 	"github.com/boggydigital/nod"
@@ -53,12 +53,12 @@ func GetDownloads(
 	gda := nod.NewProgress("downloading product files...")
 	defer gda.End()
 
-	cj, err := cooja.NewJar(gogHosts, tempDir)
+	cj, err := coost.NewJar(gogHosts, tempDir)
 	if err != nil {
 		return gda.EndWithError(err)
 	}
 
-	li, err := gog_auth.LoggedIn(cj.GetClient())
+	li, err := gog_auth.LoggedIn(cj.NewHttpClient())
 	if err != nil {
 		return gda.EndWithError(err)
 	}
@@ -128,12 +128,12 @@ func (gdd *getDownloadsDelegate) Process(_, slug string, list vangogh_downloads.
 		return nil
 	}
 
-	cj, err := cooja.NewJar(gogHosts, gdd.tempDir)
+	cj, err := coost.NewJar(gogHosts, gdd.tempDir)
 	if err != nil {
 		return sda.EndWithError(err)
 	}
 
-	hc := cj.GetClient()
+	hc := cj.NewHttpClient()
 
 	//there is no need to use internal httpClient with cookie support for downloading
 	//manual downloads, so we're going to rely on default http.Client

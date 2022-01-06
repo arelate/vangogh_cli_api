@@ -9,7 +9,7 @@ import (
 	"github.com/arelate/vangogh_extracts"
 	"github.com/arelate/vangogh_properties"
 	"github.com/arelate/vangogh_urls"
-	"github.com/boggydigital/cooja"
+	"github.com/boggydigital/coost"
 	"github.com/boggydigital/gost"
 	"github.com/boggydigital/nod"
 	"net/url"
@@ -76,12 +76,12 @@ func Tag(idSet gost.StrSet, operation, tagName, tempDir string) error {
 }
 
 func postResp(url *url.URL, respVal interface{}, tempDir string) error {
-	cj, err := cooja.NewJar(gogHosts, tempDir)
+	cj, err := coost.NewJar(gogHosts, tempDir)
 	if err != nil {
 		return err
 	}
 
-	hc := cj.GetClient()
+	hc := cj.NewHttpClient()
 
 	resp, err := hc.Post(url.String(), "", nil)
 	if err != nil {

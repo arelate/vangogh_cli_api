@@ -7,7 +7,7 @@ import (
 	"github.com/arelate/vangogh_products"
 	"github.com/arelate/vangogh_urls"
 	"github.com/arelate/vangogh_values"
-	"github.com/boggydigital/cooja"
+	"github.com/boggydigital/coost"
 	"github.com/boggydigital/nod"
 	"net/http"
 	"net/url"
@@ -26,12 +26,12 @@ func Wishlist(mt gog_media.Media, addProductIds, removeProductIds []string, temp
 	wa := nod.Begin("performing requested wishlist operations...")
 	defer wa.End()
 
-	cj, err := cooja.NewJar(gogHosts, tempDir)
+	cj, err := coost.NewJar(gogHosts, tempDir)
 	if err != nil {
 		return wa.EndWithError(err)
 	}
 
-	hc := cj.GetClient()
+	hc := cj.NewHttpClient()
 
 	vrStoreProducts, err := vangogh_values.NewReader(vangogh_products.StoreProducts, mt)
 	if err != nil {

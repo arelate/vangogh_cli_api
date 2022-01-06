@@ -4,7 +4,7 @@ import (
 	"github.com/arelate/gog_auth"
 	"github.com/arelate/gog_urls"
 	"github.com/arelate/vangogh_api/cli/input"
-	"github.com/boggydigital/cooja"
+	"github.com/boggydigital/coost"
 	"net/url"
 )
 
@@ -21,12 +21,12 @@ func AuthHandler(u *url.URL) error {
 
 func Auth(username, password, tempDir string) error {
 
-	cj, err := cooja.NewJar(gogHosts, tempDir)
+	cj, err := coost.NewJar(gogHosts, tempDir)
 	if err != nil {
 		return err
 	}
 
-	hc := cj.GetClient()
+	hc := cj.NewHttpClient()
 
 	li, err := gog_auth.LoggedIn(hc)
 	if err != nil {
@@ -41,5 +41,5 @@ func Auth(username, password, tempDir string) error {
 		return err
 	}
 
-	return cj.Save()
+	return cj.Store()
 }

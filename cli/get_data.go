@@ -11,7 +11,7 @@ import (
 	"github.com/arelate/vangogh_api/cli/url_helpers"
 	"github.com/arelate/vangogh_products"
 	"github.com/arelate/vangogh_urls"
-	"github.com/boggydigital/cooja"
+	"github.com/boggydigital/coost"
 	"github.com/boggydigital/gost"
 	"github.com/boggydigital/nod"
 	"net/url"
@@ -68,12 +68,12 @@ func GetData(
 		return nil
 	}
 
-	cj, err := cooja.NewJar(gogHosts, tempDir)
+	cj, err := coost.NewJar(gogHosts, tempDir)
 	if err != nil {
 		return gda.EndWithError(err)
 	}
 
-	hc := cj.GetClient()
+	hc := cj.NewHttpClient()
 
 	if vangogh_products.RequiresAuth(pt) {
 		li, err := gog_auth.LoggedIn(hc)

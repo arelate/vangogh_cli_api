@@ -15,7 +15,7 @@ require (
 	github.com/arelate/vangogh_sets v0.1.2
 	github.com/arelate/vangogh_urls v0.1.11
 	github.com/arelate/vangogh_values v0.1.5
-	github.com/boggydigital/cooja v0.1.4
+	github.com/boggydigital/coost v0.3.1
 	github.com/boggydigital/dolo v0.2.2
 	github.com/boggydigital/gost v0.1.1
 	github.com/boggydigital/kvas v0.2.1
@@ -27,5 +27,6 @@ require (
 	github.com/arelate/gog_auth_urls v0.1.4 // indirect
 	github.com/boggydigital/froth v0.1.1 // indirect
 	github.com/boggydigital/match_node v0.1.4 // indirect
+	github.com/boggydigital/wits v0.1.0 // indirect
 	golang.org/x/net v0.0.0-20211209124913-491a49abca63 // indirect
 )
