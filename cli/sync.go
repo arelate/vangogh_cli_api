@@ -112,11 +112,16 @@ func Sync(
 
 		//get main - detail data
 		for _, pt := range vangogh_products.Detail() {
-			skipList, err := wits.ReadSectLines(vangogh_urls.RelSkiplistPath())
+			skipList, err := wits.ReadSectLines(vangogh_urls.RelSkipListPath())
 			if err != nil {
 				return sa.EndWithError(err)
+
 			}
-			if err := GetData(gost.NewStrSet(), skipList[pt.String()], pt, mt, syncStart, tempDir, true, true); err != nil {
+			skipIds := skipList[pt.String()]
+			if len(skipIds) > 0 {
+				sa.Log("skipping %s ids: %v", pt, skipIds)
+			}
+			if err := GetData(gost.NewStrSet(), skipIds, pt, mt, syncStart, tempDir, true, true); err != nil {
 				return sa.EndWithError(err)
 			}
 		}
