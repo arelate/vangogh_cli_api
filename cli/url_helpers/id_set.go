@@ -1,7 +1,6 @@
 package url_helpers
 
 import (
-	"github.com/arelate/vangogh_api/cli/lines"
 	"github.com/arelate/vangogh_extracts"
 	"github.com/arelate/vangogh_properties"
 	"github.com/arelate/vangogh_urls"
@@ -37,14 +36,6 @@ func SlugIds(exl *vangogh_extracts.ExtractsList, slugs []string) (slugId gost.St
 func IdSet(u *url.URL) (idSet gost.StrSet, err error) {
 
 	idSet = gost.NewStrSetWith(vangogh_urls.UrlValues(u, "id")...)
-
-	if vangogh_urls.UrlFlag(u, "read-ids") {
-		pipedIds, err := lines.ReadPipedIds()
-		if err != nil {
-			return idSet, err
-		}
-		idSet.AddSet(pipedIds)
-	}
 
 	slugs := vangogh_urls.UrlValues(u, "slug")
 

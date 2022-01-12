@@ -3,7 +3,6 @@ package cli
 import (
 	"github.com/arelate/gog_media"
 	"github.com/arelate/vangogh_api/cli/hours"
-	"github.com/arelate/vangogh_api/cli/lines"
 	"github.com/arelate/vangogh_downloads"
 	"github.com/arelate/vangogh_images"
 	"github.com/arelate/vangogh_products"
@@ -11,6 +10,7 @@ import (
 	"github.com/arelate/vangogh_urls"
 	"github.com/boggydigital/gost"
 	"github.com/boggydigital/nod"
+	"github.com/boggydigital/wits"
 	"net/url"
 	"strings"
 	"time"
@@ -112,8 +112,11 @@ func Sync(
 
 		//get main - detail data
 		for _, pt := range vangogh_products.Detail() {
-			denyIds := lines.Read(vangogh_urls.AbsSkiplistPath(pt))
-			if err := GetData(gost.NewStrSet(), denyIds, pt, mt, syncStart, tempDir, true, true); err != nil {
+			skipList, err := wits.ReadSectLines(vangogh_urls.RelSkiplistPath())
+			if err != nil {
+				return sa.EndWithError(err)
+			}
+			if err := GetData(gost.NewStrSet(), skipList[pt.String()], pt, mt, syncStart, tempDir, true, true); err != nil {
 				return sa.EndWithError(err)
 			}
 		}

@@ -6,7 +6,6 @@ import (
 	"github.com/arelate/gog_media"
 	"github.com/arelate/vangogh_api/cli/fetch"
 	"github.com/arelate/vangogh_api/cli/itemize"
-	"github.com/arelate/vangogh_api/cli/lines"
 	"github.com/arelate/vangogh_api/cli/split"
 	"github.com/arelate/vangogh_api/cli/url_helpers"
 	"github.com/arelate/vangogh_products"
@@ -24,8 +23,7 @@ func GetDataHandler(u *url.URL) error {
 		return err
 	}
 
-	skipIdsFile := vangogh_urls.UrlValue(u, "skip-ids-file")
-	skipIds := lines.Read(skipIdsFile)
+	skipIds := vangogh_urls.UrlValues(u, "skip-id")
 
 	updated := vangogh_urls.UrlFlag(u, "updated")
 	since := time.Now().Unix()
