@@ -11,6 +11,7 @@ import (
 	"github.com/boggydigital/nod"
 	"net/http"
 	"net/url"
+	"path/filepath"
 )
 
 func WishlistHandler(u *url.URL) error {
@@ -26,12 +27,11 @@ func Wishlist(mt gog_media.Media, addProductIds, removeProductIds []string, temp
 	wa := nod.Begin("performing requested wishlist operations...")
 	defer wa.End()
 
-	cj, err := coost.NewJar(gogHosts, tempDir)
+	hc, err := coost.NewHttpClientFromFile(
+		filepath.Join(tempDir, cookiesFilename), gog_urls.GogHost)
 	if err != nil {
 		return wa.EndWithError(err)
 	}
-
-	hc := cj.NewHttpClient()
 
 	vrStoreProducts, err := vangogh_values.NewReader(vangogh_products.StoreProducts, mt)
 	if err != nil {

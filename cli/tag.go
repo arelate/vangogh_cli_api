@@ -13,6 +13,7 @@ import (
 	"github.com/boggydigital/gost"
 	"github.com/boggydigital/nod"
 	"net/url"
+	"path/filepath"
 	"strings"
 )
 
@@ -76,12 +77,11 @@ func Tag(idSet gost.StrSet, operation, tagName, tempDir string) error {
 }
 
 func postResp(url *url.URL, respVal interface{}, tempDir string) error {
-	cj, err := coost.NewJar(gogHosts, tempDir)
+	hc, err := coost.NewHttpClientFromFile(
+		filepath.Join(tempDir, cookiesFilename), gog_urls.GogHost)
 	if err != nil {
 		return err
 	}
-
-	hc := cj.NewHttpClient()
 
 	resp, err := hc.Post(url.String(), "", nil)
 	if err != nil {

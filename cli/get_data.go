@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/arelate/gog_auth"
 	"github.com/arelate/gog_media"
+	"github.com/arelate/gog_urls"
 	"github.com/arelate/vangogh_api/cli/fetch"
 	"github.com/arelate/vangogh_api/cli/itemize"
 	"github.com/arelate/vangogh_api/cli/split"
@@ -14,6 +15,7 @@ import (
 	"github.com/boggydigital/gost"
 	"github.com/boggydigital/nod"
 	"net/url"
+	"path/filepath"
 	"time"
 )
 
@@ -66,12 +68,11 @@ func GetData(
 		return nil
 	}
 
-	cj, err := coost.NewJar(gogHosts, tempDir)
+	hc, err := coost.NewHttpClientFromFile(
+		filepath.Join(tempDir, cookiesFilename), gog_urls.GogHost)
 	if err != nil {
 		return gda.EndWithError(err)
 	}
-
-	hc := cj.NewHttpClient()
 
 	if vangogh_products.RequiresAuth(pt) {
 		li, err := gog_auth.LoggedIn(hc)

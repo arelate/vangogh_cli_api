@@ -12,6 +12,7 @@ import (
 	"github.com/boggydigital/nod"
 	"github.com/boggydigital/wits"
 	"net/url"
+	"os"
 	"strings"
 	"time"
 )
@@ -112,15 +113,30 @@ func Sync(
 
 		//get main - detail data
 		for _, pt := range vangogh_products.Detail() {
-			skipList, err := wits.ReadSectLines(vangogh_urls.RelSkipListPath())
-			if err != nil {
-				return sa.EndWithError(err)
 
+			var skipList wits.KeyValues
+
+			if _, err := os.Stat(vangogh_urls.RelSkipListPath()); err == nil {
+				slFile, err := os.Open(vangogh_urls.RelSkipListPath())
+				if err != nil {
+					slFile.Close()
+					return sa.EndWithError(err)
+				}
+
+				skipList, err = wits.ReadKeyValues(slFile)
+				slFile.Close()
+				if err != nil {
+					return sa.EndWithError(err)
+				}
 			}
+
 			skipIds := skipList[pt.String()]
 			if len(skipIds) > 0 {
 				sa.Log("skipping %s ids: %v", pt, skipIds)
+			} else {
+				sa.Log("no skip list for %s", pt)
 			}
+
 			if err := GetData(gost.NewStrSet(), skipIds, pt, mt, syncStart, tempDir, true, true); err != nil {
 				return sa.EndWithError(err)
 			}

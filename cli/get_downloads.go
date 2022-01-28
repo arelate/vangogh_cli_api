@@ -53,12 +53,13 @@ func GetDownloads(
 	gda := nod.NewProgress("downloading product files...")
 	defer gda.End()
 
-	cj, err := coost.NewJar(gogHosts, tempDir)
+	hc, err := coost.NewHttpClientFromFile(
+		filepath.Join(tempDir, cookiesFilename), gog_urls.GogHost)
 	if err != nil {
 		return gda.EndWithError(err)
 	}
 
-	li, err := gog_auth.LoggedIn(cj.NewHttpClient())
+	li, err := gog_auth.LoggedIn(hc)
 	if err != nil {
 		return gda.EndWithError(err)
 	}
@@ -128,12 +129,11 @@ func (gdd *getDownloadsDelegate) Process(_, slug string, list vangogh_downloads.
 		return nil
 	}
 
-	cj, err := coost.NewJar(gogHosts, gdd.tempDir)
+	hc, err := coost.NewHttpClientFromFile(
+		filepath.Join(gdd.tempDir, cookiesFilename), gog_urls.GogHost)
 	if err != nil {
 		return sda.EndWithError(err)
 	}
-
-	hc := cj.NewHttpClient()
 
 	//there is no need to use internal httpClient with cookie support for downloading
 	//manual downloads, so we're going to rely on default http.Client

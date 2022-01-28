@@ -6,9 +6,11 @@ import (
 	"github.com/arelate/vangogh_api/cli/input"
 	"github.com/boggydigital/coost"
 	"net/url"
+	"os"
+	"path/filepath"
 )
 
-var gogHosts = []string{gog_urls.GogHost}
+const cookiesFilename = "cookies.txt"
 
 func AuthHandler(u *url.URL) error {
 	q := u.Query()
@@ -21,7 +23,13 @@ func AuthHandler(u *url.URL) error {
 
 func Auth(username, password, tempDir string) error {
 
-	cj, err := coost.NewJar(gogHosts, tempDir)
+	cookieFile, err := os.Open(filepath.Join(tempDir, cookiesFilename))
+	defer cookieFile.Close()
+	if err != nil && !os.IsNotExist(err) {
+		return err
+	}
+
+	cj, err := coost.NewJar(cookieFile, gog_urls.GogHost)
 	if err != nil {
 		return err
 	}
@@ -41,5 +49,5 @@ func Auth(username, password, tempDir string) error {
 		return err
 	}
 
-	return cj.Store()
+	return cj.Store(cookieFile)
 }
