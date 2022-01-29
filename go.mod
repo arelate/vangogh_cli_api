@@ -15,7 +15,7 @@ require (
 	github.com/arelate/vangogh_sets v0.1.2
 	github.com/arelate/vangogh_urls v0.1.13
 	github.com/arelate/vangogh_values v0.1.5
-	github.com/boggydigital/coost v0.3.6
+	github.com/boggydigital/coost v0.3.7
 	github.com/boggydigital/dolo v0.2.2
 	github.com/boggydigital/gost v0.1.1
 	github.com/boggydigital/kvas v0.2.1
