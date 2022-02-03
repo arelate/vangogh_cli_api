@@ -2,9 +2,7 @@ package cli
 
 import (
 	"fmt"
-	"github.com/arelate/gog_auth"
-	"github.com/arelate/gog_media"
-	"github.com/arelate/gog_urls"
+	"github.com/arelate/gog_atu"
 	"github.com/arelate/vangogh_api/cli/fetch"
 	"github.com/arelate/vangogh_api/cli/itemize"
 	"github.com/arelate/vangogh_api/cli/split"
@@ -49,7 +47,7 @@ func GetData(
 	idSet gost.StrSet,
 	skipIds []string,
 	pt vangogh_products.ProductType,
-	mt gog_media.Media,
+	mt gog_atu.Media,
 	since int64,
 	tempDir string,
 	missing bool,
@@ -69,13 +67,13 @@ func GetData(
 	}
 
 	hc, err := coost.NewHttpClientFromFile(
-		filepath.Join(tempDir, cookiesFilename), gog_urls.GogHost)
+		filepath.Join(tempDir, cookiesFilename), gog_atu.GogHost)
 	if err != nil {
 		return gda.EndWithError(err)
 	}
 
 	if vangogh_products.RequiresAuth(pt) {
-		li, err := gog_auth.LoggedIn(hc)
+		li, err := gog_atu.LoggedIn(hc)
 		if err != nil {
 			return gda.EndWithError(err)
 		}

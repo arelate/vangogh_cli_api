@@ -1,7 +1,7 @@
 package extract
 
 import (
-	"github.com/arelate/gog_media"
+	"github.com/arelate/gog_atu"
 	"github.com/arelate/vangogh_extracts"
 	"github.com/arelate/vangogh_products"
 	"github.com/arelate/vangogh_properties"
@@ -9,7 +9,7 @@ import (
 	"github.com/boggydigital/nod"
 )
 
-func Types(mt gog_media.Media) error {
+func Types(mt gog_atu.Media) error {
 
 	ta := nod.Begin(" %s...", vangogh_properties.TypesProperty)
 	defer ta.End()

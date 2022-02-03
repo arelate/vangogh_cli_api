@@ -1,8 +1,7 @@
 package cli
 
 import (
-	"github.com/arelate/gog_media"
-	"github.com/arelate/gog_urls"
+	"github.com/arelate/gog_atu"
 	"github.com/arelate/vangogh_api/cli/remove"
 	"github.com/arelate/vangogh_products"
 	"github.com/arelate/vangogh_urls"
@@ -22,13 +21,13 @@ func WishlistHandler(u *url.URL) error {
 		vangogh_urls.UrlValue(u, "temp-directory"))
 }
 
-func Wishlist(mt gog_media.Media, addProductIds, removeProductIds []string, tempDir string) error {
+func Wishlist(mt gog_atu.Media, addProductIds, removeProductIds []string, tempDir string) error {
 
 	wa := nod.Begin("performing requested wishlist operations...")
 	defer wa.End()
 
 	hc, err := coost.NewHttpClientFromFile(
-		filepath.Join(tempDir, cookiesFilename), gog_urls.GogHost)
+		filepath.Join(tempDir, cookiesFilename), gog_atu.GogHost)
 	if err != nil {
 		return wa.EndWithError(err)
 	}
@@ -59,7 +58,7 @@ func wishlistAdd(
 	ids []string,
 	httpClient *http.Client,
 	vrStoreProducts *vangogh_values.ValueReader,
-	mt gog_media.Media) error {
+	mt gog_atu.Media) error {
 
 	waa := nod.NewProgress(" adding product(s) to local wishlist...")
 	defer waa.End()
@@ -77,7 +76,7 @@ func wishlistAdd(
 
 	return remoteWishlistCommand(
 		ids,
-		gog_urls.AddToWishlist,
+		gog_atu.AddToWishlistUrl,
 		httpClient,
 		vrStoreProducts)
 }
@@ -86,7 +85,7 @@ func wishlistRemove(
 	ids []string,
 	httpClient *http.Client,
 	vrStoreProducts *vangogh_values.ValueReader,
-	mt gog_media.Media) error {
+	mt gog_atu.Media) error {
 
 	wra := nod.NewProgress(" removing product(s) from local wishlist...")
 	defer wra.End()
@@ -99,7 +98,7 @@ func wishlistRemove(
 
 	return remoteWishlistCommand(
 		ids,
-		gog_urls.RemoveFromWishlist,
+		gog_atu.RemoveFromWishlistUrl,
 		httpClient,
 		vrStoreProducts)
 }

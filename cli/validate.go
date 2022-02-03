@@ -5,7 +5,7 @@ import (
 	"encoding/xml"
 	"errors"
 	"fmt"
-	"github.com/arelate/gog_media"
+	"github.com/arelate/gog_atu"
 	"github.com/arelate/vangogh_api/cli/url_helpers"
 	"github.com/arelate/vangogh_api/cli/validation"
 	"github.com/arelate/vangogh_downloads"
@@ -46,7 +46,7 @@ func ValidateHandler(u *url.URL) error {
 
 func Validate(
 	idSet gost.StrSet,
-	mt gog_media.Media,
+	mt gog_atu.Media,
 	operatingSystems []vangogh_downloads.OperatingSystem,
 	downloadTypes []vangogh_downloads.DownloadType,
 	langCodes []string,

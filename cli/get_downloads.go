@@ -2,9 +2,7 @@ package cli
 
 import (
 	"fmt"
-	"github.com/arelate/gog_auth"
-	"github.com/arelate/gog_media"
-	"github.com/arelate/gog_urls"
+	"github.com/arelate/gog_atu"
 	"github.com/arelate/vangogh_api/cli/itemize"
 	"github.com/arelate/vangogh_api/cli/url_helpers"
 	"github.com/arelate/vangogh_downloads"
@@ -42,7 +40,7 @@ func GetDownloadsHandler(u *url.URL) error {
 
 func GetDownloads(
 	idSet gost.StrSet,
-	mt gog_media.Media,
+	mt gog_atu.Media,
 	operatingSystems []vangogh_downloads.OperatingSystem,
 	downloadTypes []vangogh_downloads.DownloadType,
 	langCodes []string,
@@ -54,12 +52,12 @@ func GetDownloads(
 	defer gda.End()
 
 	hc, err := coost.NewHttpClientFromFile(
-		filepath.Join(tempDir, cookiesFilename), gog_urls.GogHost)
+		filepath.Join(tempDir, cookiesFilename), gog_atu.GogHost)
 	if err != nil {
 		return gda.EndWithError(err)
 	}
 
-	li, err := gog_auth.LoggedIn(hc)
+	li, err := gog_atu.LoggedIn(hc)
 	if err != nil {
 		return gda.EndWithError(err)
 	}
@@ -130,7 +128,7 @@ func (gdd *getDownloadsDelegate) Process(_, slug string, list vangogh_downloads.
 	}
 
 	hc, err := coost.NewHttpClientFromFile(
-		filepath.Join(gdd.tempDir, cookiesFilename), gog_urls.GogHost)
+		filepath.Join(gdd.tempDir, cookiesFilename), gog_atu.GogHost)
 	if err != nil {
 		return sda.EndWithError(err)
 	}
@@ -186,7 +184,7 @@ func (gdd *getDownloadsDelegate) downloadManualUrl(
 	}
 
 	//2
-	resp, err := httpClient.Head(gog_urls.ManualDownloadUrl(dl.ManualUrl).String())
+	resp, err := httpClient.Head(gog_atu.ManualDownloadUrl(dl.ManualUrl).String())
 	if err != nil {
 		return dmua.EndWithError(err)
 	}

@@ -1,7 +1,7 @@
 package v1
 
 import (
-	"github.com/arelate/gog_media"
+	"github.com/arelate/gog_atu"
 	"github.com/arelate/vangogh_extracts"
 	"github.com/arelate/vangogh_products"
 	"github.com/arelate/vangogh_properties"
@@ -10,7 +10,7 @@ import (
 
 type productTypeMedia struct {
 	productType vangogh_products.ProductType
-	media       gog_media.Media
+	media       gog_atu.Media
 }
 
 type productTypeMediaSort struct {
@@ -33,7 +33,7 @@ func Init() error {
 	}
 
 	valueReaders = make(map[productTypeMedia]*vangogh_values.ValueReader)
-	mt := gog_media.Game
+	mt := gog_atu.Game
 	for _, pt := range vangogh_products.Local() {
 		ptm := productTypeMedia{productType: pt, media: mt}
 		valueReaders[ptm], err = vangogh_values.NewReader(pt, mt)

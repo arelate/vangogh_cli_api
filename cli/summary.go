@@ -2,7 +2,7 @@ package cli
 
 import (
 	"fmt"
-	"github.com/arelate/gog_media"
+	"github.com/arelate/gog_atu"
 	"github.com/arelate/vangogh_api/cli/hours"
 	"github.com/arelate/vangogh_extracts"
 	"github.com/arelate/vangogh_products"
@@ -49,7 +49,7 @@ func SummaryHandler(u *url.URL) error {
 		since)
 }
 
-func Summary(mt gog_media.Media, since int64) error {
+func Summary(mt gog_atu.Media, since int64) error {
 
 	sa := nod.Begin("key changes since %s:", time.Unix(since, 0).Format("01/02 03:04PM"))
 	defer sa.End()

@@ -3,8 +3,7 @@ package cli
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/arelate/gog_types"
-	"github.com/arelate/gog_urls"
+	"github.com/arelate/gog_atu"
 	"github.com/arelate/vangogh_api/cli/url_helpers"
 	"github.com/arelate/vangogh_extracts"
 	"github.com/arelate/vangogh_properties"
@@ -78,7 +77,7 @@ func Tag(idSet gost.StrSet, operation, tagName, tempDir string) error {
 
 func postResp(url *url.URL, respVal interface{}, tempDir string) error {
 	hc, err := coost.NewHttpClientFromFile(
-		filepath.Join(tempDir, cookiesFilename), gog_urls.GogHost)
+		filepath.Join(tempDir, cookiesFilename), gog_atu.GogHost)
 	if err != nil {
 		return err
 	}
@@ -122,8 +121,8 @@ func createTag(tagName string, exl *vangogh_extracts.ExtractsList, tempDir strin
 		return cta.EndWithError(err)
 	}
 
-	createTagUrl := gog_urls.CreateTag(tagName)
-	var ctResp gog_types.CreateTagResp
+	createTagUrl := gog_atu.CreateTagUrl(tagName)
+	var ctResp gog_atu.CreateTagResp
 	if err := postResp(createTagUrl, &ctResp, tempDir); err != nil {
 		return cta.EndWithError(err)
 	}
@@ -149,8 +148,8 @@ func deleteTag(tagName, tagId string, exl *vangogh_extracts.ExtractsList, tempDi
 		return dta.EndWithError(err)
 	}
 
-	deleteTagUrl := gog_urls.DeleteTag(tagId)
-	var dtResp gog_types.DeleteTagResp
+	deleteTagUrl := gog_atu.DeleteTagUrl(tagId)
+	var dtResp gog_atu.DeleteTagResp
 	if err := postResp(deleteTagUrl, &dtResp, tempDir); err != nil {
 		return dta.EndWithError(err)
 	}
@@ -179,8 +178,8 @@ func addTag(idSet gost.StrSet, tagName, tagId string, exl *vangogh_extracts.Extr
 	ata.TotalInt(idSet.Len())
 
 	for _, id := range idSet.All() {
-		addTagUrl := gog_urls.AddTag(id, tagId)
-		var artResp gog_types.AddRemoveTagResp
+		addTagUrl := gog_atu.AddTagUrl(id, tagId)
+		var artResp gog_atu.AddRemoveTagResp
 		if err := postResp(addTagUrl, &artResp, tempDir); err != nil {
 			return ata.EndWithError(err)
 		}
@@ -212,8 +211,8 @@ func removeTag(idSet gost.StrSet, tagName, tagId string, exl *vangogh_extracts.E
 	rta.TotalInt(idSet.Len())
 
 	for _, id := range idSet.All() {
-		removeTagUrl := gog_urls.RemoveTag(id, tagId)
-		var artResp gog_types.AddRemoveTagResp
+		removeTagUrl := gog_atu.RemoveTagUrl(id, tagId)
+		var artResp gog_atu.AddRemoveTagResp
 		if err := postResp(removeTagUrl, &artResp, tempDir); err != nil {
 			return rta.EndWithError(err)
 		}

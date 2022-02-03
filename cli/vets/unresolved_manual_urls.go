@@ -2,7 +2,7 @@ package vets
 
 import (
 	"fmt"
-	"github.com/arelate/gog_media"
+	"github.com/arelate/gog_atu"
 	"github.com/arelate/vangogh_api/cli/expand"
 	"github.com/arelate/vangogh_downloads"
 	"github.com/arelate/vangogh_extracts"
@@ -14,7 +14,7 @@ import (
 )
 
 func UnresolvedManualUrls(
-	mt gog_media.Media,
+	mt gog_atu.Media,
 	operatingSystems []vangogh_downloads.OperatingSystem,
 	downloadTypes []vangogh_downloads.DownloadType,
 	langCodes []string,

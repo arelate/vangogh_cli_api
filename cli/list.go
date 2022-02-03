@@ -2,7 +2,7 @@ package cli
 
 import (
 	"fmt"
-	"github.com/arelate/gog_media"
+	"github.com/arelate/gog_atu"
 	"github.com/arelate/vangogh_api/cli/expand"
 	"github.com/arelate/vangogh_api/cli/hours"
 	"github.com/arelate/vangogh_api/cli/url_helpers"
@@ -47,7 +47,7 @@ func List(
 	idSet gost.StrSet,
 	modifiedSince int64,
 	pt vangogh_products.ProductType,
-	mt gog_media.Media,
+	mt gog_atu.Media,
 	properties []string) error {
 
 	la := nod.Begin("listing %s...", pt)
@@ -56,7 +56,7 @@ func List(
 	if !vangogh_products.Valid(pt) {
 		return la.EndWithError(fmt.Errorf("can't list invalid product type %s", pt))
 	}
-	if !gog_media.Valid(mt) {
+	if !gog_atu.ValidMedia(mt) {
 		return la.EndWithError(fmt.Errorf("can't list invalid media %s", mt))
 	}
 

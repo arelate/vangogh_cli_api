@@ -1,7 +1,7 @@
 package itemize
 
 import (
-	"github.com/arelate/gog_media"
+	"github.com/arelate/gog_atu"
 	"github.com/arelate/vangogh_products"
 	"github.com/arelate/vangogh_values"
 	"github.com/boggydigital/gost"
@@ -9,7 +9,7 @@ import (
 	"strconv"
 )
 
-func AccountProductsUpdates(mt gog_media.Media) (gost.StrSet, error) {
+func AccountProductsUpdates(mt gog_atu.Media) (gost.StrSet, error) {
 
 	apua := nod.Begin(" finding %s updates...", vangogh_products.AccountProducts)
 	defer apua.End()

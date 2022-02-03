@@ -3,7 +3,7 @@ package split
 import (
 	"bytes"
 	"encoding/json"
-	"github.com/arelate/gog_media"
+	"github.com/arelate/gog_atu"
 	"github.com/arelate/vangogh_products"
 	"github.com/arelate/vangogh_urls"
 	"github.com/arelate/vangogh_values"
@@ -13,7 +13,7 @@ import (
 	"strconv"
 )
 
-func Pages(sourcePt vangogh_products.ProductType, mt gog_media.Media, timestamp int64) error {
+func Pages(sourcePt vangogh_products.ProductType, mt gog_atu.Media, timestamp int64) error {
 
 	spa := nod.NewProgress(" splitting %s (%s)...", sourcePt, mt)
 	defer spa.End()

@@ -1,7 +1,7 @@
 package itemize
 
 import (
-	"github.com/arelate/gog_media"
+	"github.com/arelate/gog_atu"
 	"github.com/arelate/vangogh_products"
 	"github.com/arelate/vangogh_urls"
 	"github.com/boggydigital/gost"
@@ -12,7 +12,7 @@ import (
 func Modified(
 	since int64,
 	pt vangogh_products.ProductType,
-	mt gog_media.Media) (gost.StrSet, error) {
+	mt gog_atu.Media) (gost.StrSet, error) {
 
 	ma := nod.Begin(" finding modified %s...", pt)
 	defer ma.End()

@@ -1,8 +1,7 @@
 package cli
 
 import (
-	"github.com/arelate/gog_auth"
-	"github.com/arelate/gog_urls"
+	"github.com/arelate/gog_atu"
 	"github.com/arelate/vangogh_api/cli/input"
 	"github.com/boggydigital/coost"
 	"net/url"
@@ -29,14 +28,14 @@ func Auth(username, password, tempDir string) error {
 		return err
 	}
 
-	cj, err := coost.NewJar(cookieFile, gog_urls.GogHost)
+	cj, err := coost.NewJar(cookieFile, gog_atu.GogHost)
 	if err != nil {
 		return err
 	}
 
 	hc := cj.NewHttpClient()
 
-	li, err := gog_auth.LoggedIn(hc)
+	li, err := gog_atu.LoggedIn(hc)
 	if err != nil {
 		return err
 	}
@@ -45,7 +44,7 @@ func Auth(username, password, tempDir string) error {
 		return nil
 	}
 
-	if err := gog_auth.Login(hc, username, password, input.RequestText); err != nil {
+	if err := gog_atu.Login(hc, username, password, input.RequestText); err != nil {
 		return err
 	}
 

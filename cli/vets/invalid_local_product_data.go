@@ -2,7 +2,7 @@ package vets
 
 import (
 	"fmt"
-	"github.com/arelate/gog_media"
+	"github.com/arelate/gog_atu"
 	"github.com/arelate/vangogh_extracts"
 	"github.com/arelate/vangogh_products"
 	"github.com/arelate/vangogh_properties"
@@ -10,7 +10,7 @@ import (
 	"github.com/boggydigital/nod"
 )
 
-func InvalidLocalProductData(mt gog_media.Media, fix bool) error {
+func InvalidLocalProductData(mt gog_atu.Media, fix bool) error {
 	ilpa := nod.NewProgress("checking data for invalid products...")
 	defer ilpa.End()
 

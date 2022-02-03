@@ -1,7 +1,7 @@
 package extract
 
 import (
-	"github.com/arelate/gog_media"
+	"github.com/arelate/gog_atu"
 	"github.com/arelate/vangogh_extracts"
 	"github.com/arelate/vangogh_products"
 	"github.com/arelate/vangogh_properties"
@@ -21,7 +21,7 @@ func Orders(modifiedAfter int64) error {
 		return oa.EndWithError(err)
 	}
 
-	vrOrders, err := vangogh_values.NewReader(vangogh_products.Orders, gog_media.Game)
+	vrOrders, err := vangogh_values.NewReader(vangogh_products.Orders, gog_atu.Game)
 	if err != nil {
 		return oa.EndWithError(err)
 	}

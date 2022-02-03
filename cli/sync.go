@@ -1,7 +1,7 @@
 package cli
 
 import (
-	"github.com/arelate/gog_media"
+	"github.com/arelate/gog_atu"
 	"github.com/arelate/vangogh_api/cli/hours"
 	"github.com/arelate/vangogh_downloads"
 	"github.com/arelate/vangogh_images"
@@ -82,7 +82,7 @@ func SyncHandler(u *url.URL) error {
 }
 
 func Sync(
-	mt gog_media.Media,
+	mt gog_atu.Media,
 	sinceHoursAgo int,
 	syncOpts *syncOptions,
 	operatingSystems []vangogh_downloads.OperatingSystem,

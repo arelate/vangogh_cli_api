@@ -1,7 +1,7 @@
 package itemize
 
 import (
-	"github.com/arelate/gog_media"
+	"github.com/arelate/gog_atu"
 	"github.com/arelate/vangogh_products"
 	"github.com/arelate/vangogh_values"
 	"github.com/boggydigital/gost"
@@ -16,12 +16,12 @@ func RequiredAndIncluded(createdAfter int64) (gost.StrSet, error) {
 
 	newLicSet := gost.NewStrSet()
 
-	vrLicences, err := vangogh_values.NewReader(vangogh_products.LicenceProducts, gog_media.Game)
+	vrLicences, err := vangogh_values.NewReader(vangogh_products.LicenceProducts, gog_atu.Game)
 	if err != nil {
 		return nil, raia.EndWithError(err)
 	}
 
-	vrApv2, err := vangogh_values.NewReader(vangogh_products.ApiProductsV2, gog_media.Game)
+	vrApv2, err := vangogh_values.NewReader(vangogh_products.ApiProductsV2, gog_atu.Game)
 	if err != nil {
 		return nil, raia.EndWithError(err)
 	}

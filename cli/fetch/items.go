@@ -2,7 +2,7 @@ package fetch
 
 import (
 	"fmt"
-	"github.com/arelate/gog_media"
+	"github.com/arelate/gog_atu"
 	"github.com/arelate/vangogh_products"
 	"github.com/arelate/vangogh_urls"
 	"github.com/boggydigital/dolo"
@@ -15,7 +15,7 @@ import (
 func Items(
 	ids []string,
 	pt vangogh_products.ProductType,
-	mt gog_media.Media,
+	mt gog_atu.Media,
 	httpClient *http.Client) error {
 
 	ia := nod.NewProgress(" fetching %s (%s)...", pt, mt)

@@ -1,7 +1,7 @@
 package cli
 
 import (
-	"github.com/arelate/gog_media"
+	"github.com/arelate/gog_atu"
 	"github.com/arelate/vangogh_api/cli/vets"
 	"github.com/arelate/vangogh_downloads"
 	"github.com/arelate/vangogh_urls"
@@ -56,7 +56,7 @@ func VetHandler(u *url.URL) error {
 }
 
 func Vet(
-	mt gog_media.Media,
+	mt gog_atu.Media,
 	vetOpts *vetOptions,
 	operatingSystems []vangogh_downloads.OperatingSystem,
 	downloadTypes []vangogh_downloads.DownloadType,

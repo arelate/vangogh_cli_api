@@ -2,7 +2,7 @@ package extract
 
 import (
 	"fmt"
-	"github.com/arelate/gog_media"
+	"github.com/arelate/gog_atu"
 	"github.com/arelate/vangogh_extracts"
 	"github.com/arelate/vangogh_products"
 	"github.com/arelate/vangogh_properties"
@@ -10,7 +10,7 @@ import (
 	"github.com/boggydigital/nod"
 )
 
-func TagNames(mt gog_media.Media) error {
+func TagNames(mt gog_atu.Media) error {
 
 	tna := nod.Begin(" %s...", vangogh_properties.TagNameProperty)
 	defer tna.End()

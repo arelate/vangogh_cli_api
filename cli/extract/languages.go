@@ -1,7 +1,7 @@
 package extract
 
 import (
-	"github.com/arelate/gog_media"
+	"github.com/arelate/gog_atu"
 	"github.com/arelate/vangogh_extracts"
 	"github.com/arelate/vangogh_products"
 	"github.com/arelate/vangogh_properties"
@@ -85,7 +85,7 @@ func LanguageNames(langCodeSet gost.StrSet) error {
 	names := make(map[string][]string, 0)
 
 	//iterate through api-products-v1 until we fill all native names
-	vrApiProductsV2, err := vangogh_values.NewReader(vangogh_products.ApiProductsV2, gog_media.Game)
+	vrApiProductsV2, err := vangogh_values.NewReader(vangogh_products.ApiProductsV2, gog_atu.Game)
 	if err != nil {
 		return lna.EndWithError(err)
 	}
@@ -131,7 +131,7 @@ func NativeLanguageNames(langCodeSet gost.StrSet) error {
 		return nil
 	}
 
-	vrApiProductsV1, err := vangogh_values.NewReader(vangogh_products.ApiProductsV1, gog_media.Game)
+	vrApiProductsV1, err := vangogh_values.NewReader(vangogh_products.ApiProductsV1, gog_atu.Game)
 	if err != nil {
 		return nlna.EndWithError(err)
 	}

@@ -2,7 +2,7 @@ package vets
 
 import (
 	"fmt"
-	"github.com/arelate/gog_media"
+	"github.com/arelate/gog_atu"
 	"github.com/arelate/vangogh_api/cli/expand"
 	"github.com/arelate/vangogh_api/cli/remove"
 	"github.com/arelate/vangogh_extracts"
@@ -11,7 +11,7 @@ import (
 	"github.com/boggydigital/nod"
 )
 
-func LocalOnlySplitProducts(mt gog_media.Media, fix bool) error {
+func LocalOnlySplitProducts(mt gog_atu.Media, fix bool) error {
 
 	sloa := nod.Begin("checking for local only split products...")
 	defer sloa.End()

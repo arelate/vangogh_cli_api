@@ -1,7 +1,7 @@
 package itemize
 
 import (
-	"github.com/arelate/gog_media"
+	"github.com/arelate/gog_atu"
 	"github.com/arelate/vangogh_downloads"
 	"github.com/arelate/vangogh_extracts"
 	"github.com/arelate/vangogh_products"
@@ -15,7 +15,7 @@ import (
 )
 
 func MissingLocalDownloads(
-	mt gog_media.Media,
+	mt gog_atu.Media,
 	exl *vangogh_extracts.ExtractsList,
 	operatingSystems []vangogh_downloads.OperatingSystem,
 	downloadTypes []vangogh_downloads.DownloadType,

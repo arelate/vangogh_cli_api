@@ -2,7 +2,7 @@ package cli
 
 import (
 	"fmt"
-	"github.com/arelate/gog_media"
+	"github.com/arelate/gog_atu"
 	"github.com/arelate/vangogh_api/cli/url_helpers"
 	"github.com/arelate/vangogh_downloads"
 	"github.com/arelate/vangogh_extracts"
@@ -38,7 +38,7 @@ func CleanupHandler(u *url.URL) error {
 
 func Cleanup(
 	idSet gost.StrSet,
-	mt gog_media.Media,
+	mt gog_atu.Media,
 	operatingSystems []vangogh_downloads.OperatingSystem,
 	downloadTypes []vangogh_downloads.DownloadType,
 	langCodes []string,

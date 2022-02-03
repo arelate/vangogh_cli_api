@@ -2,7 +2,7 @@ package itemize
 
 import (
 	"fmt"
-	"github.com/arelate/gog_media"
+	"github.com/arelate/gog_atu"
 	"github.com/arelate/vangogh_products"
 	"github.com/arelate/vangogh_urls"
 	"github.com/boggydigital/gost"
@@ -20,7 +20,7 @@ func itemizationResult(set gost.StrSet) string {
 
 func missingDetail(
 	detailPt, mainPt vangogh_products.ProductType,
-	mt gog_media.Media,
+	mt gog_atu.Media,
 	since int64) (gost.StrSet, error) {
 
 	//api-products-v2 provides

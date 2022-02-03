@@ -1,12 +1,12 @@
 package v1
 
 import (
-	"github.com/arelate/gog_media"
+	"github.com/arelate/gog_atu"
 	"github.com/arelate/vangogh_products"
 	"github.com/arelate/vangogh_sets"
 )
 
-func getSortedIds(pt vangogh_products.ProductType, mt gog_media.Media, sort string, desc bool) ([]string, error) {
+func getSortedIds(pt vangogh_products.ProductType, mt gog_atu.Media, sort string, desc bool) ([]string, error) {
 
 	ptms := productTypeMediaSort{
 		productTypeMedia: productTypeMedia{productType: pt, media: mt},

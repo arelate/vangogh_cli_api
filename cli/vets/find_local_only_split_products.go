@@ -2,14 +2,14 @@ package vets
 
 import (
 	"fmt"
-	"github.com/arelate/gog_media"
+	"github.com/arelate/gog_atu"
 	"github.com/arelate/vangogh_products"
 	"github.com/arelate/vangogh_values"
 	"github.com/boggydigital/gost"
 	"strconv"
 )
 
-func findLocalOnlySplitProducts(pagedPt vangogh_products.ProductType, mt gog_media.Media) (gost.StrSet, error) {
+func findLocalOnlySplitProducts(pagedPt vangogh_products.ProductType, mt gog_atu.Media) (gost.StrSet, error) {
 	if !vangogh_products.IsPaged(pagedPt) {
 		return nil, fmt.Errorf("%s is not a paged type", pagedPt)
 	}

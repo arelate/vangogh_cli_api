@@ -2,7 +2,7 @@ package cli
 
 import (
 	"fmt"
-	"github.com/arelate/gog_media"
+	"github.com/arelate/gog_atu"
 	"github.com/arelate/vangogh_api/cli/url_helpers"
 	"github.com/arelate/vangogh_extracts"
 	"github.com/arelate/vangogh_products"
@@ -43,7 +43,7 @@ func Owned(idSet gost.StrSet) error {
 		return err
 	}
 
-	vrLicenceProducts, err := vangogh_values.NewReader(vangogh_products.LicenceProducts, gog_media.Game)
+	vrLicenceProducts, err := vangogh_values.NewReader(vangogh_products.LicenceProducts, gog_atu.Game)
 	if err != nil {
 		return err
 	}

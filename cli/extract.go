@@ -1,7 +1,7 @@
 package cli
 
 import (
-	"github.com/arelate/gog_media"
+	"github.com/arelate/gog_atu"
 	"github.com/arelate/vangogh_api/cli/extract"
 	"github.com/arelate/vangogh_extracts"
 	"github.com/arelate/vangogh_products"
@@ -21,7 +21,7 @@ func ExtractHandler(u *url.URL) error {
 		vangogh_urls.UrlProperties(u))
 }
 
-func Extract(modifiedAfter int64, mt gog_media.Media, properties []string) error {
+func Extract(modifiedAfter int64, mt gog_atu.Media, properties []string) error {
 
 	propSet := gost.NewStrSetWith(properties...)
 

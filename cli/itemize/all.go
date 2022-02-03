@@ -1,7 +1,7 @@
 package itemize
 
 import (
-	"github.com/arelate/gog_media"
+	"github.com/arelate/gog_atu"
 	"github.com/arelate/vangogh_products"
 	"github.com/boggydigital/gost"
 )
@@ -11,7 +11,7 @@ func All(
 	missing, updated bool,
 	modifiedAfter int64,
 	pt vangogh_products.ProductType,
-	mt gog_media.Media) (gost.StrSet, error) {
+	mt gog_atu.Media) (gost.StrSet, error) {
 
 	for _, mainPt := range vangogh_products.MainTypes(pt) {
 		if missing {

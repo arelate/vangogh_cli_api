@@ -1,7 +1,7 @@
 package itemize
 
 import (
-	"github.com/arelate/gog_media"
+	"github.com/arelate/gog_atu"
 	"github.com/arelate/vangogh_products"
 	"github.com/arelate/vangogh_values"
 	"github.com/boggydigital/gost"
@@ -15,9 +15,9 @@ func linkedGames(modifiedAfter int64) (gost.StrSet, error) {
 
 	missingSet := gost.NewStrSet()
 
-	//currently, api-products-v2 support only gog_media.Game, and since this method is exclusively
+	//currently, api-products-v2 support only gog_atu.Game, and since this method is exclusively
 	//using api-products-v2 we're fine specifying media directly and not taking as a parameter
-	vrApv2, err := vangogh_values.NewReader(vangogh_products.ApiProductsV2, gog_media.Game)
+	vrApv2, err := vangogh_values.NewReader(vangogh_products.ApiProductsV2, gog_atu.Game)
 	if err != nil {
 		return missingSet, lga.EndWithError(err)
 	}
