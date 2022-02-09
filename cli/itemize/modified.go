@@ -28,7 +28,7 @@ func Modified(
 		return nil, ma.EndWithError(err)
 	}
 
-	kv, err := kvas.NewJsonLocal(destUrl)
+	kv, err := kvas.ConnectLocal(destUrl, kvas.JsonExt)
 	if err != nil {
 		return nil, ma.EndWithError(err)
 	}

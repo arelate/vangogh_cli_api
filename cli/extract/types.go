@@ -2,7 +2,6 @@ package extract
 
 import (
 	"github.com/arelate/gog_atu"
-	"github.com/arelate/vangogh_extracts"
 	"github.com/arelate/vangogh_products"
 	"github.com/arelate/vangogh_properties"
 	"github.com/arelate/vangogh_values"
@@ -23,7 +22,7 @@ func Types(mt gog_atu.Media) error {
 			return ta.EndWithError(err)
 		}
 
-		for _, id := range vr.All() {
+		for _, id := range vr.Keys() {
 
 			if idsTypes[id] == nil {
 				idsTypes[id] = make([]string, 0)
@@ -33,12 +32,12 @@ func Types(mt gog_atu.Media) error {
 		}
 	}
 
-	typesEx, err := vangogh_extracts.NewList(vangogh_properties.TypesProperty)
+	typesEx, err := vangogh_properties.ConnectReduxAssets(vangogh_properties.TypesProperty)
 	if err != nil {
 		return ta.EndWithError(err)
 	}
 
-	if err := typesEx.SetMany(vangogh_properties.TypesProperty, idsTypes); err != nil {
+	if err := typesEx.BatchReplaceValues(vangogh_properties.TypesProperty, idsTypes); err != nil {
 		return ta.EndWithError(err)
 	}
 

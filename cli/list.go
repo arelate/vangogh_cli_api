@@ -95,11 +95,11 @@ func List(
 
 	if idSet.Len() == 0 &&
 		modifiedSince == 0 {
-		idSet.Add(vr.All()...)
+		idSet.Add(vr.Keys()...)
 	}
 
 	itp, err := expand.IdsToPropertyLists(
-		idSet.All(),
+		idSet,
 		nil,
 		vangogh_properties.Supported(pt, properties),
 		nil)

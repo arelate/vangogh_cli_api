@@ -5,7 +5,6 @@ import (
 	"github.com/arelate/gog_atu"
 	"github.com/arelate/vangogh_api/cli/expand"
 	"github.com/arelate/vangogh_api/cli/remove"
-	"github.com/arelate/vangogh_extracts"
 	"github.com/arelate/vangogh_products"
 	"github.com/arelate/vangogh_properties"
 	"github.com/boggydigital/nod"
@@ -16,7 +15,7 @@ func LocalOnlySplitProducts(mt gog_atu.Media, fix bool) error {
 	sloa := nod.Begin("checking for local only split products...")
 	defer sloa.End()
 
-	exl, err := vangogh_extracts.NewList(vangogh_properties.TitleProperty)
+	rxa, err := vangogh_properties.ConnectReduxAssets(vangogh_properties.TitleProperty)
 	if err != nil {
 		return sloa.EndWithError(err)
 	}
@@ -35,10 +34,10 @@ func LocalOnlySplitProducts(mt gog_atu.Media, fix bool) error {
 		if localOnlyProducts.Len() > 0 {
 
 			summary, err := expand.IdsToPropertyLists(
-				localOnlyProducts.All(),
+				localOnlyProducts,
 				nil,
 				[]string{vangogh_properties.TitleProperty},
-				exl)
+				rxa)
 
 			if err != nil {
 				_ = pa.EndWithError(err)

@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/arelate/vangogh_api/cli/itemize"
 	"github.com/arelate/vangogh_api/cli/url_helpers"
-	"github.com/arelate/vangogh_extracts"
 	"github.com/arelate/vangogh_images"
 	"github.com/arelate/vangogh_properties"
 	"github.com/arelate/vangogh_urls"
@@ -51,7 +50,7 @@ func GetImages(
 		propSet.Add(vangogh_properties.FromImageType(it))
 	}
 
-	exl, err := vangogh_extracts.NewList(propSet.All()...)
+	rxa, err := vangogh_properties.ConnectReduxAssets(propSet.All()...)
 	if err != nil {
 		return gia.EndWithError(err)
 	}
@@ -69,7 +68,7 @@ func GetImages(
 		//2. for every product id we get this way - add this image type to idMissingTypes[id]
 		for _, it := range its {
 			//1
-			missingImageIds, err := itemize.MissingLocalImages(it, exl, localImageSet)
+			missingImageIds, err := itemize.MissingLocalImages(it, rxa, localImageSet)
 			if err != nil {
 				return gia.EndWithError(err)
 			}
@@ -104,7 +103,7 @@ func GetImages(
 		//for every product collect all image URLs and all corresponding local filenames
 		//to pass to dolo.GetSet, that'll concurrently download all required product images
 
-		title, ok := exl.Get(vangogh_properties.TitleProperty, id)
+		title, ok := rxa.GetFirstVal(vangogh_properties.TitleProperty, id)
 		if !ok {
 			title = id
 		}
@@ -118,7 +117,7 @@ func GetImages(
 
 		for _, it := range missingIts {
 
-			images, ok := exl.GetAll(vangogh_properties.FromImageType(it), id)
+			images, ok := rxa.GetAllValues(vangogh_properties.FromImageType(it), id)
 			if !ok || len(images) == 0 {
 				continue
 			}

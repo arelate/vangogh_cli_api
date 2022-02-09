@@ -61,18 +61,18 @@ func missingDetail(
 		return missingIdSet, mda.EndWithError(err)
 	}
 
-	kvMain, err := kvas.NewJsonLocal(mainDestUrl)
+	kvMain, err := kvas.ConnectLocal(mainDestUrl, kvas.JsonExt)
 	if err != nil {
 		return missingIdSet, mda.EndWithError(err)
 	}
 
-	kvDetail, err := kvas.NewJsonLocal(detailDestUrl)
+	kvDetail, err := kvas.ConnectLocal(detailDestUrl, kvas.JsonExt)
 	if err != nil {
 		return missingIdSet, mda.EndWithError(err)
 	}
 
-	for _, id := range kvMain.All() {
-		if !kvDetail.Contains(id) {
+	for _, id := range kvMain.Keys() {
+		if !kvDetail.Has(id) {
 			nod.Log("adding missing %s: #%s", detailPt, id)
 			missingIdSet.Add(id)
 		}

@@ -3,7 +3,7 @@ package cli
 import (
 	"fmt"
 	"github.com/arelate/vangogh_api/cli/expand"
-	"github.com/arelate/vangogh_extracts"
+	"github.com/arelate/vangogh_properties"
 	"github.com/arelate/vangogh_urls"
 	"github.com/boggydigital/gost"
 	"github.com/boggydigital/nod"
@@ -20,15 +20,15 @@ func Digest(property string) error {
 	da := nod.Begin("digesting...")
 	defer da.End()
 
-	exl, err := vangogh_extracts.NewList(property)
+	rxa, err := vangogh_properties.ConnectReduxAssets(property)
 	if err != nil {
 		return err
 	}
 
 	distValues := make(map[string]int, 0)
 
-	for _, id := range exl.All(property) {
-		values, ok := exl.GetAll(property, id)
+	for _, id := range rxa.Keys(property) {
+		values, ok := rxa.GetAllValues(property, id)
 		if !ok || len(values) == 0 {
 			continue
 		}

@@ -2,7 +2,6 @@ package extract
 
 import (
 	"github.com/arelate/gog_atu"
-	"github.com/arelate/vangogh_extracts"
 	"github.com/arelate/vangogh_products"
 	"github.com/arelate/vangogh_properties"
 	"github.com/arelate/vangogh_values"
@@ -16,7 +15,7 @@ func Orders(modifiedAfter int64) error {
 	oa := nod.NewProgress(" %s...", vangogh_properties.GOGOrderDate)
 	defer oa.End()
 
-	exl, err := vangogh_extracts.NewList(vangogh_properties.GOGOrderDate)
+	rxa, err := vangogh_properties.ConnectReduxAssets(vangogh_properties.GOGOrderDate)
 	if err != nil {
 		return oa.EndWithError(err)
 	}
@@ -32,7 +31,7 @@ func Orders(modifiedAfter int64) error {
 	if modifiedAfter > 0 {
 		modifiedOrders = vrOrders.ModifiedAfter(modifiedAfter, false)
 	} else {
-		modifiedOrders = vrOrders.All()
+		modifiedOrders = vrOrders.Keys()
 	}
 
 	oa.TotalInt(len(modifiedOrders))
@@ -57,7 +56,7 @@ func Orders(modifiedAfter int64) error {
 		oa.Increment()
 	}
 
-	if err := exl.SetMany(vangogh_properties.GOGOrderDate, gogOrderDates); err != nil {
+	if err := rxa.BatchReplaceValues(vangogh_properties.GOGOrderDate, gogOrderDates); err != nil {
 		return oa.EndWithError(err)
 	}
 

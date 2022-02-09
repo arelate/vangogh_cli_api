@@ -5,12 +5,12 @@ import (
 	"github.com/arelate/gog_atu"
 	"github.com/arelate/vangogh_api/cli/url_helpers"
 	"github.com/arelate/vangogh_downloads"
-	"github.com/arelate/vangogh_extracts"
 	"github.com/arelate/vangogh_products"
 	"github.com/arelate/vangogh_properties"
 	"github.com/arelate/vangogh_urls"
 	"github.com/arelate/vangogh_values"
 	"github.com/boggydigital/gost"
+	"github.com/boggydigital/kvas"
 	"github.com/boggydigital/nod"
 	"math"
 	"net/url"
@@ -44,7 +44,7 @@ func Cleanup(
 	langCodes []string,
 	all, test bool) error {
 
-	exl, err := vangogh_extracts.NewList(
+	rxa, err := vangogh_properties.ConnectReduxAssets(
 		vangogh_properties.SlugProperty,
 		vangogh_properties.NativeLanguageNameProperty,
 		vangogh_properties.LocalManualUrl)
@@ -60,11 +60,11 @@ func Cleanup(
 		if err != nil {
 			return err
 		}
-		idSet.Add(vrDetails.All()...)
+		idSet.Add(vrDetails.Keys()...)
 	}
 
 	cd := &cleanupDelegate{
-		exl:  exl,
+		rxa:  rxa,
 		all:  all,
 		test: test,
 	}
@@ -72,7 +72,7 @@ func Cleanup(
 	if err := vangogh_downloads.Map(
 		idSet,
 		mt,
-		exl,
+		rxa,
 		operatingSystems,
 		downloadTypes,
 		langCodes,
@@ -106,7 +106,7 @@ func moveToRecycleBin(fp string) error {
 }
 
 type cleanupDelegate struct {
-	exl        *vangogh_extracts.ExtractsList
+	rxa        kvas.ReduxAssets
 	all        bool
 	test       bool
 	totalBytes int64
@@ -117,7 +117,7 @@ func (cd *cleanupDelegate) Process(_ string, slug string, list vangogh_downloads
 	csa := nod.QueueBegin(slug)
 	defer csa.End()
 
-	if err := cd.exl.AssertSupport(vangogh_properties.LocalManualUrl); err != nil {
+	if err := cd.rxa.IsSupported(vangogh_properties.LocalManualUrl); err != nil {
 		return csa.EndWithError(err)
 	}
 
@@ -135,7 +135,7 @@ func (cd *cleanupDelegate) Process(_ string, slug string, list vangogh_downloads
 	}
 
 	for _, dl := range list {
-		if localFilename, ok := cd.exl.Get(vangogh_properties.LocalManualUrl, dl.ManualUrl); ok {
+		if localFilename, ok := cd.rxa.GetFirstVal(vangogh_properties.LocalManualUrl, dl.ManualUrl); ok {
 			//local filenames are saved as relative to root downloads folder (e.g. s/slug/local_filename)
 			//so filepath.Rel would trim to local_filename (or dlc/local_filename, extra/local_filename)
 			relFilename, err := filepath.Rel(pDir, localFilename)

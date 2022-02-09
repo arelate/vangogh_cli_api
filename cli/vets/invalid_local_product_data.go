@@ -3,7 +3,6 @@ package vets
 import (
 	"fmt"
 	"github.com/arelate/gog_atu"
-	"github.com/arelate/vangogh_extracts"
 	"github.com/arelate/vangogh_products"
 	"github.com/arelate/vangogh_properties"
 	"github.com/arelate/vangogh_values"
@@ -41,7 +40,7 @@ func InvalidLocalProductData(mt gog_atu.Media, fix bool) error {
 			continue
 		}
 
-		allProducts := vr.All()
+		allProducts := vr.Keys()
 
 		pta.TotalInt(len(allProducts))
 
@@ -51,7 +50,7 @@ func InvalidLocalProductData(mt gog_atu.Media, fix bool) error {
 				invalidProducts[pt] = append(invalidProducts[pt], id)
 				dataProblems = true
 				if fix {
-					if err := vr.Remove(id); err != nil {
+					if _, err := vr.Cut(id); err != nil {
 						return err
 					}
 				}
@@ -65,7 +64,7 @@ func InvalidLocalProductData(mt gog_atu.Media, fix bool) error {
 	if !dataProblems {
 		ilpa.EndWithResult("data seems ok")
 	} else {
-		exl, err := vangogh_extracts.NewList(vangogh_properties.TitleProperty)
+		rxa, err := vangogh_properties.ConnectReduxAssets(vangogh_properties.TitleProperty)
 		if err != nil {
 			return err
 		}
@@ -78,7 +77,7 @@ func InvalidLocalProductData(mt gog_atu.Media, fix bool) error {
 			summary[ptStr] = make([]string, len(ids))
 			for i := 0; i < len(ids); i++ {
 				prodStr := ids[i]
-				if title, ok := exl.Get(vangogh_properties.TitleProperty, ids[i]); ok {
+				if title, ok := rxa.GetFirstVal(vangogh_properties.TitleProperty, ids[i]); ok {
 					prodStr = fmt.Sprintf("%s %s", prodStr, title)
 				}
 				summary[ptStr][i] = prodStr

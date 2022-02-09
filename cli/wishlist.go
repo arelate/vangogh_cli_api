@@ -115,7 +115,7 @@ func remoteWishlistCommand(
 	rwca.TotalInt(len(ids))
 
 	for _, id := range ids {
-		if !vrStoreProducts.Contains(id) {
+		if !vrStoreProducts.Has(id) {
 			continue
 		}
 		wUrl := wishlistUrl(id)

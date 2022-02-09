@@ -5,7 +5,6 @@ import (
 	"github.com/arelate/vangogh_api/cli/itemize"
 	"github.com/arelate/vangogh_api/cli/url_helpers"
 	"github.com/arelate/vangogh_downloads"
-	"github.com/arelate/vangogh_extracts"
 	"github.com/arelate/vangogh_products"
 	"github.com/arelate/vangogh_properties"
 	"github.com/arelate/vangogh_urls"
@@ -43,7 +42,7 @@ func Size(
 	sa := nod.NewProgress("estimating downloads size...")
 	defer sa.End()
 
-	exl, err := vangogh_extracts.NewList(
+	rxa, err := vangogh_properties.ConnectReduxAssets(
 		vangogh_properties.LocalManualUrl,
 		vangogh_properties.NativeLanguageNameProperty,
 		vangogh_properties.SlugProperty,
@@ -53,7 +52,7 @@ func Size(
 	}
 
 	if missing {
-		missingIds, err := itemize.MissingLocalDownloads(mt, exl, operatingSystems, downloadTypes, langCodes)
+		missingIds, err := itemize.MissingLocalDownloads(mt, rxa, operatingSystems, downloadTypes, langCodes)
 		if err != nil {
 			return sa.EndWithError(err)
 		}
@@ -71,7 +70,7 @@ func Size(
 		if err != nil {
 			return sa.EndWithError(err)
 		}
-		idSet.Add(vrDetails.All()...)
+		idSet.Add(vrDetails.Keys()...)
 	}
 
 	if idSet.Len() == 0 {
@@ -86,7 +85,7 @@ func Size(
 	if err := vangogh_downloads.Map(
 		idSet,
 		mt,
-		exl,
+		rxa,
 		operatingSystems,
 		downloadTypes,
 		langCodes,

@@ -20,7 +20,7 @@ func AccountProductsUpdates(mt gog_atu.Media) (gost.StrSet, error) {
 		return updatesSet, apua.EndWithError(err)
 	}
 
-	for _, page := range vrAccountPages.All() {
+	for _, page := range vrAccountPages.Keys() {
 		accountPage, err := vrAccountPages.AccountPage(page)
 		if err != nil {
 			return updatesSet, apua.EndWithError(err)

@@ -2,7 +2,6 @@ package cli
 
 import (
 	"github.com/arelate/vangogh_api/cli/expand"
-	"github.com/arelate/vangogh_extracts"
 	"github.com/arelate/vangogh_properties"
 	"github.com/arelate/vangogh_urls"
 	"github.com/boggydigital/gost"
@@ -35,12 +34,12 @@ func Search(query map[string][]string) error {
 		propSet.Add(qp)
 	}
 
-	exl, err := vangogh_extracts.NewList(propSet.All()...)
+	rxa, err := vangogh_properties.ConnectReduxAssets(propSet.All()...)
 	if err != nil {
 		return sa.EndWithError(err)
 	}
 
-	results := exl.Search(query, true)
+	results := rxa.Match(query, true)
 
 	//expand query properties for use in printInfo filter
 	//since it's not aware of collapsed/expanded properties concept
@@ -66,7 +65,7 @@ func Search(query map[string][]string) error {
 		propertyFilter,
 		//similarly for propertyFilter (see comment above) - expand all properties to display
 		vangogh_properties.ExpandAll(propSet.All()),
-		exl)
+		rxa)
 
 	if err != nil {
 		return sa.EndWithError(err)

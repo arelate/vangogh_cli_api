@@ -9,13 +9,13 @@ import (
 	"github.com/arelate/vangogh_api/cli/url_helpers"
 	"github.com/arelate/vangogh_api/cli/validation"
 	"github.com/arelate/vangogh_downloads"
-	"github.com/arelate/vangogh_extracts"
 	"github.com/arelate/vangogh_products"
 	"github.com/arelate/vangogh_properties"
 	"github.com/arelate/vangogh_urls"
 	"github.com/arelate/vangogh_values"
 	"github.com/boggydigital/dolo"
 	"github.com/boggydigital/gost"
+	"github.com/boggydigital/kvas"
 	"github.com/boggydigital/nod"
 	"net/url"
 	"os"
@@ -55,7 +55,7 @@ func Validate(
 	va := nod.NewProgress("validating...")
 	defer va.End()
 
-	exl, err := vangogh_extracts.NewList(
+	rxa, err := vangogh_properties.ConnectReduxAssets(
 		vangogh_properties.SlugProperty,
 		vangogh_properties.NativeLanguageNameProperty,
 		vangogh_properties.LocalManualUrl)
@@ -68,15 +68,15 @@ func Validate(
 		if err != nil {
 			return err
 		}
-		idSet.Add(vrDetails.All()...)
+		idSet.Add(vrDetails.Keys()...)
 	}
 
-	vd := &validateDelegate{exl: exl}
+	vd := &validateDelegate{rxa: rxa}
 
 	if err := vangogh_downloads.Map(
 		idSet,
 		mt,
-		exl,
+		rxa,
 		operatingSystems,
 		downloadTypes,
 		langCodes,
@@ -118,9 +118,9 @@ func maybeAddTopic(summary map[string][]string, tmpl string, col map[string]bool
 func validateManualUrl(
 	slug string,
 	dl *vangogh_downloads.Download,
-	exl *vangogh_extracts.ExtractsList) error {
+	rxa kvas.ReduxAssets) error {
 
-	if err := exl.AssertSupport(vangogh_properties.LocalManualUrl); err != nil {
+	if err := rxa.IsSupported(vangogh_properties.LocalManualUrl); err != nil {
 		return err
 	}
 
@@ -128,7 +128,7 @@ func validateManualUrl(
 	defer mua.End()
 
 	//local filenames are saved as relative to root downloads folder (e.g. s/slug/local_filename)
-	localFile, ok := exl.Get(vangogh_properties.LocalManualUrl, dl.ManualUrl)
+	localFile, ok := rxa.GetFirstVal(vangogh_properties.LocalManualUrl, dl.ManualUrl)
 	if !ok {
 		mua.EndWithResult(ErrUnresolvedManualUrl.Error())
 		return ErrUnresolvedManualUrl
@@ -200,7 +200,7 @@ func validateManualUrl(
 }
 
 type validateDelegate struct {
-	exl                 *vangogh_extracts.ExtractsList
+	rxa                 kvas.ReduxAssets
 	validated           map[string]bool
 	unresolvedManualUrl map[string]bool
 	missingDownloads    map[string]bool
@@ -236,7 +236,7 @@ func (vd *validateDelegate) Process(_, slug string, list vangogh_downloads.Downl
 	hasValidationTargets := false
 
 	for _, dl := range list {
-		if err := validateManualUrl(slug, &dl, vd.exl); errors.Is(err, ErrValidationNotSupported) {
+		if err := validateManualUrl(slug, &dl, vd.rxa); errors.Is(err, ErrValidationNotSupported) {
 			continue
 		} else if errors.Is(err, ErrMissingChecksum) {
 			vd.missingChecksum[slug] = true

@@ -63,7 +63,7 @@ func linkedGames(modifiedAfter int64) (gost.StrSet, error) {
 		lgs = append(lgs, girbg...)
 
 		for _, lid := range lgs {
-			if !vrApv2.Contains(lid) {
+			if !vrApv2.Has(lid) {
 				missingSet.Add(lid)
 			}
 		}

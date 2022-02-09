@@ -3,7 +3,6 @@ package cli
 import (
 	"github.com/arelate/vangogh_api/cli/expand"
 	"github.com/arelate/vangogh_api/cli/url_helpers"
-	"github.com/arelate/vangogh_extracts"
 	"github.com/arelate/vangogh_properties"
 	"github.com/arelate/vangogh_urls"
 	"github.com/boggydigital/gost"
@@ -42,16 +41,16 @@ func Info(idSet gost.StrSet, allText, images, videoId bool) error {
 		propSet.Add(vangogh_properties.VideoId()...)
 	}
 
-	exl, err := vangogh_extracts.NewList(propSet.All()...)
+	rxa, err := vangogh_properties.ConnectReduxAssets(propSet.All()...)
 	if err != nil {
 		return ia.EndWithError(err)
 	}
 
 	itp, err := expand.IdsToPropertyLists(
-		idSet.All(),
+		idSet,
 		nil,
 		propSet.All(),
-		exl)
+		rxa)
 
 	if err != nil {
 		return ia.EndWithError(err)

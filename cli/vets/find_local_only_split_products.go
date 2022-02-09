@@ -21,7 +21,7 @@ func findLocalOnlySplitProducts(pagedPt vangogh_products.ProductType, mt gog_atu
 		return nil, err
 	}
 
-	for _, id := range vrPaged.All() {
+	for _, id := range vrPaged.Keys() {
 		productGetter, err := vrPaged.ProductsGetter(id)
 		if err != nil {
 			return nil, err
@@ -37,7 +37,7 @@ func findLocalOnlySplitProducts(pagedPt vangogh_products.ProductType, mt gog_atu
 		return nil, err
 	}
 
-	splitIdSet := gost.NewStrSetWith(vrSplit.All()...)
+	splitIdSet := gost.NewStrSetWith(vrSplit.Keys()...)
 
 	return gost.NewStrSetWith(splitIdSet.Except(pagedIds)...), nil
 }

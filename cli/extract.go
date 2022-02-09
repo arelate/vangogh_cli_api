@@ -3,7 +3,6 @@ package cli
 import (
 	"github.com/arelate/gog_atu"
 	"github.com/arelate/vangogh_api/cli/extract"
-	"github.com/arelate/vangogh_extracts"
 	"github.com/arelate/vangogh_products"
 	"github.com/arelate/vangogh_properties"
 	"github.com/arelate/vangogh_urls"
@@ -37,7 +36,7 @@ func Extract(modifiedAfter int64, mt gog_atu.Media, properties []string) error {
 	ea := nod.Begin("extracting properties...")
 	defer ea.End()
 
-	exl, err := vangogh_extracts.NewList(propSet.All()...)
+	rxa, err := vangogh_properties.ConnectReduxAssets(propSet.All()...)
 	if err != nil {
 		return ea.EndWithError(err)
 	}
@@ -57,7 +56,7 @@ func Extract(modifiedAfter int64, mt gog_atu.Media, properties []string) error {
 		if modifiedAfter > 0 {
 			modifiedIds = vr.ModifiedAfter(modifiedAfter, false)
 		} else {
-			modifiedIds = vr.All()
+			modifiedIds = vr.Keys()
 		}
 
 		if len(modifiedIds) == 0 {
@@ -106,7 +105,7 @@ func Extract(modifiedAfter int64, mt gog_atu.Media, properties []string) error {
 			//	}
 			//}
 
-			if err := exl.SetMany(prop, extracts); err != nil {
+			if err := rxa.BatchReplaceValues(prop, extracts); err != nil {
 				return pta.EndWithError(err)
 			}
 		}
@@ -117,7 +116,7 @@ func Extract(modifiedAfter int64, mt gog_atu.Media, properties []string) error {
 	//language-names are extracted separately from general pipeline,
 	//given we'll be filling the blanks from api-products-v2 using
 	//GetLanguages property that returns map[string]string
-	langCodeSet, err := extract.GetLanguageCodes(exl)
+	langCodeSet, err := extract.GetLanguageCodes(rxa)
 	if err != nil {
 		return ea.EndWithError(err)
 	}

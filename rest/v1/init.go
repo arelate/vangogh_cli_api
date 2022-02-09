@@ -2,10 +2,10 @@ package v1
 
 import (
 	"github.com/arelate/gog_atu"
-	"github.com/arelate/vangogh_extracts"
 	"github.com/arelate/vangogh_products"
 	"github.com/arelate/vangogh_properties"
 	"github.com/arelate/vangogh_values"
+	"github.com/boggydigital/kvas"
 )
 
 type productTypeMedia struct {
@@ -19,7 +19,7 @@ type productTypeMediaSort struct {
 	desc bool
 }
 
-var exl *vangogh_extracts.ExtractsList
+var rxa kvas.ReduxAssets
 var valueReaders map[productTypeMedia]*vangogh_values.ValueReader
 var sortedIds map[productTypeMediaSort][]string
 var defaultSort = vangogh_properties.TitleProperty
@@ -27,7 +27,7 @@ var defaultSort = vangogh_properties.TitleProperty
 func Init() error {
 	var err error
 
-	exl, err = vangogh_extracts.NewList(vangogh_properties.Extracted()...)
+	rxa, err = vangogh_properties.ConnectReduxAssets(vangogh_properties.Extracted()...)
 	if err != nil {
 		return err
 	}

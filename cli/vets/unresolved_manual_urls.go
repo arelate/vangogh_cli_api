@@ -5,7 +5,6 @@ import (
 	"github.com/arelate/gog_atu"
 	"github.com/arelate/vangogh_api/cli/expand"
 	"github.com/arelate/vangogh_downloads"
-	"github.com/arelate/vangogh_extracts"
 	"github.com/arelate/vangogh_products"
 	"github.com/arelate/vangogh_properties"
 	"github.com/arelate/vangogh_values"
@@ -23,7 +22,7 @@ func UnresolvedManualUrls(
 	cumu := nod.NewProgress("checking unresolved manual-urls...")
 	defer cumu.End()
 
-	exl, err := vangogh_extracts.NewList(
+	rxa, err := vangogh_properties.ConnectReduxAssets(
 		vangogh_properties.TitleProperty,
 		vangogh_properties.NativeLanguageNameProperty,
 		vangogh_properties.LocalManualUrl)
@@ -36,7 +35,7 @@ func UnresolvedManualUrls(
 		return cumu.EndWithError(err)
 	}
 
-	allDetails := vrDetails.All()
+	allDetails := vrDetails.Keys()
 	unresolvedIds := gost.NewStrSet()
 
 	cumu.TotalInt(len(allDetails))
@@ -49,7 +48,7 @@ func UnresolvedManualUrls(
 			continue
 		}
 
-		downloadsList, err := vangogh_downloads.FromDetails(det, mt, exl)
+		downloadsList, err := vangogh_downloads.FromDetails(det, mt, rxa)
 		if err != nil {
 			cumu.Error(err)
 			cumu.Increment()
@@ -59,7 +58,7 @@ func UnresolvedManualUrls(
 		downloadsList = downloadsList.Only(operatingSystems, downloadTypes, langCodes)
 
 		for _, dl := range downloadsList {
-			if _, ok := exl.Get(vangogh_properties.LocalManualUrl, dl.ManualUrl); !ok {
+			if _, ok := rxa.GetFirstVal(vangogh_properties.LocalManualUrl, dl.ManualUrl); !ok {
 				unresolvedIds.Add(id)
 			}
 		}
@@ -72,10 +71,10 @@ func UnresolvedManualUrls(
 	} else {
 
 		summary, err := expand.IdsToPropertyLists(
-			unresolvedIds.All(),
+			unresolvedIds,
 			nil,
 			[]string{vangogh_properties.TitleProperty},
-			exl)
+			rxa)
 
 		heading := fmt.Sprintf("found %d problems:", unresolvedIds.Len())
 		if fix {

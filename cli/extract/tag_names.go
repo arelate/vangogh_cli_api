@@ -3,7 +3,6 @@ package extract
 import (
 	"fmt"
 	"github.com/arelate/gog_atu"
-	"github.com/arelate/vangogh_extracts"
 	"github.com/arelate/vangogh_products"
 	"github.com/arelate/vangogh_properties"
 	"github.com/arelate/vangogh_values"
@@ -21,7 +20,7 @@ func TagNames(mt gog_atu.Media) error {
 	}
 
 	const fpId = "1"
-	if !vrAccountPage.Contains(fpId) {
+	if !vrAccountPage.Has(fpId) {
 		err := fmt.Errorf("%s doesn't contain page %s", vangogh_products.AccountPage, fpId)
 		return tna.EndWithError(err)
 	}
@@ -31,7 +30,7 @@ func TagNames(mt gog_atu.Media) error {
 		return tna.EndWithError(err)
 	}
 
-	tagNameEx, err := vangogh_extracts.NewList(vangogh_properties.TagNameProperty)
+	tagNameEx, err := vangogh_properties.ConnectReduxAssets(vangogh_properties.TagNameProperty)
 	if err != nil {
 		return tna.EndWithError(err)
 	}
@@ -42,7 +41,7 @@ func TagNames(mt gog_atu.Media) error {
 		tagIdNames[tag.Id] = []string{tag.Name}
 	}
 
-	if err := tagNameEx.SetMany(vangogh_properties.TagNameProperty, tagIdNames); err != nil {
+	if err := tagNameEx.BatchReplaceValues(vangogh_properties.TagNameProperty, tagIdNames); err != nil {
 		return tna.EndWithError(err)
 	}
 

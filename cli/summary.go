@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/arelate/gog_atu"
 	"github.com/arelate/vangogh_api/cli/hours"
-	"github.com/arelate/vangogh_extracts"
 	"github.com/arelate/vangogh_products"
 	"github.com/arelate/vangogh_properties"
 	"github.com/arelate/vangogh_urls"
@@ -85,7 +84,7 @@ func Summary(mt gog_atu.Media, since int64) error {
 		return nil
 	}
 
-	exl, err := vangogh_extracts.NewList(vangogh_properties.TitleProperty)
+	rxa, err := vangogh_properties.ConnectReduxAssets(vangogh_properties.TitleProperty)
 	if err != nil {
 		return sa.EndWithError(err)
 	}
@@ -95,7 +94,7 @@ func Summary(mt gog_atu.Media, since int64) error {
 	for cat, items := range updates {
 		summary[cat] = make([]string, 0, len(items))
 		for id := range items {
-			if title, ok := exl.Get(vangogh_properties.TitleProperty, id); ok {
+			if title, ok := rxa.GetFirstVal(vangogh_properties.TitleProperty, id); ok {
 				summary[cat] = append(summary[cat], fmt.Sprintf("%s %s", id, title))
 			}
 		}

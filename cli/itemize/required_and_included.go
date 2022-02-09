@@ -33,7 +33,7 @@ func RequiredAndIncluded(createdAfter int64) (gost.StrSet, error) {
 
 	for _, id := range newLicences {
 		// it's not guaranteed that a license would have an existing api-products-v2
-		if !vrApv2.Contains(id) {
+		if !vrApv2.Has(id) {
 			continue
 		}
 		//like in itemizeMissingIncludesGames, we can't use extracts here,
@@ -66,7 +66,7 @@ func RequiredAndIncluded(createdAfter int64) (gost.StrSet, error) {
 	//newLicSet contains all product types at the moment, we need to filter to GAME types only,
 	//since other types won't have account-products / details data available remotely
 	for _, id := range newLicSet.All() {
-		if !vrApv2.Contains(id) {
+		if !vrApv2.Has(id) {
 			newLicSet.Remove(id)
 			continue
 		}

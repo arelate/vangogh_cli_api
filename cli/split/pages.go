@@ -64,7 +64,7 @@ func Pages(sourcePt vangogh_products.ProductType, mt gog_atu.Media, timestamp in
 			return spa.EndWithError(err)
 		}
 
-		kvDetail, err := kvas.NewJsonLocal(detailDstUrl)
+		kvDetail, err := kvas.ConnectLocal(detailDstUrl, kvas.JsonExt)
 		if err != nil {
 			return spa.EndWithError(err)
 		}

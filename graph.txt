@@ -27,7 +27,7 @@ vangogh_urls@v0.1.14
 - vangogh_products
 - gost
 
-vangogh_values@v0.1.6
+vangogh_values@v0.1.7
 - kvas
 - gog_atu
 - vangogh_product
@@ -35,7 +35,7 @@ vangogh_values@v0.1.6
 - gost //indirect
 - vangogh_images //indirect
 
-vangogh_properties@v0.1.3
+vangogh_properties@v0.1.5
 - froth
 - gog_atu
 - vangogh_images
@@ -56,9 +56,8 @@ vangogh_extracts@v0.1.3
 - vangogh_products //indirect
 - vangogh_values //indirect
 
-vangogh_downloads@v0.1.5
+vangogh_downloads@v0.1.6
 - gog_atu
-- vangogh_extracts
 - vangogh_products
 - vangogh_properties
 - vangogh_urls
@@ -66,10 +65,9 @@ vangogh_downloads@v0.1.5
 - gost
 - nod
 - vangogh_images //indirect
-- froth //indirect
 - kvas //indirect
 
-vangogh_sets@v0.1.3
+vangogh_sets@v0.1.4
 - gost
 - vangogh_extracts
 - gog_atu //indirect
@@ -81,16 +79,13 @@ vangogh_sets@v0.1.3
 - froth //indirect
 - kvas //indirect
 
-vangogh_api@v0.2.4
+vangogh_api@v0.2.16
 - dolo
 - gost
 - kvas
 - nod
 - yt_urls
-- gog_auth
 - gog_atu
-- gog_atu
-- gog_urls
 - vangogh_downloads
 - vangogh_extracts
 - vangogh_images
@@ -99,6 +94,5 @@ vangogh_api@v0.2.4
 - vangogh_sets
 - vangogh_urls
 - vangogh_values
-- gog_auth_urls //indirect
 - froth //indirect
 - match_node //indirect

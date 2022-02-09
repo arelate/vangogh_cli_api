@@ -3,12 +3,12 @@ package itemize
 import (
 	"github.com/arelate/gog_atu"
 	"github.com/arelate/vangogh_downloads"
-	"github.com/arelate/vangogh_extracts"
 	"github.com/arelate/vangogh_products"
 	"github.com/arelate/vangogh_properties"
 	"github.com/arelate/vangogh_urls"
 	"github.com/arelate/vangogh_values"
 	"github.com/boggydigital/gost"
+	"github.com/boggydigital/kvas"
 	"github.com/boggydigital/nod"
 	"os"
 	"path/filepath"
@@ -16,7 +16,7 @@ import (
 
 func MissingLocalDownloads(
 	mt gog_atu.Media,
-	exl *vangogh_extracts.ExtractsList,
+	rxa kvas.ReduxAssets,
 	operatingSystems []vangogh_downloads.OperatingSystem,
 	downloadTypes []vangogh_downloads.DownloadType,
 	langCodes []string) (gost.StrSet, error) {
@@ -32,7 +32,7 @@ func MissingLocalDownloads(
 	mlda := nod.NewProgress(" itemizing missing local downloads")
 	defer mlda.End()
 
-	if err := exl.AssertSupport(
+	if err := rxa.IsSupported(
 		vangogh_properties.LocalManualUrl,
 		vangogh_properties.DownloadStatusError); err != nil {
 		return nil, mlda.EndWithError(err)
@@ -44,17 +44,17 @@ func MissingLocalDownloads(
 	}
 
 	//1
-	allIds := gost.NewStrSetWith(vrDetails.All()...)
+	allIds := gost.NewStrSetWith(vrDetails.Keys()...)
 
 	mlda.TotalInt(allIds.Len())
 
 	mdd := &missingDownloadsDelegate{
-		exl: exl}
+		rxa: rxa}
 
 	if err := vangogh_downloads.Map(
 		allIds,
 		mt,
-		exl,
+		rxa,
 		operatingSystems,
 		downloadTypes,
 		langCodes,
@@ -67,7 +67,7 @@ func MissingLocalDownloads(
 }
 
 type missingDownloadsDelegate struct {
-	exl        *vangogh_extracts.ExtractsList
+	rxa        kvas.ReduxAssets
 	missingIds gost.StrSet
 }
 
@@ -89,12 +89,12 @@ func (mdd *missingDownloadsDelegate) Process(id, slug string, list vangogh_downl
 
 		//skip manualUrls that have produced error status codes, while they're technically missing
 		//it's due to remote status for this URL, not a problem we can resolve locally
-		status, ok := mdd.exl.Get(vangogh_properties.DownloadStatusError, dl.ManualUrl)
+		status, ok := mdd.rxa.GetFirstVal(vangogh_properties.DownloadStatusError, dl.ManualUrl)
 		if ok && status == "404" {
 			continue
 		}
 
-		localFilename, ok := mdd.exl.Get(vangogh_properties.LocalManualUrl, dl.ManualUrl)
+		localFilename, ok := mdd.rxa.GetFirstVal(vangogh_properties.LocalManualUrl, dl.ManualUrl)
 		// 2
 		if !ok || localFilename == "" {
 			mdd.missingIds.Add(id)

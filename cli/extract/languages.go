@@ -2,28 +2,28 @@ package extract
 
 import (
 	"github.com/arelate/gog_atu"
-	"github.com/arelate/vangogh_extracts"
 	"github.com/arelate/vangogh_products"
 	"github.com/arelate/vangogh_properties"
 	"github.com/arelate/vangogh_values"
 	"github.com/boggydigital/gost"
+	"github.com/boggydigital/kvas"
 	"github.com/boggydigital/nod"
 )
 
-func GetLanguageCodes(exl *vangogh_extracts.ExtractsList) (gost.StrSet, error) {
+func GetLanguageCodes(rxa kvas.ReduxAssets) (gost.StrSet, error) {
 
 	lca := nod.Begin(" %s...", vangogh_properties.LanguageCodeProperty)
 	defer lca.EndWithResult("done")
 
 	langCodeSet := gost.NewStrSet()
 
-	if err := exl.AssertSupport(vangogh_properties.LanguageCodeProperty); err != nil {
+	if err := rxa.IsSupported(vangogh_properties.LanguageCodeProperty); err != nil {
 		return langCodeSet, lca.EndWithError(err)
 	}
 
 	//digest distinct languages codes
-	for _, id := range exl.All(vangogh_properties.LanguageCodeProperty) {
-		idCodes, ok := exl.GetAllRaw(vangogh_properties.LanguageCodeProperty, id)
+	for _, id := range rxa.Keys(vangogh_properties.LanguageCodeProperty) {
+		idCodes, ok := rxa.GetAllUnchangedValues(vangogh_properties.LanguageCodeProperty, id)
 		if !ok {
 			continue
 		}
@@ -37,14 +37,14 @@ func GetLanguageCodes(exl *vangogh_extracts.ExtractsList) (gost.StrSet, error) {
 
 func getMissingLanguageNames(
 	langCodeSet gost.StrSet,
-	exl *vangogh_extracts.ExtractsList,
+	rxa kvas.ReduxAssets,
 	property string) (gost.StrSet, error) {
 	missingLangs := gost.NewStrSetWith(langCodeSet.All()...)
 
 	// TODO: write a comment explaining all or nothing approach
 	//map all language codes to names and hide existing
 	for _, lc := range missingLangs.All() {
-		if _, ok := exl.Get(property, lc); ok {
+		if _, ok := rxa.GetFirstVal(property, lc); ok {
 			missingLangs.Hide(lc)
 		}
 	}
@@ -67,7 +67,7 @@ func LanguageNames(langCodeSet gost.StrSet) error {
 	lna := nod.Begin(" %s...", property)
 	defer lna.EndWithResult("done")
 
-	langNamesEx, err := vangogh_extracts.NewList(property)
+	langNamesEx, err := vangogh_properties.ConnectReduxAssets(property)
 	if err != nil {
 		return lna.EndWithError(err)
 	}
@@ -90,7 +90,7 @@ func LanguageNames(langCodeSet gost.StrSet) error {
 		return lna.EndWithError(err)
 	}
 
-	for _, id := range vrApiProductsV2.All() {
+	for _, id := range vrApiProductsV2.Keys() {
 		apv2, err := vrApiProductsV2.ApiProductV2(id)
 		if err != nil {
 			return lna.EndWithError(err)
@@ -103,7 +103,7 @@ func LanguageNames(langCodeSet gost.StrSet) error {
 		}
 	}
 
-	if err := langNamesEx.SetMany(property, names); err != nil {
+	if err := langNamesEx.BatchReplaceValues(property, names); err != nil {
 		return lna.EndWithError(err)
 	}
 
@@ -116,7 +116,7 @@ func NativeLanguageNames(langCodeSet gost.StrSet) error {
 	nlna := nod.Begin(" %s...", property)
 	defer nlna.End()
 
-	langNamesEx, err := vangogh_extracts.NewList(property)
+	langNamesEx, err := vangogh_properties.ConnectReduxAssets(property)
 	if err != nil {
 		return nlna.EndWithError(err)
 	}
@@ -139,7 +139,7 @@ func NativeLanguageNames(langCodeSet gost.StrSet) error {
 	missingNativeLangs = gost.NewStrSetWith(langCodeSet.All()...)
 	nativeNames := make(map[string][]string, 0)
 
-	for _, id := range vrApiProductsV1.All() {
+	for _, id := range vrApiProductsV1.Keys() {
 		apv1, err := vrApiProductsV1.ApiProductV1(id)
 		if err != nil {
 			return nlna.EndWithError(err)
@@ -152,7 +152,7 @@ func NativeLanguageNames(langCodeSet gost.StrSet) error {
 		}
 	}
 
-	if err := langNamesEx.SetMany(property, nativeNames); err != nil {
+	if err := langNamesEx.BatchReplaceValues(property, nativeNames); err != nil {
 		return nlna.EndWithError(err)
 	}
 

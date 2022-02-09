@@ -21,8 +21,8 @@ func getSortedIds(pt vangogh_products.ProductType, mt gog_atu.Media, sort string
 	if vr, err := getValueReader(pt, mt); err != nil {
 		return nil, err
 	} else {
-		idSet := vangogh_sets.IdSetWith(vr.All()...)
-		sortedIds[ptms] = idSet.Sort(exl, sort, desc)
+		idSet := vangogh_sets.IdSetWith(vr.Keys()...)
+		sortedIds[ptms] = idSet.Sort(rxa, sort, desc)
 	}
 
 	return sortedIds[ptms], nil

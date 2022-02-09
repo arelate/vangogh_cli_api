@@ -2,9 +2,9 @@ package expand
 
 import (
 	"fmt"
-	"github.com/arelate/vangogh_extracts"
 	"github.com/arelate/vangogh_properties"
 	"github.com/boggydigital/gost"
+	"github.com/boggydigital/kvas"
 	"sort"
 	"strings"
 )
@@ -15,17 +15,18 @@ const (
 )
 
 func IdsToPropertyLists(
-	ids []string,
+	//ids []string,
+	ids map[string]bool,
 	propertyFilter map[string][]string,
 	properties []string,
-	exl *vangogh_extracts.ExtractsList) (map[string][]string, error) {
+	rxa kvas.ReduxAssets) (map[string][]string, error) {
 
 	propSet := gost.NewStrSetWith(properties...)
 	propSet.Add(vangogh_properties.TitleProperty)
 
-	if exl == nil {
+	if rxa == nil {
 		var err error
-		exl, err = vangogh_extracts.NewList(propSet.All()...)
+		rxa, err = vangogh_properties.ConnectReduxAssets(propSet.All()...)
 		if err != nil {
 			return nil, err
 		}
@@ -33,8 +34,8 @@ func IdsToPropertyLists(
 
 	itps := make(map[string][]string)
 
-	for _, id := range ids {
-		itp, err := item(id, propertyFilter, propSet.All(), exl)
+	for id := range ids {
+		itp, err := item(id, propertyFilter, propSet.All(), rxa)
 		if err != nil {
 			return itps, err
 		}
@@ -50,13 +51,13 @@ func item(
 	id string,
 	propertyFilter map[string][]string,
 	properties []string,
-	exl *vangogh_extracts.ExtractsList) (map[string][]string, error) {
+	rxa kvas.ReduxAssets) (map[string][]string, error) {
 
-	if err := exl.AssertSupport(properties...); err != nil {
+	if err := rxa.IsSupported(properties...); err != nil {
 		return nil, err
 	}
 
-	title, ok := exl.Get(vangogh_properties.TitleProperty, id)
+	title, ok := rxa.GetFirstVal(vangogh_properties.TitleProperty, id)
 	if !ok {
 		return nil, nil
 	}
@@ -72,7 +73,7 @@ func item(
 			prop == vangogh_properties.TitleProperty {
 			continue
 		}
-		values, ok := exl.GetAll(prop, id)
+		values, ok := rxa.GetAllValues(prop, id)
 		if !ok || len(values) == 0 {
 			continue
 		}

@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/arelate/gog_atu"
 	"github.com/arelate/vangogh_api/cli/url_helpers"
-	"github.com/arelate/vangogh_extracts"
 	"github.com/arelate/vangogh_products"
 	"github.com/arelate/vangogh_properties"
 	"github.com/arelate/vangogh_values"
@@ -38,7 +37,7 @@ func Owned(idSet gost.StrSet) error {
 		vangogh_properties.SlugProperty,
 		vangogh_properties.IncludesGamesProperty)
 
-	exl, err := vangogh_extracts.NewList(propSet.All()...)
+	rxa, err := vangogh_properties.ConnectReduxAssets(propSet.All()...)
 	if err != nil {
 		return err
 	}
@@ -50,19 +49,19 @@ func Owned(idSet gost.StrSet) error {
 
 	for _, id := range idSet.All() {
 
-		if vrLicenceProducts.Contains(id) {
+		if vrLicenceProducts.Has(id) {
 			ownedSet.Add(id)
 			continue
 		}
 
-		includesGames, ok := exl.GetAllRaw(vangogh_properties.IncludesGamesProperty, id)
+		includesGames, ok := rxa.GetAllUnchangedValues(vangogh_properties.IncludesGamesProperty, id)
 		if !ok || len(includesGames) == 0 {
 			continue
 		}
 
 		ownAllIncludedGames := true
 		for _, igId := range includesGames {
-			ownAllIncludedGames = ownAllIncludedGames && vrLicenceProducts.Contains(igId)
+			ownAllIncludedGames = ownAllIncludedGames && vrLicenceProducts.Has(igId)
 			if !ownAllIncludedGames {
 				break
 			}
@@ -76,7 +75,7 @@ func Owned(idSet gost.StrSet) error {
 	ownSummary := make(map[string][]string)
 	ownSummary[ownedSection] = make([]string, 0, ownedSet.Len())
 	for id := range ownedSet {
-		if title, ok := exl.Get(vangogh_properties.TitleProperty, id); ok {
+		if title, ok := rxa.GetFirstVal(vangogh_properties.TitleProperty, id); ok {
 			ownSummary[ownedSection] = append(ownSummary[ownedSection], fmt.Sprintf("%s %s", id, title))
 		}
 	}
@@ -85,7 +84,7 @@ func Owned(idSet gost.StrSet) error {
 
 	ownSummary[notOwnedSection] = make([]string, 0, len(notOwned))
 	for _, id := range notOwned {
-		if title, ok := exl.Get(vangogh_properties.TitleProperty, id); ok {
+		if title, ok := rxa.GetFirstVal(vangogh_properties.TitleProperty, id); ok {
 			ownSummary[notOwnedSection] = append(ownSummary[notOwnedSection], fmt.Sprintf("%s %s", id, title))
 		}
 	}

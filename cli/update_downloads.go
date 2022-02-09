@@ -5,7 +5,6 @@ import (
 	"github.com/arelate/vangogh_api/cli/hours"
 	"github.com/arelate/vangogh_api/cli/itemize"
 	"github.com/arelate/vangogh_downloads"
-	"github.com/arelate/vangogh_extracts"
 	"github.com/arelate/vangogh_products"
 	"github.com/arelate/vangogh_properties"
 	"github.com/arelate/vangogh_urls"
@@ -84,13 +83,13 @@ func UpdateDownloads(
 	//filter updAccountProductIds to products that have already been downloaded
 	//note that this would exclude, for example, pre-order products automatic downloads
 	if updatesOnly {
-		exl, err := vangogh_extracts.NewList(vangogh_properties.SlugProperty)
+		rxa, err := vangogh_properties.ConnectReduxAssets(vangogh_properties.SlugProperty)
 		if err != nil {
 			return uda.EndWithError(err)
 		}
 
 		for _, id := range updAccountProductIds.All() {
-			ok, err := vangogh_downloads.ProductDownloaded(id, exl)
+			ok, err := vangogh_downloads.ProductDownloaded(id, rxa)
 			if err != nil {
 				return uda.EndWithError(err)
 			}

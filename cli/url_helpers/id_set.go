@@ -1,32 +1,32 @@
 package url_helpers
 
 import (
-	"github.com/arelate/vangogh_extracts"
 	"github.com/arelate/vangogh_properties"
 	"github.com/arelate/vangogh_urls"
 	"github.com/boggydigital/gost"
+	"github.com/boggydigital/kvas"
 	"net/url"
 )
 
-func SlugIds(exl *vangogh_extracts.ExtractsList, slugs []string) (slugId gost.StrSet, err error) {
+func SlugIds(rxa kvas.ReduxAssets, slugs []string) (slugId gost.StrSet, err error) {
 
-	if exl == nil && len(slugs) > 0 {
-		exl, err = vangogh_extracts.NewList(vangogh_properties.SlugProperty)
+	if rxa == nil && len(slugs) > 0 {
+		rxa, err = vangogh_properties.ConnectReduxAssets(vangogh_properties.SlugProperty)
 		if err != nil {
 			return nil, err
 		}
 	}
 
-	if exl != nil {
-		if err := exl.AssertSupport(vangogh_properties.SlugProperty); err != nil {
+	if rxa != nil {
+		if err := rxa.IsSupported(vangogh_properties.SlugProperty); err != nil {
 			return nil, err
 		}
 	}
 
 	idSet := gost.NewStrSet()
 	for _, slug := range slugs {
-		if slug != "" && exl != nil {
-			idSet.Add(exl.Search(map[string][]string{vangogh_properties.SlugProperty: {slug}}, true)...)
+		if slug != "" && rxa != nil {
+			idSet.AddSet(rxa.Match(map[string][]string{vangogh_properties.SlugProperty: {slug}}, true))
 		}
 	}
 

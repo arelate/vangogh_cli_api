@@ -12,14 +12,14 @@ func Data(ids []string, pt vangogh_products.ProductType, mt gog_atu.Media) error
 	if err != nil {
 		return err
 	}
-	kvPt, err := kvas.NewJsonLocal(ptDir)
+	kvPt, err := kvas.ConnectLocal(ptDir, kvas.JsonExt)
 	if err != nil {
 		return err
 	}
 
 	for _, id := range ids {
 		//log.Printf("remove %s (%s) id %s", pt, mt, id)
-		if err := kvPt.Remove(id); err != nil {
+		if _, err := kvPt.Cut(id); err != nil {
 			return err
 		}
 	}

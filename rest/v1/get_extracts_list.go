@@ -28,7 +28,7 @@ func GetExtractsList(w http.ResponseWriter, r *http.Request) {
 
 	properties := strings.Split(r.URL.Query().Get("property"), ",")
 	for _, prop := range properties {
-		if err := exl.AssertSupport(prop); err != nil {
+		if err := rxa.IsSupported(prop); err != nil {
 			http.Error(w, fmt.Sprintf("unsupported property %s", prop), 400)
 			return
 		}
@@ -50,7 +50,7 @@ func GetExtractsList(w http.ResponseWriter, r *http.Request) {
 		for i := from; i <= to; i++ {
 			propValues := make(map[string][]string)
 			for _, prop := range properties {
-				propValues[prop], _ = exl.GetAll(prop, sids[i])
+				propValues[prop], _ = rxa.GetAllValues(prop, sids[i])
 			}
 			values[sids[i]] = propValues
 		}

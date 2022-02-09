@@ -6,12 +6,12 @@ import (
 	"github.com/arelate/vangogh_api/cli/itemize"
 	"github.com/arelate/vangogh_api/cli/url_helpers"
 	"github.com/arelate/vangogh_downloads"
-	"github.com/arelate/vangogh_extracts"
 	"github.com/arelate/vangogh_properties"
 	"github.com/arelate/vangogh_urls"
 	"github.com/boggydigital/coost"
 	"github.com/boggydigital/dolo"
 	"github.com/boggydigital/gost"
+	"github.com/boggydigital/kvas"
 	"github.com/boggydigital/nod"
 	"net/http"
 	"net/url"
@@ -66,7 +66,7 @@ func GetDownloads(
 		return gda.EndWithError(fmt.Errorf("user is not logged in"))
 	}
 
-	exl, err := vangogh_extracts.NewList(
+	rxa, err := vangogh_properties.ConnectReduxAssets(
 		vangogh_properties.NativeLanguageNameProperty,
 		vangogh_properties.SlugProperty,
 		vangogh_properties.LocalManualUrl,
@@ -76,7 +76,7 @@ func GetDownloads(
 	}
 
 	if missing {
-		missingIds, err := itemize.MissingLocalDownloads(mt, exl, operatingSystems, downloadTypes, langCodes)
+		missingIds, err := itemize.MissingLocalDownloads(mt, rxa, operatingSystems, downloadTypes, langCodes)
 		if err != nil {
 			return gda.EndWithError(err)
 		}
@@ -90,7 +90,7 @@ func GetDownloads(
 	}
 
 	gdd := &getDownloadsDelegate{
-		exl:         exl,
+		rxa:         rxa,
 		tempDir:     tempDir,
 		forceUpdate: forceUpdate,
 	}
@@ -98,7 +98,7 @@ func GetDownloads(
 	if err := vangogh_downloads.Map(
 		idSet,
 		mt,
-		exl,
+		rxa,
 		operatingSystems,
 		downloadTypes,
 		langCodes,
@@ -113,7 +113,7 @@ func GetDownloads(
 }
 
 type getDownloadsDelegate struct {
-	exl         *vangogh_extracts.ExtractsList
+	rxa         kvas.ReduxAssets
 	tempDir     string
 	forceUpdate bool
 }
@@ -163,7 +163,7 @@ func (gdd *getDownloadsDelegate) downloadManualUrl(
 	//4 - for a given set of extensions - download validation file
 	//5 - download authorized session URL to a file
 	//6 - set association from manualUrl to a resolved filename
-	if err := gdd.exl.AssertSupport(
+	if err := gdd.rxa.IsSupported(
 		vangogh_properties.LocalManualUrl,
 		vangogh_properties.DownloadStatusError); err != nil {
 		return dmua.EndWithError(err)
@@ -171,7 +171,7 @@ func (gdd *getDownloadsDelegate) downloadManualUrl(
 
 	//1
 	if !gdd.forceUpdate {
-		if localPath, ok := gdd.exl.Get(vangogh_properties.LocalManualUrl, dl.ManualUrl); ok {
+		if localPath, ok := gdd.rxa.GetFirstVal(vangogh_properties.LocalManualUrl, dl.ManualUrl); ok {
 			//localFilename would be a relative path for a download - s/slug,
 			//and RelToAbs would convert this to downloads/s/slug
 			if _, err := os.Stat(vangogh_urls.DownloadDirRelToAbs(localPath)); err == nil {
@@ -191,7 +191,7 @@ func (gdd *getDownloadsDelegate) downloadManualUrl(
 	//check for error status codes and store them for the manualUrl to provide a hint that locally missing file
 	//is not a problem that can be solved locally (it's a remote source error)
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
-		if err := gdd.exl.Set(vangogh_properties.DownloadStatusError, dl.ManualUrl, strconv.Itoa(resp.StatusCode)); err != nil {
+		if err := gdd.rxa.ReplaceValues(vangogh_properties.DownloadStatusError, dl.ManualUrl, strconv.Itoa(resp.StatusCode)); err != nil {
 			return dmua.EndWithError(err)
 		}
 		return dmua.EndWithError(fmt.Errorf(resp.Status))
@@ -248,7 +248,7 @@ func (gdd *getDownloadsDelegate) downloadManualUrl(
 		return dmua.EndWithError(err)
 	}
 	//store association for ManualUrl (/downloads/en0installer) to local file (s/slug/local_filename)
-	if err := gdd.exl.Set(vangogh_properties.LocalManualUrl, dl.ManualUrl, path.Join(relDir, filename)); err != nil {
+	if err := gdd.rxa.ReplaceValues(vangogh_properties.LocalManualUrl, dl.ManualUrl, path.Join(relDir, filename)); err != nil {
 		return dmua.EndWithError(err)
 	}
 

@@ -17,8 +17,8 @@ import (
 
 //TODO: move this to kvas
 type kvasIndexSetter struct {
-	valueSet *kvas.ValueSet
-	ids      []string
+	keyValues kvas.KeyValues
+	ids       []string
 }
 
 func (kis *kvasIndexSetter) Len() int {
@@ -40,7 +40,7 @@ func (kis *kvasIndexSetter) Set(index int, src io.ReadCloser, results chan *dolo
 		errors <- dolo.NewIndexError(index, fmt.Errorf("id index out of bounds"))
 	}
 
-	if err := kis.valueSet.Set(kis.ids[index], src); err != nil {
+	if err := kis.keyValues.Set(kis.ids[index], src); err != nil {
 		errors <- dolo.NewIndexError(index, err)
 	}
 
@@ -48,7 +48,7 @@ func (kis *kvasIndexSetter) Set(index int, src io.ReadCloser, results chan *dolo
 }
 
 func (kis *kvasIndexSetter) Get(key string) (io.ReadCloser, error) {
-	return kis.valueSet.Get(key)
+	return kis.keyValues.Get(key)
 }
 
 func NewKvasIndexSetter(pt vangogh_products.ProductType, mt gog_atu.Media, ids []string) (*kvasIndexSetter, error) {
@@ -58,14 +58,14 @@ func NewKvasIndexSetter(pt vangogh_products.ProductType, mt gog_atu.Media, ids [
 		return nil, err
 	}
 
-	valueSet, err := kvas.NewJsonLocal(localDir)
+	valueSet, err := kvas.ConnectLocal(localDir, kvas.JsonExt)
 	if err != nil {
 		return nil, err
 	}
 
 	return &kvasIndexSetter{
-		valueSet: valueSet,
-		ids:      ids,
+		keyValues: valueSet,
+		ids:       ids,
 	}, nil
 }
 
