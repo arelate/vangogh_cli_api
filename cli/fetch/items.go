@@ -3,8 +3,7 @@ package fetch
 import (
 	"fmt"
 	"github.com/arelate/gog_atu"
-	"github.com/arelate/vangogh_products"
-	"github.com/arelate/vangogh_urls"
+	"github.com/arelate/vangogh_data"
 	"github.com/boggydigital/dolo"
 	"github.com/boggydigital/nod"
 	"net/http"
@@ -14,20 +13,20 @@ import (
 //Items fetches all individual data items (details, api-products-v1/v2) using provided ids
 func Items(
 	ids []string,
-	pt vangogh_products.ProductType,
+	pt vangogh_data.ProductType,
 	mt gog_atu.Media,
 	httpClient *http.Client) error {
 
 	ia := nod.NewProgress(" fetching %s (%s)...", pt, mt)
 	defer ia.End()
 
-	if !vangogh_products.SupportsGetItems(pt) {
+	if !vangogh_data.IsGetItemsSupported(pt) {
 		return ia.EndWithError(fmt.Errorf("getting %s is not supported", pt))
 	}
 
 	ia.TotalInt(len(ids))
 
-	sourceUrl, err := vangogh_urls.RemoteProductsUrl(pt)
+	sourceUrl, err := vangogh_data.RemoteProductsUrl(pt)
 	if err != nil {
 		return ia.EndWithError(err)
 	}

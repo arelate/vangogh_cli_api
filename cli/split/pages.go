@@ -4,21 +4,19 @@ import (
 	"bytes"
 	"encoding/json"
 	"github.com/arelate/gog_atu"
-	"github.com/arelate/vangogh_products"
-	"github.com/arelate/vangogh_urls"
-	"github.com/arelate/vangogh_values"
+	"github.com/arelate/vangogh_data"
 	"github.com/boggydigital/kvas"
 	"github.com/boggydigital/nod"
 	"sort"
 	"strconv"
 )
 
-func Pages(sourcePt vangogh_products.ProductType, mt gog_atu.Media, timestamp int64) error {
+func Pages(sourcePt vangogh_data.ProductType, mt gog_atu.Media, timestamp int64) error {
 
 	spa := nod.NewProgress(" splitting %s (%s)...", sourcePt, mt)
 	defer spa.End()
 
-	vrPaged, err := vangogh_values.NewReader(sourcePt, mt)
+	vrPaged, err := vangogh_data.NewReader(sourcePt, mt)
 	if err != nil {
 		return err
 	}
@@ -51,7 +49,7 @@ func Pages(sourcePt vangogh_products.ProductType, mt gog_atu.Media, timestamp in
 
 	for _, id := range modifiedIds {
 
-		splitPt := vangogh_products.SplitType(sourcePt)
+		splitPt := vangogh_data.SplitProductType(sourcePt)
 
 		productsGetter, err := vrPaged.ProductsGetter(id)
 
@@ -59,7 +57,7 @@ func Pages(sourcePt vangogh_products.ProductType, mt gog_atu.Media, timestamp in
 			return spa.EndWithError(err)
 		}
 
-		detailDstUrl, err := vangogh_urls.AbsLocalProductsDir(splitPt, mt)
+		detailDstUrl, err := vangogh_data.AbsLocalProductTypeDir(splitPt, mt)
 		if err != nil {
 			return spa.EndWithError(err)
 		}
@@ -71,7 +69,7 @@ func Pages(sourcePt vangogh_products.ProductType, mt gog_atu.Media, timestamp in
 
 		products := productsGetter.GetProducts()
 
-		if sourcePt == vangogh_products.Licences {
+		if sourcePt == vangogh_data.Licences {
 			spa.TotalInt(len(products))
 		}
 
@@ -83,12 +81,12 @@ func Pages(sourcePt vangogh_products.ProductType, mt gog_atu.Media, timestamp in
 			if err := kvDetail.Set(strconv.Itoa(product.GetId()), buf); err != nil {
 				return spa.EndWithError(err)
 			}
-			if sourcePt == vangogh_products.Licences {
+			if sourcePt == vangogh_data.Licences {
 				spa.Increment()
 			}
 		}
 
-		if sourcePt != vangogh_products.Licences {
+		if sourcePt != vangogh_data.Licences {
 			spa.Increment()
 		}
 	}

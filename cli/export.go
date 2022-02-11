@@ -4,7 +4,7 @@ import (
 	"archive/tar"
 	"compress/gzip"
 	"fmt"
-	"github.com/arelate/vangogh_urls"
+	"github.com/arelate/vangogh_data"
 	"github.com/boggydigital/nod"
 	"io"
 	"net/url"
@@ -15,7 +15,7 @@ import (
 
 func ExportHandler(u *url.URL) error {
 	return Export(
-		vangogh_urls.UrlValue(u, "temp-directory"))
+		vangogh_data.ValueFromUrl(u, "temp-directory"))
 }
 
 func Export(tempDir string) error {
@@ -47,7 +47,7 @@ func Export(tempDir string) error {
 
 	files := make([]string, 0)
 
-	if err := filepath.Walk(vangogh_urls.AbsMetadataDir(), func(f string, fi os.FileInfo, err error) error {
+	if err := filepath.Walk(vangogh_data.AbsMetadataDir(), func(f string, fi os.FileInfo, err error) error {
 		if fi.IsDir() {
 			return nil
 		}
@@ -71,7 +71,7 @@ func Export(tempDir string) error {
 			return ea.EndWithError(err)
 		}
 
-		rp, err := filepath.Rel(vangogh_urls.Pwd(), f)
+		rp, err := filepath.Rel(vangogh_data.Pwd(), f)
 		if err != nil {
 			return ea.EndWithError(err)
 		}

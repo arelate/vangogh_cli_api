@@ -2,13 +2,12 @@ package remove
 
 import (
 	"github.com/arelate/gog_atu"
-	"github.com/arelate/vangogh_products"
-	"github.com/arelate/vangogh_urls"
+	"github.com/arelate/vangogh_data"
 	"github.com/boggydigital/kvas"
 )
 
-func Data(ids []string, pt vangogh_products.ProductType, mt gog_atu.Media) error {
-	ptDir, err := vangogh_urls.AbsLocalProductsDir(pt, mt)
+func Data(ids []string, pt vangogh_data.ProductType, mt gog_atu.Media) error {
+	ptDir, err := vangogh_data.AbsLocalProductTypeDir(pt, mt)
 	if err != nil {
 		return err
 	}

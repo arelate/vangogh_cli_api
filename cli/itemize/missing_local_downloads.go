@@ -2,11 +2,7 @@ package itemize
 
 import (
 	"github.com/arelate/gog_atu"
-	"github.com/arelate/vangogh_downloads"
-	"github.com/arelate/vangogh_products"
-	"github.com/arelate/vangogh_properties"
-	"github.com/arelate/vangogh_urls"
-	"github.com/arelate/vangogh_values"
+	"github.com/arelate/vangogh_data"
 	"github.com/boggydigital/gost"
 	"github.com/boggydigital/kvas"
 	"github.com/boggydigital/nod"
@@ -17,14 +13,14 @@ import (
 func MissingLocalDownloads(
 	mt gog_atu.Media,
 	rxa kvas.ReduxAssets,
-	operatingSystems []vangogh_downloads.OperatingSystem,
-	downloadTypes []vangogh_downloads.DownloadType,
+	operatingSystems []vangogh_data.OperatingSystem,
+	downloadTypes []vangogh_data.DownloadType,
 	langCodes []string) (gost.StrSet, error) {
 	//enumerating missing local downloads is a bit more complicated than images and videos
 	//due to the fact that actual filenames are resolved when downloads are processed, so we can't compare
 	//manualUrls and available files, we need to resolve manualUrls to actual local filenames first.
 	//with this in mind we'll use different approach:
-	//1. for all vangogh_products.Details ids:
+	//1. for all vangogh_data.Details ids:
 	//2. check if there are unresolved manualUrls -> add to missingIds
 	//3. check if slug dir is not present in downloads -> add to missingIds
 	//4. check if any expected (resolved manualUrls) files are not present -> add to missingIds
@@ -33,12 +29,12 @@ func MissingLocalDownloads(
 	defer mlda.End()
 
 	if err := rxa.IsSupported(
-		vangogh_properties.LocalManualUrl,
-		vangogh_properties.DownloadStatusError); err != nil {
+		vangogh_data.LocalManualUrl,
+		vangogh_data.DownloadStatusError); err != nil {
 		return nil, mlda.EndWithError(err)
 	}
 
-	vrDetails, err := vangogh_values.NewReader(vangogh_products.Details, mt)
+	vrDetails, err := vangogh_data.NewReader(vangogh_data.Details, mt)
 	if err != nil {
 		return nil, mlda.EndWithError(err)
 	}
@@ -51,7 +47,7 @@ func MissingLocalDownloads(
 	mdd := &missingDownloadsDelegate{
 		rxa: rxa}
 
-	if err := vangogh_downloads.Map(
+	if err := vangogh_data.MapDownloads(
 		allIds,
 		mt,
 		rxa,
@@ -71,14 +67,14 @@ type missingDownloadsDelegate struct {
 	missingIds gost.StrSet
 }
 
-func (mdd *missingDownloadsDelegate) Process(id, slug string, list vangogh_downloads.DownloadsList) error {
+func (mdd *missingDownloadsDelegate) Process(id, slug string, list vangogh_data.DownloadsList) error {
 
 	if mdd.missingIds == nil {
 		mdd.missingIds = gost.NewStrSet()
 	}
 
 	//pDir = s/slug
-	relDir, err := vangogh_urls.RelProductDownloadsDir(slug)
+	relDir, err := vangogh_data.RelProductDownloadsDir(slug)
 	if err != nil {
 		return err
 	}
@@ -89,12 +85,12 @@ func (mdd *missingDownloadsDelegate) Process(id, slug string, list vangogh_downl
 
 		//skip manualUrls that have produced error status codes, while they're technically missing
 		//it's due to remote status for this URL, not a problem we can resolve locally
-		status, ok := mdd.rxa.GetFirstVal(vangogh_properties.DownloadStatusError, dl.ManualUrl)
+		status, ok := mdd.rxa.GetFirstVal(vangogh_data.DownloadStatusError, dl.ManualUrl)
 		if ok && status == "404" {
 			continue
 		}
 
-		localFilename, ok := mdd.rxa.GetFirstVal(vangogh_properties.LocalManualUrl, dl.ManualUrl)
+		localFilename, ok := mdd.rxa.GetFirstVal(vangogh_data.LocalManualUrl, dl.ManualUrl)
 		// 2
 		if !ok || localFilename == "" {
 			mdd.missingIds.Add(id)
@@ -115,7 +111,7 @@ func (mdd *missingDownloadsDelegate) Process(id, slug string, list vangogh_downl
 	}
 
 	// 3
-	absDir, err := vangogh_urls.AbsProductDownloadsDir(slug)
+	absDir, err := vangogh_data.AbsProductDownloadsDir(slug)
 	if err != nil {
 		return err
 	}
@@ -124,7 +120,7 @@ func (mdd *missingDownloadsDelegate) Process(id, slug string, list vangogh_downl
 		return nil
 	}
 
-	presentFiles, err := vangogh_urls.LocalSlugDownloads(slug)
+	presentFiles, err := vangogh_data.LocalSlugDownloads(slug)
 	if err != nil {
 		return nil
 	}

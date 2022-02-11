@@ -4,10 +4,7 @@ import (
 	"github.com/arelate/gog_atu"
 	"github.com/arelate/vangogh_api/cli/hours"
 	"github.com/arelate/vangogh_api/cli/itemize"
-	"github.com/arelate/vangogh_downloads"
-	"github.com/arelate/vangogh_products"
-	"github.com/arelate/vangogh_properties"
-	"github.com/arelate/vangogh_urls"
+	"github.com/arelate/vangogh_data"
 	"github.com/boggydigital/nod"
 	"net/url"
 	"time"
@@ -15,26 +12,26 @@ import (
 
 func UpdateDownloadsHandler(u *url.URL) error {
 
-	sha, err := hours.Atoi(vangogh_urls.UrlValue(u, "since-hours-ago"))
+	sha, err := hours.Atoi(vangogh_data.ValueFromUrl(u, "since-hours-ago"))
 	if err != nil {
 		return err
 	}
 	since := time.Now().Unix() - int64(sha*60*60)
 
 	return UpdateDownloads(
-		vangogh_urls.UrlMedia(u),
-		vangogh_downloads.UrlOperatingSystems(u),
-		vangogh_downloads.UrlDownloadTypes(u),
-		vangogh_urls.UrlValues(u, "language-code"),
+		vangogh_data.MediaFromUrl(u),
+		vangogh_data.OperatingSystemsFromUrl(u),
+		vangogh_data.DownloadTypesFromUrl(u),
+		vangogh_data.ValuesFromUrl(u, "language-code"),
 		since,
-		vangogh_urls.UrlValue(u, "temp-directory"),
-		vangogh_urls.UrlFlag(u, "updates-only"))
+		vangogh_data.ValueFromUrl(u, "temp-directory"),
+		vangogh_data.FlagFromUrl(u, "updates-only"))
 }
 
 func UpdateDownloads(
 	mt gog_atu.Media,
-	operatingSystems []vangogh_downloads.OperatingSystem,
-	downloadTypes []vangogh_downloads.DownloadType,
+	operatingSystems []vangogh_data.OperatingSystem,
+	downloadTypes []vangogh_data.DownloadType,
 	langCodes []string,
 	since int64,
 	tempDir string,
@@ -68,7 +65,7 @@ func UpdateDownloads(
 
 	//Additionally add modified details in case the sync was interrupted and
 	//account-products doesn't have .IsNew or .Updates > 0 items
-	modifiedDetails, err := itemize.Modified(since, vangogh_products.Details, mt)
+	modifiedDetails, err := itemize.Modified(since, vangogh_data.Details, mt)
 	if err != nil {
 		return uda.EndWithError(err)
 	}
@@ -83,13 +80,13 @@ func UpdateDownloads(
 	//filter updAccountProductIds to products that have already been downloaded
 	//note that this would exclude, for example, pre-order products automatic downloads
 	if updatesOnly {
-		rxa, err := vangogh_properties.ConnectReduxAssets(vangogh_properties.SlugProperty)
+		rxa, err := vangogh_data.ConnectReduxAssets(vangogh_data.SlugProperty)
 		if err != nil {
 			return uda.EndWithError(err)
 		}
 
 		for _, id := range updAccountProductIds.All() {
-			ok, err := vangogh_downloads.ProductDownloaded(id, rxa)
+			ok, err := vangogh_data.IsProductDownloaded(id, rxa)
 			if err != nil {
 				return uda.EndWithError(err)
 			}

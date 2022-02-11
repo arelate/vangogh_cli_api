@@ -2,9 +2,7 @@ package extract
 
 import (
 	"github.com/arelate/gog_atu"
-	"github.com/arelate/vangogh_products"
-	"github.com/arelate/vangogh_properties"
-	"github.com/arelate/vangogh_values"
+	"github.com/arelate/vangogh_data"
 	"github.com/boggydigital/gost"
 	"github.com/boggydigital/kvas"
 	"github.com/boggydigital/nod"
@@ -12,18 +10,18 @@ import (
 
 func GetLanguageCodes(rxa kvas.ReduxAssets) (gost.StrSet, error) {
 
-	lca := nod.Begin(" %s...", vangogh_properties.LanguageCodeProperty)
+	lca := nod.Begin(" %s...", vangogh_data.LanguageCodeProperty)
 	defer lca.EndWithResult("done")
 
 	langCodeSet := gost.NewStrSet()
 
-	if err := rxa.IsSupported(vangogh_properties.LanguageCodeProperty); err != nil {
+	if err := rxa.IsSupported(vangogh_data.LanguageCodeProperty); err != nil {
 		return langCodeSet, lca.EndWithError(err)
 	}
 
 	//digest distinct languages codes
-	for _, id := range rxa.Keys(vangogh_properties.LanguageCodeProperty) {
-		idCodes, ok := rxa.GetAllUnchangedValues(vangogh_properties.LanguageCodeProperty, id)
+	for _, id := range rxa.Keys(vangogh_data.LanguageCodeProperty) {
+		idCodes, ok := rxa.GetAllUnchangedValues(vangogh_data.LanguageCodeProperty, id)
 		if !ok {
 			continue
 		}
@@ -62,12 +60,12 @@ func updateLanguageNames(languages map[string]string, missingNames gost.StrSet, 
 }
 
 func LanguageNames(langCodeSet gost.StrSet) error {
-	property := vangogh_properties.LanguageNameProperty
+	property := vangogh_data.LanguageNameProperty
 
 	lna := nod.Begin(" %s...", property)
 	defer lna.EndWithResult("done")
 
-	langNamesEx, err := vangogh_properties.ConnectReduxAssets(property)
+	langNamesEx, err := vangogh_data.ConnectReduxAssets(property)
 	if err != nil {
 		return lna.EndWithError(err)
 	}
@@ -85,7 +83,7 @@ func LanguageNames(langCodeSet gost.StrSet) error {
 	names := make(map[string][]string, 0)
 
 	//iterate through api-products-v1 until we fill all native names
-	vrApiProductsV2, err := vangogh_values.NewReader(vangogh_products.ApiProductsV2, gog_atu.Game)
+	vrApiProductsV2, err := vangogh_data.NewReader(vangogh_data.ApiProductsV2, gog_atu.Game)
 	if err != nil {
 		return lna.EndWithError(err)
 	}
@@ -111,12 +109,12 @@ func LanguageNames(langCodeSet gost.StrSet) error {
 }
 
 func NativeLanguageNames(langCodeSet gost.StrSet) error {
-	property := vangogh_properties.NativeLanguageNameProperty
+	property := vangogh_data.NativeLanguageNameProperty
 
 	nlna := nod.Begin(" %s...", property)
 	defer nlna.End()
 
-	langNamesEx, err := vangogh_properties.ConnectReduxAssets(property)
+	langNamesEx, err := vangogh_data.ConnectReduxAssets(property)
 	if err != nil {
 		return nlna.EndWithError(err)
 	}
@@ -131,7 +129,7 @@ func NativeLanguageNames(langCodeSet gost.StrSet) error {
 		return nil
 	}
 
-	vrApiProductsV1, err := vangogh_values.NewReader(vangogh_products.ApiProductsV1, gog_atu.Game)
+	vrApiProductsV1, err := vangogh_data.NewReader(vangogh_data.ApiProductsV1, gog_atu.Game)
 	if err != nil {
 		return nlna.EndWithError(err)
 	}

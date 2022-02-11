@@ -3,9 +3,7 @@ package vets
 import (
 	"fmt"
 	"github.com/arelate/gog_atu"
-	"github.com/arelate/vangogh_products"
-	"github.com/arelate/vangogh_properties"
-	"github.com/arelate/vangogh_values"
+	"github.com/arelate/vangogh_data"
 	"github.com/boggydigital/nod"
 )
 
@@ -13,10 +11,10 @@ func InvalidLocalProductData(mt gog_atu.Media, fix bool) error {
 	ilpa := nod.NewProgress("checking data for invalid products...")
 	defer ilpa.End()
 
-	invalidProducts := make(map[vangogh_products.ProductType][]string)
+	invalidProducts := make(map[vangogh_data.ProductType][]string)
 
-	allProductTypes := make(map[vangogh_products.ProductType]bool)
-	for _, pt := range append(vangogh_products.Remote(), vangogh_products.Local()...) {
+	allProductTypes := make(map[vangogh_data.ProductType]bool)
+	for _, pt := range append(vangogh_data.RemoteProducts(), vangogh_data.LocalProducts()...) {
 		allProductTypes[pt] = true
 	}
 
@@ -26,7 +24,7 @@ func InvalidLocalProductData(mt gog_atu.Media, fix bool) error {
 
 	for pt := range allProductTypes {
 
-		if pt == vangogh_products.LicenceProducts {
+		if pt == vangogh_data.LicenceProducts {
 			continue
 		}
 
@@ -34,7 +32,7 @@ func InvalidLocalProductData(mt gog_atu.Media, fix bool) error {
 
 		pta := nod.NewProgress(" checking %s...", pt)
 
-		vr, err := vangogh_values.NewReader(pt, mt)
+		vr, err := vangogh_data.NewReader(pt, mt)
 		if err != nil {
 			_ = pta.EndWithError(err)
 			continue
@@ -64,7 +62,7 @@ func InvalidLocalProductData(mt gog_atu.Media, fix bool) error {
 	if !dataProblems {
 		ilpa.EndWithResult("data seems ok")
 	} else {
-		rxa, err := vangogh_properties.ConnectReduxAssets(vangogh_properties.TitleProperty)
+		rxa, err := vangogh_data.ConnectReduxAssets(vangogh_data.TitleProperty)
 		if err != nil {
 			return err
 		}
@@ -77,7 +75,7 @@ func InvalidLocalProductData(mt gog_atu.Media, fix bool) error {
 			summary[ptStr] = make([]string, len(ids))
 			for i := 0; i < len(ids); i++ {
 				prodStr := ids[i]
-				if title, ok := rxa.GetFirstVal(vangogh_properties.TitleProperty, ids[i]); ok {
+				if title, ok := rxa.GetFirstVal(vangogh_data.TitleProperty, ids[i]); ok {
 					prodStr = fmt.Sprintf("%s %s", prodStr, title)
 				}
 				summary[ptStr][i] = prodStr

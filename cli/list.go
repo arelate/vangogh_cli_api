@@ -6,10 +6,7 @@ import (
 	"github.com/arelate/vangogh_api/cli/expand"
 	"github.com/arelate/vangogh_api/cli/hours"
 	"github.com/arelate/vangogh_api/cli/url_helpers"
-	"github.com/arelate/vangogh_products"
-	"github.com/arelate/vangogh_properties"
-	"github.com/arelate/vangogh_urls"
-	"github.com/arelate/vangogh_values"
+	"github.com/arelate/vangogh_data"
 	"github.com/boggydigital/gost"
 	"github.com/boggydigital/nod"
 	"net/url"
@@ -22,7 +19,7 @@ func ListHandler(u *url.URL) error {
 		return err
 	}
 
-	sha, err := hours.Atoi(vangogh_urls.UrlValue(u, "since-hours-ago"))
+	sha, err := hours.Atoi(vangogh_data.ValueFromUrl(u, "since-hours-ago"))
 	if err != nil {
 		return err
 	}
@@ -35,9 +32,9 @@ func ListHandler(u *url.URL) error {
 	return List(
 		idSet,
 		since,
-		vangogh_urls.UrlProductType(u),
-		vangogh_urls.UrlMedia(u),
-		vangogh_urls.UrlProperties(u))
+		vangogh_data.ProductTypeFromUrl(u),
+		vangogh_data.MediaFromUrl(u),
+		vangogh_data.PropertiesFromUrl(u))
 }
 
 //List prints products of a certain type and media.
@@ -46,14 +43,14 @@ func ListHandler(u *url.URL) error {
 func List(
 	idSet gost.StrSet,
 	modifiedSince int64,
-	pt vangogh_products.ProductType,
+	pt vangogh_data.ProductType,
 	mt gog_atu.Media,
 	properties []string) error {
 
 	la := nod.Begin("listing %s...", pt)
 	defer la.End()
 
-	if !vangogh_products.Valid(pt) {
+	if !vangogh_data.IsValidProductType(pt) {
 		return la.EndWithError(fmt.Errorf("can't list invalid product type %s", pt))
 	}
 	if !gog_atu.ValidMedia(mt) {
@@ -65,14 +62,14 @@ func List(
 	//if no properties have been provided - print ID, Title
 	if propSet.Len() == 0 {
 		propSet.Add(
-			vangogh_properties.IdProperty,
-			vangogh_properties.TitleProperty)
+			vangogh_data.IdProperty,
+			vangogh_data.TitleProperty)
 	}
 
 	//if Title property has not been provided - add it.
 	//we'll always print the title.
 	//same goes for sort-by property
-	propSet.Add(vangogh_properties.TitleProperty)
+	propSet.Add(vangogh_data.TitleProperty)
 
 	//rules for collecting IDs to print:
 	//1. start with user provided IDs
@@ -81,7 +78,7 @@ func List(
 	//4. if no IDs have been collected and the request have not provided createdAfter or modifiedAfter:
 	// add all product IDs
 
-	vr, err := vangogh_values.NewReader(pt, mt)
+	vr, err := vangogh_data.NewReader(pt, mt)
 	if err != nil {
 		return la.EndWithError(err)
 	}
@@ -101,7 +98,7 @@ func List(
 	itp, err := expand.IdsToPropertyLists(
 		idSet,
 		nil,
-		vangogh_properties.Supported(pt, properties),
+		vangogh_data.SupportedPropertiesOnly(pt, properties),
 		nil)
 
 	if err != nil {

@@ -32,7 +32,7 @@ vangogh_values@v0.1.7
 - gost //indirect
 - vangogh_images //indirect
 
-vangogh_properties@v0.1.5
+vangogh_data@v0.1.5
 - froth
 - gog_atu
 - vangogh_images
@@ -45,7 +45,7 @@ vangogh_properties@v0.1.5
 vangogh_downloads@v0.1.6
 - gog_atu
 - vangogh_products
-- vangogh_properties
+- vangogh_data
 - vangogh_urls
 - vangogh_values
 - gost
@@ -59,7 +59,7 @@ vangogh_sets@v0.1.4
 - gog_atu //indirect
 - vangogh_images //indirect
 - vangogh_products //indirect
-- vangogh_properties //indirect
+- vangogh_data //indirect
 - vangogh_urls //indirect
 - vangogh_values //indirect
 - froth //indirect
@@ -76,7 +76,7 @@ vangogh_api@v0.2.16
 - vangogh_extracts
 - vangogh_images
 - vangogh_products
-- vangogh_properties
+- vangogh_data
 - vangogh_sets
 - vangogh_urls
 - vangogh_values

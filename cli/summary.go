@@ -4,47 +4,44 @@ import (
 	"fmt"
 	"github.com/arelate/gog_atu"
 	"github.com/arelate/vangogh_api/cli/hours"
-	"github.com/arelate/vangogh_products"
-	"github.com/arelate/vangogh_properties"
-	"github.com/arelate/vangogh_urls"
-	"github.com/arelate/vangogh_values"
+	"github.com/arelate/vangogh_data"
 	"github.com/boggydigital/nod"
 	"net/url"
 	"sort"
 	"time"
 )
 
-var filterNewProductTypes = map[vangogh_products.ProductType]bool{
-	vangogh_products.Orders: true,
+var filterNewProductTypes = map[vangogh_data.ProductType]bool{
+	vangogh_data.Orders: true,
 	//not all licence-products have associated api-products-v1/api-products-v2,
 	//so in some cases we won't get a meaningful information like a title
-	vangogh_products.LicenceProducts: true,
+	vangogh_data.LicenceProducts: true,
 	//both ApiProductsVx are not interesting since they correspond to store-products or account-products
-	vangogh_products.ApiProductsV1: true,
-	vangogh_products.ApiProductsV2: true,
+	vangogh_data.ApiProductsV1: true,
+	vangogh_data.ApiProductsV2: true,
 }
 
-var filterUpdatedProductTypes = map[vangogh_products.ProductType]bool{
+var filterUpdatedProductTypes = map[vangogh_data.ProductType]bool{
 	//most of the updates are price changes for a sale, not that interesting for recurring sync
-	vangogh_products.StoreProducts: true,
+	vangogh_data.StoreProducts: true,
 	// wishlist-products are basically store-products, so see above
-	vangogh_products.WishlistProducts: true,
+	vangogh_data.WishlistProducts: true,
 	//meaningful updates for account products come from details, not account-products
-	vangogh_products.AccountProducts: true,
+	vangogh_data.AccountProducts: true,
 	//same as above for those product types
-	vangogh_products.ApiProductsV1: true,
-	vangogh_products.ApiProductsV2: true,
+	vangogh_data.ApiProductsV1: true,
+	vangogh_data.ApiProductsV2: true,
 }
 
 func SummaryHandler(u *url.URL) error {
-	sha, err := hours.Atoi(vangogh_urls.UrlValue(u, "since-hours-ago"))
+	sha, err := hours.Atoi(vangogh_data.ValueFromUrl(u, "since-hours-ago"))
 	if err != nil {
 		return err
 	}
 	since := time.Now().Unix() - int64(sha*60*60)
 
 	return Summary(
-		vangogh_urls.UrlMedia(u),
+		vangogh_data.MediaFromUrl(u),
 		since)
 }
 
@@ -55,13 +52,13 @@ func Summary(mt gog_atu.Media, since int64) error {
 
 	updates := make(map[string]map[string]bool, 0)
 
-	for _, pt := range vangogh_products.Local() {
+	for _, pt := range vangogh_data.LocalProducts() {
 
 		if filterNewProductTypes[pt] {
 			continue
 		}
 
-		vr, err := vangogh_values.NewReader(pt, mt)
+		vr, err := vangogh_data.NewReader(pt, mt)
 		if err != nil {
 			return sa.EndWithError(err)
 		}
@@ -84,7 +81,7 @@ func Summary(mt gog_atu.Media, since int64) error {
 		return nil
 	}
 
-	rxa, err := vangogh_properties.ConnectReduxAssets(vangogh_properties.TitleProperty)
+	rxa, err := vangogh_data.ConnectReduxAssets(vangogh_data.TitleProperty)
 	if err != nil {
 		return sa.EndWithError(err)
 	}
@@ -94,7 +91,7 @@ func Summary(mt gog_atu.Media, since int64) error {
 	for cat, items := range updates {
 		summary[cat] = make([]string, 0, len(items))
 		for id := range items {
-			if title, ok := rxa.GetFirstVal(vangogh_properties.TitleProperty, id); ok {
+			if title, ok := rxa.GetFirstVal(vangogh_data.TitleProperty, id); ok {
 				summary[cat] = append(summary[cat], fmt.Sprintf("%s %s", id, title))
 			}
 		}
@@ -105,7 +102,7 @@ func Summary(mt gog_atu.Media, since int64) error {
 	return nil
 }
 
-func humanReadable(productTypes map[vangogh_products.ProductType]bool) []string {
+func humanReadable(productTypes map[vangogh_data.ProductType]bool) []string {
 	hrStrings := make(map[string]bool, 0)
 	for key, ok := range productTypes {
 		if !ok {

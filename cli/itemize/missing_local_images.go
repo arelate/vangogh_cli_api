@@ -1,21 +1,19 @@
 package itemize
 
 import (
-	"github.com/arelate/vangogh_images"
-	"github.com/arelate/vangogh_properties"
-	"github.com/arelate/vangogh_urls"
+	"github.com/arelate/vangogh_data"
 	"github.com/boggydigital/gost"
 	"github.com/boggydigital/kvas"
 	"github.com/boggydigital/nod"
 )
 
 type imageExtractsGetter struct {
-	imageType   vangogh_images.ImageType
+	imageType   vangogh_data.ImageType
 	reduxAssets kvas.ReduxAssets
 }
 
 func NewImageExtractsGetter(
-	it vangogh_images.ImageType,
+	it vangogh_data.ImageType,
 	rxa kvas.ReduxAssets) *imageExtractsGetter {
 	return &imageExtractsGetter{
 		imageType:   it,
@@ -24,19 +22,19 @@ func NewImageExtractsGetter(
 }
 
 func (ieg *imageExtractsGetter) GetImageIds(id string) ([]string, bool) {
-	return ieg.reduxAssets.GetAllValues(vangogh_properties.FromImageType(ieg.imageType), id)
+	return ieg.reduxAssets.GetAllValues(vangogh_data.PropertyFromImageType(ieg.imageType), id)
 }
 
 func MissingLocalImages(
-	it vangogh_images.ImageType,
+	it vangogh_data.ImageType,
 	rxa kvas.ReduxAssets,
 	localImageIds gost.StrSet) (gost.StrSet, error) {
 
-	all := rxa.Keys(vangogh_properties.FromImageType(it))
+	all := rxa.Keys(vangogh_data.PropertyFromImageType(it))
 
 	if localImageIds == nil {
 		var err error
-		if localImageIds, err = vangogh_urls.LocalImageIds(); err != nil {
+		if localImageIds, err = vangogh_data.LocalImageIds(); err != nil {
 			return nil, err
 		}
 	}

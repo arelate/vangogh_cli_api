@@ -8,11 +8,7 @@ import (
 	"github.com/arelate/gog_atu"
 	"github.com/arelate/vangogh_api/cli/url_helpers"
 	"github.com/arelate/vangogh_api/cli/validation"
-	"github.com/arelate/vangogh_downloads"
-	"github.com/arelate/vangogh_products"
-	"github.com/arelate/vangogh_properties"
-	"github.com/arelate/vangogh_urls"
-	"github.com/arelate/vangogh_values"
+	"github.com/arelate/vangogh_data"
 	"github.com/boggydigital/dolo"
 	"github.com/boggydigital/gost"
 	"github.com/boggydigital/kvas"
@@ -37,34 +33,34 @@ func ValidateHandler(u *url.URL) error {
 
 	return Validate(
 		idSet,
-		vangogh_urls.UrlMedia(u),
-		vangogh_downloads.UrlOperatingSystems(u),
-		vangogh_downloads.UrlDownloadTypes(u),
-		vangogh_urls.UrlValues(u, "language-code"),
-		vangogh_urls.UrlFlag(u, "all"))
+		vangogh_data.MediaFromUrl(u),
+		vangogh_data.OperatingSystemsFromUrl(u),
+		vangogh_data.DownloadTypesFromUrl(u),
+		vangogh_data.ValuesFromUrl(u, "language-code"),
+		vangogh_data.FlagFromUrl(u, "all"))
 }
 
 func Validate(
 	idSet gost.StrSet,
 	mt gog_atu.Media,
-	operatingSystems []vangogh_downloads.OperatingSystem,
-	downloadTypes []vangogh_downloads.DownloadType,
+	operatingSystems []vangogh_data.OperatingSystem,
+	downloadTypes []vangogh_data.DownloadType,
 	langCodes []string,
 	all bool) error {
 
 	va := nod.NewProgress("validating...")
 	defer va.End()
 
-	rxa, err := vangogh_properties.ConnectReduxAssets(
-		vangogh_properties.SlugProperty,
-		vangogh_properties.NativeLanguageNameProperty,
-		vangogh_properties.LocalManualUrl)
+	rxa, err := vangogh_data.ConnectReduxAssets(
+		vangogh_data.SlugProperty,
+		vangogh_data.NativeLanguageNameProperty,
+		vangogh_data.LocalManualUrl)
 	if err != nil {
 		return err
 	}
 
 	if all {
-		vrDetails, err := vangogh_values.NewReader(vangogh_products.Details, mt)
+		vrDetails, err := vangogh_data.NewReader(vangogh_data.Details, mt)
 		if err != nil {
 			return err
 		}
@@ -73,7 +69,7 @@ func Validate(
 
 	vd := &validateDelegate{rxa: rxa}
 
-	if err := vangogh_downloads.Map(
+	if err := vangogh_data.MapDownloads(
 		idSet,
 		mt,
 		rxa,
@@ -117,10 +113,10 @@ func maybeAddTopic(summary map[string][]string, tmpl string, col map[string]bool
 
 func validateManualUrl(
 	slug string,
-	dl *vangogh_downloads.Download,
+	dl *vangogh_data.Download,
 	rxa kvas.ReduxAssets) error {
 
-	if err := rxa.IsSupported(vangogh_properties.LocalManualUrl); err != nil {
+	if err := rxa.IsSupported(vangogh_data.LocalManualUrl); err != nil {
 		return err
 	}
 
@@ -128,7 +124,7 @@ func validateManualUrl(
 	defer mua.End()
 
 	//local filenames are saved as relative to root downloads folder (e.g. s/slug/local_filename)
-	localFile, ok := rxa.GetFirstVal(vangogh_properties.LocalManualUrl, dl.ManualUrl)
+	localFile, ok := rxa.GetFirstVal(vangogh_data.LocalManualUrl, dl.ManualUrl)
 	if !ok {
 		mua.EndWithResult(ErrUnresolvedManualUrl.Error())
 		return ErrUnresolvedManualUrl
@@ -136,8 +132,8 @@ func validateManualUrl(
 
 	//absolute path (given a downloads/ root) for a s/slug/local_filename,
 	//e.g. downloads/s/slug/local_filename
-	absLocalFile := vangogh_urls.DownloadDirRelToAbs(localFile)
-	if !vangogh_urls.CanValidate(absLocalFile) {
+	absLocalFile := vangogh_data.AbsDownloadDirFromRel(localFile)
+	if !vangogh_data.IsPathSupportingValidation(absLocalFile) {
 		mua.EndWithResult(ErrValidationNotSupported.Error())
 		return ErrValidationNotSupported
 	}
@@ -147,7 +143,7 @@ func validateManualUrl(
 		return ErrMissingDownload
 	}
 
-	absChecksumFile := vangogh_urls.LocalChecksumPath(absLocalFile)
+	absChecksumFile := vangogh_data.AbsLocalChecksumPath(absLocalFile)
 
 	if _, err := os.Stat(absChecksumFile); os.IsNotExist(err) {
 		mua.EndWithResult(ErrMissingChecksum.Error())
@@ -209,7 +205,7 @@ type validateDelegate struct {
 	slugLastError       map[string]string
 }
 
-func (vd *validateDelegate) Process(_, slug string, list vangogh_downloads.DownloadsList) error {
+func (vd *validateDelegate) Process(_, slug string, list vangogh_data.DownloadsList) error {
 
 	sva := nod.Begin(slug)
 	defer sva.End()

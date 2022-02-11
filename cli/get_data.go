@@ -7,8 +7,7 @@ import (
 	"github.com/arelate/vangogh_api/cli/itemize"
 	"github.com/arelate/vangogh_api/cli/split"
 	"github.com/arelate/vangogh_api/cli/url_helpers"
-	"github.com/arelate/vangogh_products"
-	"github.com/arelate/vangogh_urls"
+	"github.com/arelate/vangogh_data"
 	"github.com/boggydigital/coost"
 	"github.com/boggydigital/gost"
 	"github.com/boggydigital/nod"
@@ -23,9 +22,9 @@ func GetDataHandler(u *url.URL) error {
 		return err
 	}
 
-	skipIds := vangogh_urls.UrlValues(u, "skip-id")
+	skipIds := vangogh_data.ValuesFromUrl(u, "skip-id")
 
-	updated := vangogh_urls.UrlFlag(u, "updated")
+	updated := vangogh_data.FlagFromUrl(u, "updated")
 	since := time.Now().Unix()
 	if updated {
 		since = time.Now().Add(-time.Hour * 24).Unix()
@@ -34,11 +33,11 @@ func GetDataHandler(u *url.URL) error {
 	return GetData(
 		idSet,
 		skipIds,
-		vangogh_urls.UrlProductType(u),
-		vangogh_urls.UrlMedia(u),
+		vangogh_data.ProductTypeFromUrl(u),
+		vangogh_data.MediaFromUrl(u),
 		since,
-		vangogh_urls.UrlValue(u, "temp-directory"),
-		vangogh_urls.UrlFlag(u, "missing"),
+		vangogh_data.ValueFromUrl(u, "temp-directory"),
+		vangogh_data.FlagFromUrl(u, "missing"),
 		updated)
 }
 
@@ -46,7 +45,7 @@ func GetDataHandler(u *url.URL) error {
 func GetData(
 	idSet gost.StrSet,
 	skipIds []string,
-	pt vangogh_products.ProductType,
+	pt vangogh_data.ProductType,
 	mt gog_atu.Media,
 	since int64,
 	tempDir string,
@@ -56,12 +55,12 @@ func GetData(
 	gda := nod.NewProgress("getting %s (%s) data...", pt, mt)
 	defer gda.End()
 
-	if !vangogh_products.Valid(pt) {
+	if !vangogh_data.IsValidProductType(pt) {
 		gda.EndWithResult("%s is not a valid product type", pt)
 		return nil
 	}
 
-	if !vangogh_products.SupportsMedia(pt, mt) {
+	if !vangogh_data.IsMediaSupported(pt, mt) {
 		gda.EndWithResult("%s is not a supported media for %s", mt, pt)
 		return nil
 	}
@@ -72,7 +71,7 @@ func GetData(
 		return gda.EndWithError(err)
 	}
 
-	if vangogh_products.RequiresAuth(pt) {
+	if vangogh_data.IsProductRequiresAuth(pt) {
 		li, err := gog_atu.LoggedIn(hc)
 		if err != nil {
 			return gda.EndWithError(err)
@@ -83,16 +82,16 @@ func GetData(
 		}
 	}
 
-	if vangogh_products.IsPaged(pt) {
+	if vangogh_data.IsPagedProduct(pt) {
 		if err := fetch.Pages(pt, mt, hc, gda); err != nil {
 			return gda.EndWithError(err)
 		}
 		return split.Pages(pt, mt, since)
 	}
 
-	if vangogh_products.IsArray(pt) {
+	if vangogh_data.IsArrayProduct(pt) {
 		// using "licences" as id, since that's how we store that data in kvas
-		ids := []string{vangogh_products.Licences.String()}
+		ids := []string{vangogh_data.Licences.String()}
 		if err := fetch.Items(ids, pt, mt, hc); err != nil {
 			return gda.EndWithError(err)
 		}

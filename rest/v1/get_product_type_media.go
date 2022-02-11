@@ -3,16 +3,16 @@ package v1
 import (
 	"fmt"
 	"github.com/arelate/gog_atu"
-	"github.com/arelate/vangogh_products"
+	"github.com/arelate/vangogh_data"
 	"net/url"
 )
 
-func getProductTypeMedia(u *url.URL) (vangogh_products.ProductType, gog_atu.Media, error) {
+func getProductTypeMedia(u *url.URL) (vangogh_data.ProductType, gog_atu.Media, error) {
 	q := u.Query()
 
 	productType := q.Get("product-type")
-	pt := vangogh_products.Parse(productType)
-	if pt == vangogh_products.Unknown {
+	pt := vangogh_data.ParseProductType(productType)
+	if pt == vangogh_data.UnknownProductType {
 		return pt, gog_atu.Unknown, fmt.Errorf("unknown product-type %s", productType)
 	}
 

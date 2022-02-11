@@ -2,8 +2,7 @@ package itemize
 
 import (
 	"github.com/arelate/gog_atu"
-	"github.com/arelate/vangogh_products"
-	"github.com/arelate/vangogh_values"
+	"github.com/arelate/vangogh_data"
 	"github.com/boggydigital/gost"
 	"github.com/boggydigital/nod"
 )
@@ -16,19 +15,19 @@ func RequiredAndIncluded(createdAfter int64) (gost.StrSet, error) {
 
 	newLicSet := gost.NewStrSet()
 
-	vrLicences, err := vangogh_values.NewReader(vangogh_products.LicenceProducts, gog_atu.Game)
+	vrLicences, err := vangogh_data.NewReader(vangogh_data.LicenceProducts, gog_atu.Game)
 	if err != nil {
 		return nil, raia.EndWithError(err)
 	}
 
-	vrApv2, err := vangogh_values.NewReader(vangogh_products.ApiProductsV2, gog_atu.Game)
+	vrApv2, err := vangogh_data.NewReader(vangogh_data.ApiProductsV2, gog_atu.Game)
 	if err != nil {
 		return nil, raia.EndWithError(err)
 	}
 
 	newLicences := vrLicences.CreatedAfter(createdAfter)
 	if len(newLicences) > 0 {
-		nod.Log("new %s: %v", vangogh_products.LicenceProducts, newLicences)
+		nod.Log("new %s: %v", vangogh_data.LicenceProducts, newLicences)
 	}
 
 	for _, id := range newLicences {
@@ -47,7 +46,7 @@ func RequiredAndIncluded(createdAfter int64) (gost.StrSet, error) {
 
 		grg := apv2.GetRequiresGames()
 		if len(grg) > 0 {
-			nod.Log("%s #%s requires-games: %v", vangogh_products.ApiProductsV2, id, grg)
+			nod.Log("%s #%s requires-games: %v", vangogh_data.ApiProductsV2, id, grg)
 		}
 		for _, reqGame := range grg {
 			newLicSet.Add(reqGame)
@@ -55,7 +54,7 @@ func RequiredAndIncluded(createdAfter int64) (gost.StrSet, error) {
 
 		gig := apv2.GetIncludesGames()
 		if len(gig) > 0 {
-			nod.Log("%s #%s includes-games: %v", vangogh_products.ApiProductsV2, id, gig)
+			nod.Log("%s #%s includes-games: %v", vangogh_data.ApiProductsV2, id, gig)
 		}
 
 		for _, inclGame := range gig {

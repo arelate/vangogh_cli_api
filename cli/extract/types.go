@@ -2,22 +2,20 @@ package extract
 
 import (
 	"github.com/arelate/gog_atu"
-	"github.com/arelate/vangogh_products"
-	"github.com/arelate/vangogh_properties"
-	"github.com/arelate/vangogh_values"
+	"github.com/arelate/vangogh_data"
 	"github.com/boggydigital/nod"
 )
 
 func Types(mt gog_atu.Media) error {
 
-	ta := nod.Begin(" %s...", vangogh_properties.TypesProperty)
+	ta := nod.Begin(" %s...", vangogh_data.TypesProperty)
 	defer ta.End()
 
 	idsTypes := make(map[string][]string)
 
-	for _, pt := range vangogh_products.Local() {
+	for _, pt := range vangogh_data.LocalProducts() {
 
-		vr, err := vangogh_values.NewReader(pt, mt)
+		vr, err := vangogh_data.NewReader(pt, mt)
 		if err != nil {
 			return ta.EndWithError(err)
 		}
@@ -32,12 +30,12 @@ func Types(mt gog_atu.Media) error {
 		}
 	}
 
-	typesEx, err := vangogh_properties.ConnectReduxAssets(vangogh_properties.TypesProperty)
+	typesEx, err := vangogh_data.ConnectReduxAssets(vangogh_data.TypesProperty)
 	if err != nil {
 		return ta.EndWithError(err)
 	}
 
-	if err := typesEx.BatchReplaceValues(vangogh_properties.TypesProperty, idsTypes); err != nil {
+	if err := typesEx.BatchReplaceValues(vangogh_data.TypesProperty, idsTypes); err != nil {
 		return ta.EndWithError(err)
 	}
 

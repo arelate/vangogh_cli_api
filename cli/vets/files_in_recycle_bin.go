@@ -1,7 +1,7 @@
 package vets
 
 import (
-	"github.com/arelate/vangogh_urls"
+	"github.com/arelate/vangogh_data"
 	"github.com/boggydigital/gost"
 	"github.com/boggydigital/nod"
 	"os"
@@ -13,26 +13,26 @@ func FilesInRecycleBin(fix bool) error {
 	srba := nod.Begin("checking files in recycle bin...")
 	defer srba.End()
 
-	recycleBinFiles, err := vangogh_urls.RecycleBinFiles()
+	recycleBinFiles, err := vangogh_data.RecycleBinFiles()
 	if err != nil {
 		return srba.EndWithError(err)
 	}
-	recycleBinDirs, err := vangogh_urls.RecycleBinDirs()
+	recycleBinDirs, err := vangogh_data.RecycleBinDirs()
 	if err != nil {
 		return srba.EndWithError(err)
 	}
 
-	if recycleBinFiles.Len() == 0 && len(recycleBinDirs) == 0 {
+	if len(recycleBinFiles) == 0 && len(recycleBinDirs) == 0 {
 		srba.EndWithResult("none found")
 	} else {
 
-		srba.EndWithResult("%d file(s) found", recycleBinFiles.Len())
+		srba.EndWithResult("%d file(s) found", len(recycleBinFiles))
 
 		if fix {
 			rfa := nod.NewProgress(" emptying recycle bin...")
-			rfa.TotalInt(recycleBinFiles.Len())
+			rfa.TotalInt(len(recycleBinFiles))
 			for file := range recycleBinFiles {
-				if err := os.Remove(filepath.Join(vangogh_urls.AbsRecycleBinDir(), file)); err != nil {
+				if err := os.Remove(filepath.Join(vangogh_data.AbsRecycleBinDir(), file)); err != nil {
 					return rfa.EndWithError(err)
 				}
 				rfa.Increment()
@@ -43,7 +43,7 @@ func FilesInRecycleBin(fix bool) error {
 			sortDirs := gost.NewSortStrSet()
 			dirLens := make(map[string]int)
 
-			for _, dir := range recycleBinDirs.All() {
+			for dir := range recycleBinDirs {
 				sortDirs.Add(dir)
 				dirLens[dir] = len(dir)
 			}

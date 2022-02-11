@@ -4,11 +4,7 @@ import (
 	"fmt"
 	"github.com/arelate/gog_atu"
 	"github.com/arelate/vangogh_api/cli/url_helpers"
-	"github.com/arelate/vangogh_downloads"
-	"github.com/arelate/vangogh_products"
-	"github.com/arelate/vangogh_properties"
-	"github.com/arelate/vangogh_urls"
-	"github.com/arelate/vangogh_values"
+	"github.com/arelate/vangogh_data"
 	"github.com/boggydigital/gost"
 	"github.com/boggydigital/kvas"
 	"github.com/boggydigital/nod"
@@ -28,26 +24,26 @@ func CleanupHandler(u *url.URL) error {
 
 	return Cleanup(
 		idSet,
-		vangogh_urls.UrlMedia(u),
-		vangogh_downloads.UrlOperatingSystems(u),
-		vangogh_downloads.UrlDownloadTypes(u),
-		vangogh_urls.UrlValues(u, "language-code"),
-		vangogh_urls.UrlFlag(u, "all"),
-		vangogh_urls.UrlFlag(u, "test"))
+		vangogh_data.MediaFromUrl(u),
+		vangogh_data.OperatingSystemsFromUrl(u),
+		vangogh_data.DownloadTypesFromUrl(u),
+		vangogh_data.ValuesFromUrl(u, "language-code"),
+		vangogh_data.FlagFromUrl(u, "all"),
+		vangogh_data.FlagFromUrl(u, "test"))
 }
 
 func Cleanup(
 	idSet gost.StrSet,
 	mt gog_atu.Media,
-	operatingSystems []vangogh_downloads.OperatingSystem,
-	downloadTypes []vangogh_downloads.DownloadType,
+	operatingSystems []vangogh_data.OperatingSystem,
+	downloadTypes []vangogh_data.DownloadType,
 	langCodes []string,
 	all, test bool) error {
 
-	rxa, err := vangogh_properties.ConnectReduxAssets(
-		vangogh_properties.SlugProperty,
-		vangogh_properties.NativeLanguageNameProperty,
-		vangogh_properties.LocalManualUrl)
+	rxa, err := vangogh_data.ConnectReduxAssets(
+		vangogh_data.SlugProperty,
+		vangogh_data.NativeLanguageNameProperty,
+		vangogh_data.LocalManualUrl)
 	if err != nil {
 		return err
 	}
@@ -56,7 +52,7 @@ func Cleanup(
 	defer ca.End()
 
 	if all {
-		vrDetails, err := vangogh_values.NewReader(vangogh_products.Details, mt)
+		vrDetails, err := vangogh_data.NewReader(vangogh_data.Details, mt)
 		if err != nil {
 			return err
 		}
@@ -69,7 +65,7 @@ func Cleanup(
 		test: test,
 	}
 
-	if err := vangogh_downloads.Map(
+	if err := vangogh_data.MapDownloads(
 		idSet,
 		mt,
 		rxa,
@@ -95,7 +91,7 @@ func Cleanup(
 }
 
 func moveToRecycleBin(fp string) error {
-	rbFilepath := filepath.Join(vangogh_urls.AbsRecycleBinDir(), fp)
+	rbFilepath := filepath.Join(vangogh_data.AbsRecycleBinDir(), fp)
 	rbDir, _ := filepath.Split(rbFilepath)
 	if _, err := os.Stat(rbDir); os.IsNotExist(err) {
 		if err := os.MkdirAll(rbDir, 0755); err != nil {
@@ -112,12 +108,12 @@ type cleanupDelegate struct {
 	totalBytes int64
 }
 
-func (cd *cleanupDelegate) Process(_ string, slug string, list vangogh_downloads.DownloadsList) error {
+func (cd *cleanupDelegate) Process(_ string, slug string, list vangogh_data.DownloadsList) error {
 
 	csa := nod.QueueBegin(slug)
 	defer csa.End()
 
-	if err := cd.rxa.IsSupported(vangogh_properties.LocalManualUrl); err != nil {
+	if err := cd.rxa.IsSupported(vangogh_data.LocalManualUrl); err != nil {
 		return csa.EndWithError(err)
 	}
 
@@ -129,13 +125,13 @@ func (cd *cleanupDelegate) Process(_ string, slug string, list vangogh_downloads
 	expectedSet := gost.NewStrSet()
 
 	//pDir = s/slug
-	pDir, err := vangogh_urls.RelProductDownloadsDir(slug)
+	pDir, err := vangogh_data.RelProductDownloadsDir(slug)
 	if err != nil {
 		return csa.EndWithError(err)
 	}
 
 	for _, dl := range list {
-		if localFilename, ok := cd.rxa.GetFirstVal(vangogh_properties.LocalManualUrl, dl.ManualUrl); ok {
+		if localFilename, ok := cd.rxa.GetFirstVal(vangogh_data.LocalManualUrl, dl.ManualUrl); ok {
 			//local filenames are saved as relative to root downloads folder (e.g. s/slug/local_filename)
 			//so filepath.Rel would trim to local_filename (or dlc/local_filename, extra/local_filename)
 			relFilename, err := filepath.Rel(pDir, localFilename)
@@ -147,12 +143,18 @@ func (cd *cleanupDelegate) Process(_ string, slug string, list vangogh_downloads
 	}
 
 	//LocalSlugDownloads returns list of files relative to s/slug product directory
-	presentSet, err := vangogh_urls.LocalSlugDownloads(slug)
+	presentSet, err := vangogh_data.LocalSlugDownloads(slug)
 	if err != nil {
 		return csa.EndWithError(err)
 	}
 
-	unexpectedFiles := presentSet.Except(expectedSet)
+	//TODO: rework this as part of gost deprecation
+	presentGost := gost.NewStrSet()
+	for file := range presentSet {
+		presentGost.Add(file)
+	}
+
+	unexpectedFiles := presentGost.Except(expectedSet)
 
 	if len(unexpectedFiles) == 0 {
 		if !cd.all {
@@ -168,7 +170,7 @@ func (cd *cleanupDelegate) Process(_ string, slug string, list vangogh_downloads
 
 	for _, unexpectedFile := range unexpectedFiles {
 		//restore absolute from local_filename to s/slug/local_filename
-		downloadFilename := vangogh_urls.DownloadDirRelToAbs(filepath.Join(pDir, unexpectedFile))
+		downloadFilename := vangogh_data.AbsDownloadDirFromRel(filepath.Join(pDir, unexpectedFile))
 		if stat, err := os.Stat(downloadFilename); err == nil {
 			cd.totalBytes += stat.Size()
 		} else if os.IsNotExist(err) {
@@ -190,7 +192,7 @@ func (cd *cleanupDelegate) Process(_ string, slug string, list vangogh_downloads
 		}
 		dft.End()
 
-		checksumFile := vangogh_urls.LocalChecksumPath(downloadFilename)
+		checksumFile := vangogh_data.AbsLocalChecksumPath(downloadFilename)
 		if stat, err := os.Stat(checksumFile); err == nil {
 			cd.totalBytes += stat.Size()
 		} else if os.IsNotExist(err) {

@@ -5,8 +5,7 @@ import (
 	"fmt"
 	"github.com/arelate/gog_atu"
 	"github.com/arelate/vangogh_api/cli/url_helpers"
-	"github.com/arelate/vangogh_properties"
-	"github.com/arelate/vangogh_urls"
+	"github.com/arelate/vangogh_data"
 	"github.com/boggydigital/coost"
 	"github.com/boggydigital/gost"
 	"github.com/boggydigital/kvas"
@@ -31,9 +30,9 @@ func TagHandler(u *url.URL) error {
 
 	return Tag(
 		idSet,
-		vangogh_urls.UrlValue(u, "operation"),
-		vangogh_urls.UrlValue(u, "tag-name"),
-		vangogh_urls.UrlValue(u, "temp-directory"))
+		vangogh_data.ValueFromUrl(u, "operation"),
+		vangogh_data.ValueFromUrl(u, "tag-name"),
+		vangogh_data.ValueFromUrl(u, "temp-directory"))
 }
 
 func Tag(idSet gost.StrSet, operation, tagName, tempDir string) error {
@@ -44,10 +43,10 @@ func Tag(idSet gost.StrSet, operation, tagName, tempDir string) error {
 	//matching default GOG.com capitalization for tags
 	tagName = strings.ToUpper(tagName)
 
-	rxa, err := vangogh_properties.ConnectReduxAssets(
-		vangogh_properties.TagNameProperty,
-		vangogh_properties.TagIdProperty,
-		vangogh_properties.TitleProperty,
+	rxa, err := vangogh_data.ConnectReduxAssets(
+		vangogh_data.TagNameProperty,
+		vangogh_data.TagIdProperty,
+		vangogh_data.TitleProperty,
 	)
 	if err != nil {
 		return err
@@ -96,11 +95,11 @@ func postResp(url *url.URL, respVal interface{}, tempDir string) error {
 }
 
 func tagIdByName(tagName string, rxa kvas.ReduxAssets) (string, error) {
-	if err := rxa.IsSupported(vangogh_properties.TagNameProperty); err != nil {
+	if err := rxa.IsSupported(vangogh_data.TagNameProperty); err != nil {
 		return "", err
 	}
 
-	tagIds := rxa.Match(map[string][]string{vangogh_properties.TagNameProperty: {tagName}}, true)
+	tagIds := rxa.Match(map[string][]string{vangogh_data.TagNameProperty: {tagName}}, true)
 	if len(tagIds) == 0 {
 		return "", fmt.Errorf("unknown tag-name %s", tagName)
 	}
@@ -121,7 +120,7 @@ func createTag(tagName string, rxa kvas.ReduxAssets, tempDir string) error {
 	cta := nod.Begin(" creating tag %s...", tagName)
 	defer cta.End()
 
-	if err := rxa.IsSupported(vangogh_properties.TagNameProperty); err != nil {
+	if err := rxa.IsSupported(vangogh_data.TagNameProperty); err != nil {
 		return cta.EndWithError(err)
 	}
 
@@ -134,7 +133,7 @@ func createTag(tagName string, rxa kvas.ReduxAssets, tempDir string) error {
 		return cta.EndWithError(fmt.Errorf("invalid create tag response"))
 	}
 
-	if err := rxa.AddVal(vangogh_properties.TagNameProperty, ctResp.Id, tagName); err != nil {
+	if err := rxa.AddVal(vangogh_data.TagNameProperty, ctResp.Id, tagName); err != nil {
 		return cta.EndWithError(err)
 	}
 
@@ -148,7 +147,7 @@ func deleteTag(tagName, tagId string, rxa kvas.ReduxAssets, tempDir string) erro
 	dta := nod.Begin(" deleting tag %s...", tagName)
 	defer dta.End()
 
-	if err := rxa.IsSupported(vangogh_properties.TagNameProperty); err != nil {
+	if err := rxa.IsSupported(vangogh_data.TagNameProperty); err != nil {
 		return dta.EndWithError(err)
 	}
 
@@ -161,7 +160,7 @@ func deleteTag(tagName, tagId string, rxa kvas.ReduxAssets, tempDir string) erro
 		return dta.EndWithError(fmt.Errorf("invalid delete tag response"))
 	}
 
-	if err := rxa.CutVal(vangogh_properties.TagNameProperty, tagId, tagName); err != nil {
+	if err := rxa.CutVal(vangogh_data.TagNameProperty, tagId, tagName); err != nil {
 		return dta.EndWithError(err)
 	}
 
@@ -175,7 +174,7 @@ func addTag(idSet gost.StrSet, tagName, tagId string, rxa kvas.ReduxAssets, temp
 	ata := nod.NewProgress(" adding tag %s to item(s)...", tagName)
 	defer ata.End()
 
-	if err := rxa.IsSupported(vangogh_properties.TagNameProperty, vangogh_properties.TitleProperty); err != nil {
+	if err := rxa.IsSupported(vangogh_data.TagNameProperty, vangogh_data.TitleProperty); err != nil {
 		return ata.EndWithError(err)
 	}
 
@@ -191,7 +190,7 @@ func addTag(idSet gost.StrSet, tagName, tagId string, rxa kvas.ReduxAssets, temp
 			return ata.EndWithError(fmt.Errorf("failed to add tag %s", tagName))
 		}
 
-		if err := rxa.AddVal(vangogh_properties.TagIdProperty, id, tagId); err != nil {
+		if err := rxa.AddVal(vangogh_data.TagIdProperty, id, tagId); err != nil {
 			return ata.EndWithError(err)
 		}
 
@@ -208,7 +207,7 @@ func removeTag(idSet gost.StrSet, tagName, tagId string, rxa kvas.ReduxAssets, t
 	rta := nod.NewProgress(" removing tag %s from item(s)...", tagName)
 	defer rta.End()
 
-	if err := rxa.IsSupported(vangogh_properties.TagNameProperty, vangogh_properties.TitleProperty); err != nil {
+	if err := rxa.IsSupported(vangogh_data.TagNameProperty, vangogh_data.TitleProperty); err != nil {
 		return rta.EndWithError(err)
 	}
 
@@ -224,7 +223,7 @@ func removeTag(idSet gost.StrSet, tagName, tagId string, rxa kvas.ReduxAssets, t
 			return rta.EndWithError(fmt.Errorf("failed to remove tag %s", tagName))
 		}
 
-		if err := rxa.CutVal(vangogh_properties.TagIdProperty, id, tagId); err != nil {
+		if err := rxa.CutVal(vangogh_data.TagIdProperty, id, tagId); err != nil {
 			return rta.EndWithError(err)
 		}
 

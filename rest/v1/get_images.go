@@ -2,7 +2,7 @@ package v1
 
 import (
 	"fmt"
-	"github.com/arelate/vangogh_urls"
+	"github.com/arelate/vangogh_data"
 	"github.com/boggydigital/nod"
 	"net/http"
 )
@@ -26,7 +26,7 @@ func GetImages(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, nod.Error(err).Error(), 400)
 		return
 	}
-	if localImagePath := vangogh_urls.AbsLocalImagePath(imageId); localImagePath != "" {
+	if localImagePath := vangogh_data.AbsLocalImagePath(imageId); localImagePath != "" {
 		http.ServeFile(w, r, localImagePath)
 	} else {
 		_ = nod.Error(fmt.Errorf("local image path for image id %s is empty", imageId))

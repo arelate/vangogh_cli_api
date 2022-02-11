@@ -3,8 +3,7 @@ package cli
 import (
 	"fmt"
 	"github.com/arelate/vangogh_api/cli/expand"
-	"github.com/arelate/vangogh_properties"
-	"github.com/arelate/vangogh_urls"
+	"github.com/arelate/vangogh_data"
 	"github.com/boggydigital/gost"
 	"github.com/boggydigital/nod"
 	"net/url"
@@ -12,7 +11,7 @@ import (
 
 func DigestHandler(u *url.URL) error {
 	return Digest(
-		vangogh_urls.UrlProperty(u))
+		vangogh_data.PropertyFromUrl(u))
 }
 
 func Digest(property string) error {
@@ -20,7 +19,7 @@ func Digest(property string) error {
 	da := nod.Begin("digesting...")
 	defer da.End()
 
-	rxa, err := vangogh_properties.ConnectReduxAssets(property)
+	rxa, err := vangogh_data.ConnectReduxAssets(property)
 	if err != nil {
 		return err
 	}

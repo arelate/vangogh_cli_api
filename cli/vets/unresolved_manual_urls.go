@@ -4,33 +4,30 @@ import (
 	"fmt"
 	"github.com/arelate/gog_atu"
 	"github.com/arelate/vangogh_api/cli/expand"
-	"github.com/arelate/vangogh_downloads"
-	"github.com/arelate/vangogh_products"
-	"github.com/arelate/vangogh_properties"
-	"github.com/arelate/vangogh_values"
+	"github.com/arelate/vangogh_data"
 	"github.com/boggydigital/gost"
 	"github.com/boggydigital/nod"
 )
 
 func UnresolvedManualUrls(
 	mt gog_atu.Media,
-	operatingSystems []vangogh_downloads.OperatingSystem,
-	downloadTypes []vangogh_downloads.DownloadType,
+	operatingSystems []vangogh_data.OperatingSystem,
+	downloadTypes []vangogh_data.DownloadType,
 	langCodes []string,
 	fix bool) error {
 
 	cumu := nod.NewProgress("checking unresolved manual-urls...")
 	defer cumu.End()
 
-	rxa, err := vangogh_properties.ConnectReduxAssets(
-		vangogh_properties.TitleProperty,
-		vangogh_properties.NativeLanguageNameProperty,
-		vangogh_properties.LocalManualUrl)
+	rxa, err := vangogh_data.ConnectReduxAssets(
+		vangogh_data.TitleProperty,
+		vangogh_data.NativeLanguageNameProperty,
+		vangogh_data.LocalManualUrl)
 	if err != nil {
 		return cumu.EndWithError(err)
 	}
 
-	vrDetails, err := vangogh_values.NewReader(vangogh_products.Details, mt)
+	vrDetails, err := vangogh_data.NewReader(vangogh_data.Details, mt)
 	if err != nil {
 		return cumu.EndWithError(err)
 	}
@@ -48,7 +45,7 @@ func UnresolvedManualUrls(
 			continue
 		}
 
-		downloadsList, err := vangogh_downloads.FromDetails(det, mt, rxa)
+		downloadsList, err := vangogh_data.FromDetails(det, mt, rxa)
 		if err != nil {
 			cumu.Error(err)
 			cumu.Increment()
@@ -58,7 +55,7 @@ func UnresolvedManualUrls(
 		downloadsList = downloadsList.Only(operatingSystems, downloadTypes, langCodes)
 
 		for _, dl := range downloadsList {
-			if _, ok := rxa.GetFirstVal(vangogh_properties.LocalManualUrl, dl.ManualUrl); !ok {
+			if _, ok := rxa.GetFirstVal(vangogh_data.LocalManualUrl, dl.ManualUrl); !ok {
 				unresolvedIds.Add(id)
 			}
 		}
@@ -73,7 +70,7 @@ func UnresolvedManualUrls(
 		summary, err := expand.IdsToPropertyLists(
 			unresolvedIds,
 			nil,
-			[]string{vangogh_properties.TitleProperty},
+			[]string{vangogh_data.TitleProperty},
 			rxa)
 
 		heading := fmt.Sprintf("found %d problems:", unresolvedIds.Len())

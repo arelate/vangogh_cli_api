@@ -3,8 +3,7 @@ package cli
 import (
 	"github.com/arelate/vangogh_api/cli/expand"
 	"github.com/arelate/vangogh_api/cli/url_helpers"
-	"github.com/arelate/vangogh_properties"
-	"github.com/arelate/vangogh_urls"
+	"github.com/arelate/vangogh_data"
 	"github.com/boggydigital/gost"
 	"github.com/boggydigital/nod"
 	"net/url"
@@ -18,9 +17,9 @@ func InfoHandler(u *url.URL) error {
 
 	return Info(
 		idSet,
-		vangogh_urls.UrlFlag(u, "all-text"),
-		vangogh_urls.UrlFlag(u, "images"),
-		vangogh_urls.UrlFlag(u, "video-id"))
+		vangogh_data.FlagFromUrl(u, "all-text"),
+		vangogh_data.FlagFromUrl(u, "images"),
+		vangogh_data.FlagFromUrl(u, "video-id"))
 }
 
 func Info(idSet gost.StrSet, allText, images, videoId bool) error {
@@ -28,20 +27,20 @@ func Info(idSet gost.StrSet, allText, images, videoId bool) error {
 	ia := nod.Begin("information:")
 	defer ia.End()
 
-	propSet := gost.NewStrSetWith(vangogh_properties.TypesProperty)
+	propSet := gost.NewStrSetWith(vangogh_data.TypesProperty)
 
-	propSet.Add(vangogh_properties.Text()...)
+	propSet.Add(vangogh_data.Text()...)
 	if allText {
-		propSet.Add(vangogh_properties.AllText()...)
+		propSet.Add(vangogh_data.AllText()...)
 	}
 	if images {
-		propSet.Add(vangogh_properties.ImageId()...)
+		propSet.Add(vangogh_data.ImageId()...)
 	}
 	if videoId {
-		propSet.Add(vangogh_properties.VideoId()...)
+		propSet.Add(vangogh_data.VideoId()...)
 	}
 
-	rxa, err := vangogh_properties.ConnectReduxAssets(propSet.All()...)
+	rxa, err := vangogh_data.ConnectReduxAssets(propSet.All()...)
 	if err != nil {
 		return ia.EndWithError(err)
 	}

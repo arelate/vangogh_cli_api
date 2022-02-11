@@ -5,8 +5,7 @@ import (
 	"github.com/arelate/gog_atu"
 	"github.com/arelate/vangogh_api/cli/expand"
 	"github.com/arelate/vangogh_api/cli/remove"
-	"github.com/arelate/vangogh_products"
-	"github.com/arelate/vangogh_properties"
+	"github.com/arelate/vangogh_data"
 	"github.com/boggydigital/nod"
 )
 
@@ -15,14 +14,14 @@ func LocalOnlySplitProducts(mt gog_atu.Media, fix bool) error {
 	sloa := nod.Begin("checking for local only split products...")
 	defer sloa.End()
 
-	rxa, err := vangogh_properties.ConnectReduxAssets(vangogh_properties.TitleProperty)
+	rxa, err := vangogh_data.ConnectReduxAssets(vangogh_data.TitleProperty)
 	if err != nil {
 		return sloa.EndWithError(err)
 	}
 
-	for _, pagedPt := range vangogh_products.Paged() {
+	for _, pagedPt := range vangogh_data.PagedProducts() {
 
-		splitPt := vangogh_products.SplitType(pagedPt)
+		splitPt := vangogh_data.SplitProductType(pagedPt)
 
 		pa := nod.Begin(" checking %s not present in %s...", splitPt, pagedPt)
 
@@ -36,7 +35,7 @@ func LocalOnlySplitProducts(mt gog_atu.Media, fix bool) error {
 			summary, err := expand.IdsToPropertyLists(
 				localOnlyProducts,
 				nil,
-				[]string{vangogh_properties.TitleProperty},
+				[]string{vangogh_data.TitleProperty},
 				rxa)
 
 			if err != nil {

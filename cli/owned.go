@@ -4,9 +4,7 @@ import (
 	"fmt"
 	"github.com/arelate/gog_atu"
 	"github.com/arelate/vangogh_api/cli/url_helpers"
-	"github.com/arelate/vangogh_products"
-	"github.com/arelate/vangogh_properties"
-	"github.com/arelate/vangogh_values"
+	"github.com/arelate/vangogh_data"
 	"github.com/boggydigital/gost"
 	"github.com/boggydigital/nod"
 	"net/url"
@@ -33,16 +31,16 @@ func Owned(idSet gost.StrSet) error {
 
 	ownedSet := gost.NewStrSet()
 	propSet := gost.NewStrSetWith(
-		vangogh_properties.TitleProperty,
-		vangogh_properties.SlugProperty,
-		vangogh_properties.IncludesGamesProperty)
+		vangogh_data.TitleProperty,
+		vangogh_data.SlugProperty,
+		vangogh_data.IncludesGamesProperty)
 
-	rxa, err := vangogh_properties.ConnectReduxAssets(propSet.All()...)
+	rxa, err := vangogh_data.ConnectReduxAssets(propSet.All()...)
 	if err != nil {
 		return err
 	}
 
-	vrLicenceProducts, err := vangogh_values.NewReader(vangogh_products.LicenceProducts, gog_atu.Game)
+	vrLicenceProducts, err := vangogh_data.NewReader(vangogh_data.LicenceProducts, gog_atu.Game)
 	if err != nil {
 		return err
 	}
@@ -54,7 +52,7 @@ func Owned(idSet gost.StrSet) error {
 			continue
 		}
 
-		includesGames, ok := rxa.GetAllUnchangedValues(vangogh_properties.IncludesGamesProperty, id)
+		includesGames, ok := rxa.GetAllUnchangedValues(vangogh_data.IncludesGamesProperty, id)
 		if !ok || len(includesGames) == 0 {
 			continue
 		}
@@ -75,7 +73,7 @@ func Owned(idSet gost.StrSet) error {
 	ownSummary := make(map[string][]string)
 	ownSummary[ownedSection] = make([]string, 0, ownedSet.Len())
 	for id := range ownedSet {
-		if title, ok := rxa.GetFirstVal(vangogh_properties.TitleProperty, id); ok {
+		if title, ok := rxa.GetFirstVal(vangogh_data.TitleProperty, id); ok {
 			ownSummary[ownedSection] = append(ownSummary[ownedSection], fmt.Sprintf("%s %s", id, title))
 		}
 	}
@@ -84,7 +82,7 @@ func Owned(idSet gost.StrSet) error {
 
 	ownSummary[notOwnedSection] = make([]string, 0, len(notOwned))
 	for _, id := range notOwned {
-		if title, ok := rxa.GetFirstVal(vangogh_properties.TitleProperty, id); ok {
+		if title, ok := rxa.GetFirstVal(vangogh_data.TitleProperty, id); ok {
 			ownSummary[notOwnedSection] = append(ownSummary[notOwnedSection], fmt.Sprintf("%s %s", id, title))
 		}
 	}

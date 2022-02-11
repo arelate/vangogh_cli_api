@@ -3,8 +3,7 @@ package cli
 import (
 	"github.com/arelate/vangogh_api/cli/itemize"
 	"github.com/arelate/vangogh_api/cli/url_helpers"
-	"github.com/arelate/vangogh_properties"
-	"github.com/arelate/vangogh_urls"
+	"github.com/arelate/vangogh_data"
 	"github.com/boggydigital/dolo"
 	"github.com/boggydigital/gost"
 	"github.com/boggydigital/nod"
@@ -14,7 +13,6 @@ import (
 )
 
 const (
-	videoExt   = ".mp4"
 	missingStr = "missing"
 )
 
@@ -26,7 +24,7 @@ func GetVideosHandler(u *url.URL) error {
 
 	return GetVideos(
 		idSet,
-		vangogh_urls.UrlFlag(u, "missing"))
+		vangogh_data.FlagFromUrl(u, "missing"))
 }
 
 func GetVideos(idSet gost.StrSet, missing bool) error {
@@ -34,11 +32,11 @@ func GetVideos(idSet gost.StrSet, missing bool) error {
 	gva := nod.NewProgress("getting videos...")
 	defer gva.End()
 
-	rxa, err := vangogh_properties.ConnectReduxAssets(
-		vangogh_properties.TitleProperty,
-		vangogh_properties.SlugProperty,
-		vangogh_properties.VideoIdProperty,
-		vangogh_properties.MissingVideoUrlProperty)
+	rxa, err := vangogh_data.ConnectReduxAssets(
+		vangogh_data.TitleProperty,
+		vangogh_data.SlugProperty,
+		vangogh_data.VideoIdProperty,
+		vangogh_data.MissingVideoUrlProperty)
 
 	if err != nil {
 		return gva.EndWithError(err)
@@ -64,13 +62,13 @@ func GetVideos(idSet gost.StrSet, missing bool) error {
 	gva.TotalInt(idSet.Len())
 
 	for _, id := range idSet.All() {
-		videoIds, ok := rxa.GetAllUnchangedValues(vangogh_properties.VideoIdProperty, id)
+		videoIds, ok := rxa.GetAllUnchangedValues(vangogh_data.VideoIdProperty, id)
 		if !ok || len(videoIds) == 0 {
 			gva.Increment()
 			continue
 		}
 
-		title, _ := rxa.GetFirstVal(vangogh_properties.TitleProperty, id)
+		title, _ := rxa.GetFirstVal(vangogh_data.TitleProperty, id)
 
 		va := nod.Begin("%s %s", id, title)
 
@@ -81,7 +79,7 @@ func GetVideos(idSet gost.StrSet, missing bool) error {
 			vp, err := yt_urls.GetVideoPage(http.DefaultClient, videoId)
 			if err != nil {
 				va.Error(err)
-				if addErr := rxa.AddVal(vangogh_properties.MissingVideoUrlProperty, videoId, err.Error()); addErr != nil {
+				if addErr := rxa.AddVal(vangogh_data.MissingVideoUrlProperty, videoId, err.Error()); addErr != nil {
 					return addErr
 				}
 				continue
@@ -92,7 +90,7 @@ func GetVideos(idSet gost.StrSet, missing bool) error {
 			vidUrls := vp.StreamingFormats()
 
 			if len(vidUrls) == 0 {
-				if err := rxa.AddVal(vangogh_properties.MissingVideoUrlProperty, videoId, missingStr); err != nil {
+				if err := rxa.AddVal(vangogh_data.MissingVideoUrlProperty, videoId, missingStr); err != nil {
 					return vfa.EndWithError(err)
 				}
 			}
@@ -100,13 +98,13 @@ func GetVideos(idSet gost.StrSet, missing bool) error {
 			for _, vidUrl := range vidUrls {
 
 				if vidUrl.Url == "" {
-					if err := rxa.AddVal(vangogh_properties.MissingVideoUrlProperty, videoId, missingStr); err != nil {
+					if err := rxa.AddVal(vangogh_data.MissingVideoUrlProperty, videoId, missingStr); err != nil {
 						return vfa.EndWithError(err)
 					}
 					continue
 				}
 
-				dir := vangogh_urls.AbsDirByVideoId(videoId)
+				dir := vangogh_data.AbsDirByVideoId(videoId)
 
 				u, err := url.Parse(vidUrl.Url)
 				if err != nil {
@@ -120,7 +118,7 @@ func GetVideos(idSet gost.StrSet, missing bool) error {
 				//2) currently dolo.GetSetMany doesn't support nod progress reporting on each individual concurrent
 				//download (ok, well, StdOutPresenter doesn't, nod likely does) and for video files this would mean
 				//long pauses as we download individual files
-				if err = dl.Download(u, vfa, dir, videoId+videoExt); err != nil {
+				if err = dl.Download(u, vfa, dir, videoId+yt_urls.DefaultExt); err != nil {
 					vfa.Error(err)
 					continue
 				}

@@ -2,7 +2,7 @@ package expand
 
 import (
 	"fmt"
-	"github.com/arelate/vangogh_properties"
+	"github.com/arelate/vangogh_data"
 	"github.com/boggydigital/gost"
 	"github.com/boggydigital/kvas"
 	"sort"
@@ -10,7 +10,7 @@ import (
 )
 
 const (
-	DefaultSort = vangogh_properties.TitleProperty
+	DefaultSort = vangogh_data.TitleProperty
 	DefaultDesc = false
 )
 
@@ -22,11 +22,11 @@ func IdsToPropertyLists(
 	rxa kvas.ReduxAssets) (map[string][]string, error) {
 
 	propSet := gost.NewStrSetWith(properties...)
-	propSet.Add(vangogh_properties.TitleProperty)
+	propSet.Add(vangogh_data.TitleProperty)
 
 	if rxa == nil {
 		var err error
-		rxa, err = vangogh_properties.ConnectReduxAssets(propSet.All()...)
+		rxa, err = vangogh_data.ConnectReduxAssets(propSet.All()...)
 		if err != nil {
 			return nil, err
 		}
@@ -57,7 +57,7 @@ func item(
 		return nil, err
 	}
 
-	title, ok := rxa.GetFirstVal(vangogh_properties.TitleProperty, id)
+	title, ok := rxa.GetFirstVal(vangogh_data.TitleProperty, id)
 	if !ok {
 		return nil, nil
 	}
@@ -69,8 +69,8 @@ func item(
 	sort.Strings(properties)
 
 	for _, prop := range properties {
-		if prop == vangogh_properties.IdProperty ||
-			prop == vangogh_properties.TitleProperty {
+		if prop == vangogh_data.IdProperty ||
+			prop == vangogh_data.TitleProperty {
 			continue
 		}
 		values, ok := rxa.GetAllValues(prop, id)
@@ -79,7 +79,7 @@ func item(
 		}
 		filterValues := propertyFilter[prop]
 
-		if len(values) > 1 && vangogh_properties.JoinPreferred(prop) {
+		if len(values) > 1 && vangogh_data.IsPropertiesJoinPreferred(prop) {
 			joinedValue := strings.Join(values, ",")
 			if shouldSkip(joinedValue, filterValues) {
 				continue

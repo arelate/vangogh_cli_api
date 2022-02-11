@@ -3,7 +3,7 @@ package cli
 import (
 	"fmt"
 	"github.com/arelate/vangogh_api/rest/v1"
-	"github.com/arelate/vangogh_urls"
+	"github.com/arelate/vangogh_data"
 	"github.com/boggydigital/nod"
 	"net/http"
 	"net/url"
@@ -11,7 +11,7 @@ import (
 )
 
 func ServeHandler(u *url.URL) error {
-	portStr := vangogh_urls.UrlValue(u, "port")
+	portStr := vangogh_data.ValueFromUrl(u, "port")
 	port, err := strconv.Atoi(portStr)
 	if err != nil {
 		return err
@@ -19,7 +19,7 @@ func ServeHandler(u *url.URL) error {
 
 	return Serve(
 		port,
-		vangogh_urls.UrlFlag(u, "stderr"))
+		vangogh_data.FlagFromUrl(u, "stderr"))
 }
 
 func Serve(port int, stderr bool) error {
