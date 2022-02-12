@@ -2,16 +2,14 @@ package cli
 
 import (
 	"github.com/arelate/gog_atu"
-	"github.com/arelate/vangogh_api/cli/itemize"
-	"github.com/arelate/vangogh_api/cli/url_helpers"
+	"github.com/arelate/vangogh_api/cli/itemizations"
 	"github.com/arelate/vangogh_data"
-	"github.com/boggydigital/gost"
 	"github.com/boggydigital/nod"
 	"net/url"
 )
 
 func SizeHandler(u *url.URL) error {
-	idSet, err := url_helpers.IdSet(u)
+	idSet, err := vangogh_data.IdSetFromUrl(u)
 	if err != nil {
 		return err
 	}
@@ -27,7 +25,7 @@ func SizeHandler(u *url.URL) error {
 }
 
 func Size(
-	idSet gost.StrSet,
+	idSet vangogh_data.IdSet,
 	mt gog_atu.Media,
 	operatingSystems []vangogh_data.OperatingSystem,
 	downloadTypes []vangogh_data.DownloadType,
@@ -39,16 +37,16 @@ func Size(
 	defer sa.End()
 
 	rxa, err := vangogh_data.ConnectReduxAssets(
-		vangogh_data.LocalManualUrl,
+		vangogh_data.LocalManualUrlProperty,
 		vangogh_data.NativeLanguageNameProperty,
 		vangogh_data.SlugProperty,
-		vangogh_data.DownloadStatusError)
+		vangogh_data.DownloadStatusErrorProperty)
 	if err != nil {
 		return sa.EndWithError(err)
 	}
 
 	if missing {
-		missingIds, err := itemize.MissingLocalDownloads(mt, rxa, operatingSystems, downloadTypes, langCodes)
+		missingIds, err := itemizations.MissingLocalDownloads(mt, rxa, operatingSystems, downloadTypes, langCodes)
 		if err != nil {
 			return sa.EndWithError(err)
 		}

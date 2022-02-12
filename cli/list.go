@@ -3,9 +3,6 @@ package cli
 import (
 	"fmt"
 	"github.com/arelate/gog_atu"
-	"github.com/arelate/vangogh_api/cli/expand"
-	"github.com/arelate/vangogh_api/cli/hours"
-	"github.com/arelate/vangogh_api/cli/url_helpers"
 	"github.com/arelate/vangogh_data"
 	"github.com/boggydigital/gost"
 	"github.com/boggydigital/nod"
@@ -14,19 +11,14 @@ import (
 )
 
 func ListHandler(u *url.URL) error {
-	idSet, err := url_helpers.IdSet(u)
+	idSet, err := vangogh_data.IdSetFromUrl(u)
 	if err != nil {
 		return err
 	}
 
-	sha, err := hours.Atoi(vangogh_data.ValueFromUrl(u, "since-hours-ago"))
+	since, err := vangogh_data.SinceFromUrl(u)
 	if err != nil {
 		return err
-	}
-
-	var since int64 = 0
-	if sha > 0 {
-		since = time.Now().Add(-time.Hour * time.Duration(sha)).Unix()
 	}
 
 	return List(
@@ -41,7 +33,7 @@ func ListHandler(u *url.URL) error {
 //Can be filtered to products that were created or modified since a certain time.
 //Provided properties will be printed for each product (if supported) in addition to default ID, Title.
 func List(
-	idSet gost.StrSet,
+	idSet vangogh_data.IdSet,
 	modifiedSince int64,
 	pt vangogh_data.ProductType,
 	mt gog_atu.Media,
@@ -95,7 +87,7 @@ func List(
 		idSet.Add(vr.Keys()...)
 	}
 
-	itp, err := expand.IdsToPropertyLists(
+	itp, err := vangogh_data.PropertyListsFromIdSet(
 		idSet,
 		nil,
 		vangogh_data.SupportedPropertiesOnly(pt, properties),

@@ -2,15 +2,12 @@ package cli
 
 import (
 	"github.com/arelate/gog_atu"
-	"github.com/arelate/vangogh_api/cli/hours"
 	"github.com/arelate/vangogh_data"
-	"github.com/boggydigital/gost"
 	"github.com/boggydigital/nod"
 	"github.com/boggydigital/wits"
 	"net/url"
 	"os"
 	"strings"
-	"time"
 )
 
 const (
@@ -61,14 +58,14 @@ func initSyncOptions(u *url.URL) *syncOptions {
 func SyncHandler(u *url.URL) error {
 	syncOpts := initSyncOptions(u)
 
-	sha, err := hours.Atoi(vangogh_data.ValueFromUrl(u, "since-hours-ago"))
+	since, err := vangogh_data.SinceFromUrl(u)
 	if err != nil {
 		return err
 	}
 
 	return Sync(
 		vangogh_data.MediaFromUrl(u),
-		sha,
+		since,
 		syncOpts,
 		vangogh_data.OperatingSystemsFromUrl(u),
 		vangogh_data.DownloadTypesFromUrl(u),
@@ -79,20 +76,13 @@ func SyncHandler(u *url.URL) error {
 
 func Sync(
 	mt gog_atu.Media,
-	sinceHoursAgo int,
+	since int64,
 	syncOpts *syncOptions,
 	operatingSystems []vangogh_data.OperatingSystem,
 	downloadTypes []vangogh_data.DownloadType,
 	langCodes []string,
 	tempDir string,
 	updatesOnly bool) error {
-
-	var syncStart int64
-	if sinceHoursAgo > 0 {
-		syncStart = time.Now().Unix() - int64(sinceHoursAgo*60*60)
-	} else {
-		syncStart = time.Now().Unix()
-	}
 
 	sa := nod.Begin("syncing source data...")
 	defer sa.End()
@@ -102,7 +92,7 @@ func Sync(
 		paData := vangogh_data.ArrayProducts()
 		paData = append(paData, vangogh_data.PagedProducts()...)
 		for _, pt := range paData {
-			if err := GetData(gost.NewStrSet(), nil, pt, mt, syncStart, tempDir, false, false); err != nil {
+			if err := GetData(vangogh_data.NewIdSet(), nil, pt, mt, since, tempDir, false, false); err != nil {
 				return sa.EndWithError(err)
 			}
 		}
@@ -133,13 +123,13 @@ func Sync(
 				sa.Log("no skip list for %s", pt)
 			}
 
-			if err := GetData(gost.NewStrSet(), skipIds, pt, mt, syncStart, tempDir, true, true); err != nil {
+			if err := GetData(vangogh_data.NewIdSet(), skipIds, pt, mt, since, tempDir, true, true); err != nil {
 				return sa.EndWithError(err)
 			}
 		}
 
 		//extract data
-		if err := Extract(syncStart, mt, vangogh_data.Extracted()); err != nil {
+		if err := Reduce(since, mt, vangogh_data.ExtractedProperties()); err != nil {
 			return sa.EndWithError(err)
 		}
 	}
@@ -153,14 +143,14 @@ func Sync(
 			}
 			imageTypes = append(imageTypes, it)
 		}
-		if err := GetImages(gost.NewStrSet(), imageTypes, true); err != nil {
+		if err := GetImages(vangogh_data.NewIdSet(), imageTypes, true); err != nil {
 			return sa.EndWithError(err)
 		}
 	}
 
 	// get videos
 	if syncOpts.videos {
-		if err := GetVideos(gost.NewStrSet(), true); err != nil {
+		if err := GetVideos(vangogh_data.NewIdSet(), true); err != nil {
 			return sa.EndWithError(err)
 		}
 	}
@@ -172,7 +162,7 @@ func Sync(
 			operatingSystems,
 			downloadTypes,
 			langCodes,
-			syncStart,
+			since,
 			tempDir,
 			updatesOnly); err != nil {
 			return sa.EndWithError(err)
@@ -182,5 +172,5 @@ func Sync(
 	sa.EndWithResult("done")
 
 	// print new or updated
-	return Summary(mt, syncStart)
+	return Summary(mt, since)
 }

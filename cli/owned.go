@@ -3,7 +3,6 @@ package cli
 import (
 	"fmt"
 	"github.com/arelate/gog_atu"
-	"github.com/arelate/vangogh_api/cli/url_helpers"
 	"github.com/arelate/vangogh_data"
 	"github.com/boggydigital/gost"
 	"github.com/boggydigital/nod"
@@ -16,7 +15,7 @@ const (
 )
 
 func OwnedHandler(u *url.URL) error {
-	idSet, err := url_helpers.IdSet(u)
+	idSet, err := vangogh_data.IdSetFromUrl(u)
 	if err != nil {
 		return err
 	}
@@ -24,7 +23,7 @@ func OwnedHandler(u *url.URL) error {
 	return Owned(idSet)
 }
 
-func Owned(idSet gost.StrSet) error {
+func Owned(idSet vangogh_data.IdSet) error {
 
 	oa := nod.Begin("checking ownership...")
 	defer oa.End()

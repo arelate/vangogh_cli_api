@@ -1,8 +1,9 @@
 package cli
 
 import (
+	"bufio"
+	"fmt"
 	"github.com/arelate/gog_atu"
-	"github.com/arelate/vangogh_api/cli/input"
 	"github.com/boggydigital/coost"
 	"net/url"
 	"os"
@@ -44,9 +45,18 @@ func Auth(username, password, tempDir string) error {
 		return nil
 	}
 
-	if err := gog_atu.Login(hc, username, password, input.RequestText); err != nil {
+	if err := gog_atu.Login(hc, username, password, requestText); err != nil {
 		return err
 	}
 
 	return cj.Store(cookieFile)
+}
+
+func requestText(prompt string) string {
+	fmt.Print(prompt)
+	scanner := bufio.NewScanner(os.Stdin)
+	for scanner.Scan() {
+		return scanner.Text()
+	}
+	return ""
 }

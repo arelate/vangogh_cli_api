@@ -2,7 +2,6 @@ package cli
 
 import (
 	"github.com/arelate/gog_atu"
-	"github.com/arelate/vangogh_api/cli/remove"
 	"github.com/arelate/vangogh_data"
 	"github.com/boggydigital/coost"
 	"github.com/boggydigital/nod"
@@ -88,7 +87,7 @@ func wishlistRemove(
 	wra := nod.NewProgress(" removing product(s) from local wishlist...")
 	defer wra.End()
 
-	if err := remove.Data(ids, vangogh_data.WishlistProducts, mt); err != nil {
+	if err := vangogh_data.Cut(ids, vangogh_data.WishlistProducts, mt); err != nil {
 		return wra.EndWithError(err)
 	}
 

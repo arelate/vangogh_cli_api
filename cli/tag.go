@@ -4,10 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/arelate/gog_atu"
-	"github.com/arelate/vangogh_api/cli/url_helpers"
 	"github.com/arelate/vangogh_data"
 	"github.com/boggydigital/coost"
-	"github.com/boggydigital/gost"
 	"github.com/boggydigital/kvas"
 	"github.com/boggydigital/nod"
 	"net/url"
@@ -23,7 +21,7 @@ const (
 )
 
 func TagHandler(u *url.URL) error {
-	idSet, err := url_helpers.IdSet(u)
+	idSet, err := vangogh_data.IdSetFromUrl(u)
 	if err != nil {
 		return err
 	}
@@ -35,7 +33,7 @@ func TagHandler(u *url.URL) error {
 		vangogh_data.ValueFromUrl(u, "temp-directory"))
 }
 
-func Tag(idSet gost.StrSet, operation, tagName, tempDir string) error {
+func Tag(idSet vangogh_data.IdSet, operation, tagName, tempDir string) error {
 
 	ta := nod.Begin("performing requested tag operation...")
 	defer ta.End()
@@ -169,7 +167,7 @@ func deleteTag(tagName, tagId string, rxa kvas.ReduxAssets, tempDir string) erro
 	return nil
 }
 
-func addTag(idSet gost.StrSet, tagName, tagId string, rxa kvas.ReduxAssets, tempDir string) error {
+func addTag(idSet vangogh_data.IdSet, tagName, tagId string, rxa kvas.ReduxAssets, tempDir string) error {
 
 	ata := nod.NewProgress(" adding tag %s to item(s)...", tagName)
 	defer ata.End()
@@ -202,7 +200,7 @@ func addTag(idSet gost.StrSet, tagName, tagId string, rxa kvas.ReduxAssets, temp
 	return nil
 }
 
-func removeTag(idSet gost.StrSet, tagName, tagId string, rxa kvas.ReduxAssets, tempDir string) error {
+func removeTag(idSet vangogh_data.IdSet, tagName, tagId string, rxa kvas.ReduxAssets, tempDir string) error {
 
 	rta := nod.NewProgress(" removing tag %s from item(s)...", tagName)
 	defer rta.End()

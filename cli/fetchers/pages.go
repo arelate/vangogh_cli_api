@@ -1,4 +1,4 @@
-package fetch
+package fetchers
 
 import (
 	"encoding/json"

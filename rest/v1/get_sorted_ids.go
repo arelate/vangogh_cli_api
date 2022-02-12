@@ -20,7 +20,7 @@ func getSortedIds(pt vangogh_data.ProductType, mt gog_atu.Media, sort string, de
 	if vr, err := getValueReader(pt, mt); err != nil {
 		return nil, err
 	} else {
-		idSet := vangogh_data.IdSetWith(vr.Keys()...)
+		idSet := vangogh_data.IdSetFromSlice(vr.Keys()...)
 		sortedIds[ptms] = idSet.Sort(rxa, sort, desc)
 	}
 

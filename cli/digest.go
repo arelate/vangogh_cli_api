@@ -2,7 +2,6 @@ package cli
 
 import (
 	"fmt"
-	"github.com/arelate/vangogh_api/cli/expand"
 	"github.com/arelate/vangogh_data"
 	"github.com/boggydigital/gost"
 	"github.com/boggydigital/nod"
@@ -45,7 +44,7 @@ func Digest(property string) error {
 		keys = append(keys, key)
 	}
 
-	_, sorted := gost.NewIntSortedStrSetWith(distValues, expand.DefaultDesc)
+	_, sorted := gost.NewIntSortedStrSetWith(distValues, vangogh_data.DefaultDesc)
 
 	summary := make(map[string][]string)
 	summary[""] = make([]string, 0, len(sorted))

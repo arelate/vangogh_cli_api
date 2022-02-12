@@ -1,11 +1,9 @@
 package cli
 
 import (
-	"github.com/arelate/vangogh_api/cli/itemize"
-	"github.com/arelate/vangogh_api/cli/url_helpers"
+	"github.com/arelate/vangogh_api/cli/itemizations"
 	"github.com/arelate/vangogh_data"
 	"github.com/boggydigital/dolo"
-	"github.com/boggydigital/gost"
 	"github.com/boggydigital/nod"
 	"github.com/boggydigital/yt_urls"
 	"net/http"
@@ -17,7 +15,7 @@ const (
 )
 
 func GetVideosHandler(u *url.URL) error {
-	idSet, err := url_helpers.IdSet(u)
+	idSet, err := vangogh_data.IdSetFromUrl(u)
 	if err != nil {
 		return err
 	}
@@ -27,7 +25,7 @@ func GetVideosHandler(u *url.URL) error {
 		vangogh_data.FlagFromUrl(u, "missing"))
 }
 
-func GetVideos(idSet gost.StrSet, missing bool) error {
+func GetVideos(idSet vangogh_data.IdSet, missing bool) error {
 
 	gva := nod.NewProgress("getting videos...")
 	defer gva.End()
@@ -43,7 +41,7 @@ func GetVideos(idSet gost.StrSet, missing bool) error {
 	}
 
 	if missing {
-		missingIds, err := itemize.MissingLocalVideos(rxa)
+		missingIds, err := itemizations.MissingLocalVideos(rxa)
 		if err != nil {
 			return gva.EndWithError(err)
 		}

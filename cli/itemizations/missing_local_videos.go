@@ -1,8 +1,7 @@
-package itemize
+package itemizations
 
 import (
 	"github.com/arelate/vangogh_data"
-	"github.com/boggydigital/gost"
 	"github.com/boggydigital/kvas"
 	"github.com/boggydigital/nod"
 )
@@ -25,12 +24,12 @@ func (vpg *videoPropertiesGetter) IsMissingVideo(videoId string) bool {
 	return vpg.reduxAssets.HasKey(vangogh_data.MissingVideoUrlProperty, videoId)
 }
 
-func MissingLocalVideos(rxa kvas.ReduxAssets) (gost.StrSet, error) {
+func MissingLocalVideos(rxa kvas.ReduxAssets) (vangogh_data.IdSet, error) {
 	all := rxa.Keys(vangogh_data.VideoIdProperty)
 
 	localVideoSet, err := vangogh_data.LocalVideoIds()
 	if err != nil {
-		return nil, err
+		return vangogh_data.NewIdSet(), err
 	}
 
 	vpg := NewVideoPropertiesGetter(rxa)

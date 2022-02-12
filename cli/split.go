@@ -1,4 +1,4 @@
-package split
+package cli
 
 import (
 	"bytes"
@@ -11,7 +11,7 @@ import (
 	"strconv"
 )
 
-func Pages(sourcePt vangogh_data.ProductType, mt gog_atu.Media, timestamp int64) error {
+func split(sourcePt vangogh_data.ProductType, mt gog_atu.Media, timestamp int64) error {
 
 	spa := nod.NewProgress(" splitting %s (%s)...", sourcePt, mt)
 	defer spa.End()

@@ -2,7 +2,7 @@ package cli
 
 import (
 	"github.com/arelate/gog_atu"
-	"github.com/arelate/vangogh_api/cli/extract"
+	"github.com/arelate/vangogh_api/cli/reductions"
 	"github.com/arelate/vangogh_data"
 	"github.com/boggydigital/gost"
 	"github.com/boggydigital/nod"
@@ -11,18 +11,18 @@ import (
 )
 
 func ExtractHandler(u *url.URL) error {
-	return Extract(
+	return Reduce(
 		0,
 		vangogh_data.MediaFromUrl(u),
 		vangogh_data.PropertiesFromUrl(u))
 }
 
-func Extract(modifiedAfter int64, mt gog_atu.Media, properties []string) error {
+func Reduce(modifiedAfter int64, mt gog_atu.Media, properties []string) error {
 
 	propSet := gost.NewStrSetWith(properties...)
 
 	if len(properties) == 0 {
-		propSet.Add(vangogh_data.Extracted()...)
+		propSet.Add(vangogh_data.ExtractedProperties()...)
 	}
 
 	//required for language-* properties extraction below
@@ -113,31 +113,31 @@ func Extract(modifiedAfter int64, mt gog_atu.Media, properties []string) error {
 	//language-names are extracted separately from general pipeline,
 	//given we'll be filling the blanks from api-products-v2 using
 	//GetLanguages property that returns map[string]string
-	langCodeSet, err := extract.GetLanguageCodes(rxa)
+	langCodeSet, err := reductions.GetLanguageCodes(rxa)
 	if err != nil {
 		return ea.EndWithError(err)
 	}
 
-	if err := extract.LanguageNames(langCodeSet); err != nil {
+	if err := reductions.LanguageNames(langCodeSet); err != nil {
 		return ea.EndWithError(err)
 	}
 
-	if err := extract.NativeLanguageNames(langCodeSet); err != nil {
+	if err := reductions.NativeLanguageNames(langCodeSet); err != nil {
 		return ea.EndWithError(err)
 	}
 
 	//tag-names are extracted separately from other types,
 	//given it is most convenient to extract from account-pages
-	if err := extract.TagNames(mt); err != nil {
+	if err := reductions.TagNames(mt); err != nil {
 		return ea.EndWithError(err)
 	}
 
 	//orders are extracted separately from other types
-	if err := extract.Orders(modifiedAfter); err != nil {
+	if err := reductions.Orders(modifiedAfter); err != nil {
 		return ea.EndWithError(err)
 	}
 
-	if err := extract.Types(mt); err != nil {
+	if err := reductions.Types(mt); err != nil {
 		return ea.EndWithError(err)
 	}
 

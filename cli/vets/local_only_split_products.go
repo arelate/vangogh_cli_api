@@ -3,8 +3,6 @@ package vets
 import (
 	"fmt"
 	"github.com/arelate/gog_atu"
-	"github.com/arelate/vangogh_api/cli/expand"
-	"github.com/arelate/vangogh_api/cli/remove"
 	"github.com/arelate/vangogh_data"
 	"github.com/boggydigital/nod"
 )
@@ -32,7 +30,7 @@ func LocalOnlySplitProducts(mt gog_atu.Media, fix bool) error {
 
 		if localOnlyProducts.Len() > 0 {
 
-			summary, err := expand.IdsToPropertyLists(
+			summary, err := vangogh_data.PropertyListsFromIdSet(
 				localOnlyProducts,
 				nil,
 				[]string{vangogh_data.TitleProperty},
@@ -47,7 +45,7 @@ func LocalOnlySplitProducts(mt gog_atu.Media, fix bool) error {
 
 			if fix {
 				fa := nod.Begin(" removing local only %s...", splitPt)
-				if err := remove.Data(localOnlyProducts.All(), splitPt, mt); err != nil {
+				if err := vangogh_data.Cut(localOnlyProducts.All(), splitPt, mt); err != nil {
 					return fa.EndWithError(err)
 				}
 				fa.EndWithResult("done")

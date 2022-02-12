@@ -8,22 +8,24 @@ import (
 	"strconv"
 )
 
-func findLocalOnlySplitProducts(pagedPt vangogh_data.ProductType, mt gog_atu.Media) (gost.StrSet, error) {
+func findLocalOnlySplitProducts(pagedPt vangogh_data.ProductType, mt gog_atu.Media) (vangogh_data.IdSet, error) {
+	emptyIdSet := vangogh_data.NewIdSet()
+
 	if !vangogh_data.IsPagedProduct(pagedPt) {
-		return nil, fmt.Errorf("%s is not a paged type", pagedPt)
+		return emptyIdSet, fmt.Errorf("%s is not a paged type", pagedPt)
 	}
 
 	pagedIds := gost.NewStrSet()
 
 	vrPaged, err := vangogh_data.NewReader(pagedPt, mt)
 	if err != nil {
-		return nil, err
+		return emptyIdSet, err
 	}
 
 	for _, id := range vrPaged.Keys() {
 		productGetter, err := vrPaged.ProductsGetter(id)
 		if err != nil {
-			return nil, err
+			return emptyIdSet, err
 		}
 		for _, idGetter := range productGetter.GetProducts() {
 			pagedIds.Add(strconv.Itoa(idGetter.GetId()))
@@ -33,10 +35,10 @@ func findLocalOnlySplitProducts(pagedPt vangogh_data.ProductType, mt gog_atu.Med
 	splitPt := vangogh_data.SplitProductType(pagedPt)
 	vrSplit, err := vangogh_data.NewReader(splitPt, mt)
 	if err != nil {
-		return nil, err
+		return emptyIdSet, err
 	}
 
 	splitIdSet := gost.NewStrSetWith(vrSplit.Keys()...)
 
-	return gost.NewStrSetWith(splitIdSet.Except(pagedIds)...), nil
+	return vangogh_data.IdSetFromSlice(splitIdSet.Except(pagedIds)...), nil
 }

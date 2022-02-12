@@ -2,21 +2,18 @@ package cli
 
 import (
 	"github.com/arelate/gog_atu"
-	"github.com/arelate/vangogh_api/cli/hours"
-	"github.com/arelate/vangogh_api/cli/itemize"
+	"github.com/arelate/vangogh_api/cli/itemizations"
 	"github.com/arelate/vangogh_data"
 	"github.com/boggydigital/nod"
 	"net/url"
-	"time"
 )
 
 func UpdateDownloadsHandler(u *url.URL) error {
 
-	sha, err := hours.Atoi(vangogh_data.ValueFromUrl(u, "since-hours-ago"))
+	since, err := vangogh_data.SinceFromUrl(u)
 	if err != nil {
 		return err
 	}
-	since := time.Now().Unix() - int64(sha*60*60)
 
 	return UpdateDownloads(
 		vangogh_data.MediaFromUrl(u),
@@ -50,13 +47,13 @@ func UpdateDownloads(
 	// updates (so .IsNew or .Updates > 0 won't be true anymore) and have updated
 	// details as a result. This is somewhat excessive for general case, however would
 	// allow us to capture all updated account-products at a price of some extra checks
-	updAccountProductIds, err := itemize.AccountProductsUpdates(mt)
+	updAccountProductIds, err := itemizations.AccountProductsUpdates(mt)
 	if err != nil {
 		return uda.EndWithError(err)
 	}
 
 	//Additionally itemize required games for newly acquired DLCs
-	requiredGamesForNewDLCs, err := itemize.RequiredAndIncluded(since)
+	requiredGamesForNewDLCs, err := itemizations.RequiredAndIncluded(since)
 	if err != nil {
 		return uda.EndWithError(err)
 	}
@@ -65,14 +62,14 @@ func UpdateDownloads(
 
 	//Additionally add modified details in case the sync was interrupted and
 	//account-products doesn't have .IsNew or .Updates > 0 items
-	modifiedDetails, err := itemize.Modified(since, vangogh_data.Details, mt)
+	modifiedDetails, err := itemizations.Modified(since, vangogh_data.Details, mt)
 	if err != nil {
 		return uda.EndWithError(err)
 	}
 
 	updAccountProductIds.AddSet(modifiedDetails)
 
-	if len(updAccountProductIds) == 0 {
+	if updAccountProductIds.Len() == 0 {
 		uda.EndWithResult("all downloads are up to date")
 		return nil
 	}

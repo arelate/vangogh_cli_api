@@ -1,4 +1,4 @@
-package extract
+package reductions
 
 import (
 	"github.com/arelate/gog_atu"

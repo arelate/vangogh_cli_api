@@ -2,8 +2,7 @@ package cli
 
 import (
 	"fmt"
-	"github.com/arelate/vangogh_api/cli/itemize"
-	"github.com/arelate/vangogh_api/cli/url_helpers"
+	"github.com/arelate/vangogh_api/cli/itemizations"
 	"github.com/arelate/vangogh_data"
 	"github.com/boggydigital/dolo"
 	"github.com/boggydigital/gost"
@@ -13,7 +12,7 @@ import (
 )
 
 func GetImagesHandler(u *url.URL) error {
-	idSet, err := url_helpers.IdSet(u)
+	idSet, err := vangogh_data.IdSetFromUrl(u)
 	if err != nil {
 		return err
 	}
@@ -28,7 +27,7 @@ func GetImagesHandler(u *url.URL) error {
 //If requested it can check locally present files and download all missing (used in data files,
 //but not present locally) images for a given type.
 func GetImages(
-	idSet gost.StrSet,
+	idSet vangogh_data.IdSet,
 	its []vangogh_data.ImageType,
 	missing bool) error {
 
@@ -66,7 +65,7 @@ func GetImages(
 		//2. for every product id we get this way - add this image type to idMissingTypes[id]
 		for _, it := range its {
 			//1
-			missingImageIds, err := itemize.MissingLocalImages(it, rxa, localImageSet)
+			missingImageIds, err := itemizations.MissingLocalImages(it, rxa, localImageSet)
 			if err != nil {
 				return gia.EndWithError(err)
 			}

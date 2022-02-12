@@ -3,10 +3,8 @@ package cli
 import (
 	"fmt"
 	"github.com/arelate/gog_atu"
-	"github.com/arelate/vangogh_api/cli/fetch"
-	"github.com/arelate/vangogh_api/cli/itemize"
-	"github.com/arelate/vangogh_api/cli/split"
-	"github.com/arelate/vangogh_api/cli/url_helpers"
+	"github.com/arelate/vangogh_api/cli/fetchers"
+	"github.com/arelate/vangogh_api/cli/itemizations"
 	"github.com/arelate/vangogh_data"
 	"github.com/boggydigital/coost"
 	"github.com/boggydigital/gost"
@@ -17,7 +15,7 @@ import (
 )
 
 func GetDataHandler(u *url.URL) error {
-	idSet, err := url_helpers.IdSet(u)
+	idSet, err := vangogh_data.IdSetFromUrl(u)
 	if err != nil {
 		return err
 	}
@@ -43,7 +41,7 @@ func GetDataHandler(u *url.URL) error {
 
 //GetData gets remote data from GOG.com and stores as local products (splitting as paged data if needed)
 func GetData(
-	idSet gost.StrSet,
+	idSet vangogh_data.IdSet,
 	skipIds []string,
 	pt vangogh_data.ProductType,
 	mt gog_atu.Media,
@@ -83,27 +81,27 @@ func GetData(
 	}
 
 	if vangogh_data.IsPagedProduct(pt) {
-		if err := fetch.Pages(pt, mt, hc, gda); err != nil {
+		if err := fetchers.Pages(pt, mt, hc, gda); err != nil {
 			return gda.EndWithError(err)
 		}
-		return split.Pages(pt, mt, since)
+		return split(pt, mt, since)
 	}
 
 	if vangogh_data.IsArrayProduct(pt) {
 		// using "licences" as id, since that's how we store that data in kvas
 		ids := []string{vangogh_data.Licences.String()}
-		if err := fetch.Items(ids, pt, mt, hc); err != nil {
+		if err := fetchers.Items(ids, pt, mt, hc); err != nil {
 			return gda.EndWithError(err)
 		}
-		return split.Pages(pt, mt, since)
+		return split(pt, mt, since)
 	}
 
-	idSet, err = itemize.All(idSet, missing, updated, since, pt, mt)
+	idSet, err = itemizations.All(idSet, missing, updated, since, pt, mt)
 	if err != nil {
 		return gda.EndWithError(err)
 	}
 
 	approvedIds := idSet.Except(gost.NewStrSetWith(skipIds...))
 
-	return fetch.Items(approvedIds, pt, mt, hc)
+	return fetchers.Items(approvedIds, pt, mt, hc)
 }

@@ -1,7 +1,6 @@
 package cli
 
 import (
-	"github.com/arelate/vangogh_api/cli/expand"
 	"github.com/arelate/vangogh_data"
 	"github.com/boggydigital/gost"
 	"github.com/boggydigital/nod"
@@ -11,7 +10,7 @@ import (
 func SearchHandler(u *url.URL) error {
 	query := make(map[string][]string)
 
-	for _, prop := range vangogh_data.Searchable() {
+	for _, prop := range vangogh_data.SearchableProperties() {
 		if values := vangogh_data.ValuesFromUrl(u, prop); len(values) > 0 {
 			query[prop] = values
 		}
@@ -60,8 +59,8 @@ func Search(query map[string][]string) error {
 		return nil
 	}
 
-	itp, err := expand.IdsToPropertyLists(
-		results,
+	itp, err := vangogh_data.PropertyListsFromIdSet(
+		vangogh_data.IdSetFromMap(results),
 		propertyFilter,
 		//similarly for propertyFilter (see comment above) - expand all properties to display
 		//TODO: restore this as well

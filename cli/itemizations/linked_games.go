@@ -1,18 +1,17 @@
-package itemize
+package itemizations
 
 import (
 	"github.com/arelate/gog_atu"
 	"github.com/arelate/vangogh_data"
-	"github.com/boggydigital/gost"
 	"github.com/boggydigital/nod"
 )
 
-func linkedGames(modifiedAfter int64) (gost.StrSet, error) {
+func linkedGames(modifiedAfter int64) (vangogh_data.IdSet, error) {
 
 	lga := nod.Begin(" finding missing linked %s...", vangogh_data.ApiProductsV2)
 	defer lga.End()
 
-	missingSet := gost.NewStrSet()
+	missingSet := vangogh_data.NewIdSet()
 
 	//currently, api-products-v2 support only gog_atu.Game, and since this method is exclusively
 	//using api-products-v2 we're fine specifying media directly and not taking as a parameter

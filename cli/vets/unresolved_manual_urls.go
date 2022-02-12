@@ -3,9 +3,7 @@ package vets
 import (
 	"fmt"
 	"github.com/arelate/gog_atu"
-	"github.com/arelate/vangogh_api/cli/expand"
 	"github.com/arelate/vangogh_data"
-	"github.com/boggydigital/gost"
 	"github.com/boggydigital/nod"
 )
 
@@ -22,7 +20,7 @@ func UnresolvedManualUrls(
 	rxa, err := vangogh_data.ConnectReduxAssets(
 		vangogh_data.TitleProperty,
 		vangogh_data.NativeLanguageNameProperty,
-		vangogh_data.LocalManualUrl)
+		vangogh_data.LocalManualUrlProperty)
 	if err != nil {
 		return cumu.EndWithError(err)
 	}
@@ -33,7 +31,7 @@ func UnresolvedManualUrls(
 	}
 
 	allDetails := vrDetails.Keys()
-	unresolvedIds := gost.NewStrSet()
+	unresolvedIds := vangogh_data.NewIdSet()
 
 	cumu.TotalInt(len(allDetails))
 	for _, id := range allDetails {
@@ -55,7 +53,7 @@ func UnresolvedManualUrls(
 		downloadsList = downloadsList.Only(operatingSystems, downloadTypes, langCodes)
 
 		for _, dl := range downloadsList {
-			if _, ok := rxa.GetFirstVal(vangogh_data.LocalManualUrl, dl.ManualUrl); !ok {
+			if _, ok := rxa.GetFirstVal(vangogh_data.LocalManualUrlProperty, dl.ManualUrl); !ok {
 				unresolvedIds.Add(id)
 			}
 		}
@@ -67,7 +65,7 @@ func UnresolvedManualUrls(
 		cumu.EndWithResult("all good")
 	} else {
 
-		summary, err := expand.IdsToPropertyLists(
+		summary, err := vangogh_data.PropertyListsFromIdSet(
 			unresolvedIds,
 			nil,
 			[]string{vangogh_data.TitleProperty},

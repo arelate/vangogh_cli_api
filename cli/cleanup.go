@@ -3,7 +3,6 @@ package cli
 import (
 	"fmt"
 	"github.com/arelate/gog_atu"
-	"github.com/arelate/vangogh_api/cli/url_helpers"
 	"github.com/arelate/vangogh_data"
 	"github.com/boggydigital/gost"
 	"github.com/boggydigital/kvas"
@@ -17,7 +16,7 @@ import (
 const spaceSavingsSummary = "est. disk space savings:"
 
 func CleanupHandler(u *url.URL) error {
-	idSet, err := url_helpers.IdSet(u)
+	idSet, err := vangogh_data.IdSetFromUrl(u)
 	if err != nil {
 		return err
 	}
@@ -33,7 +32,7 @@ func CleanupHandler(u *url.URL) error {
 }
 
 func Cleanup(
-	idSet gost.StrSet,
+	idSet vangogh_data.IdSet,
 	mt gog_atu.Media,
 	operatingSystems []vangogh_data.OperatingSystem,
 	downloadTypes []vangogh_data.DownloadType,
@@ -43,7 +42,7 @@ func Cleanup(
 	rxa, err := vangogh_data.ConnectReduxAssets(
 		vangogh_data.SlugProperty,
 		vangogh_data.NativeLanguageNameProperty,
-		vangogh_data.LocalManualUrl)
+		vangogh_data.LocalManualUrlProperty)
 	if err != nil {
 		return err
 	}
@@ -113,7 +112,7 @@ func (cd *cleanupDelegate) Process(_ string, slug string, list vangogh_data.Down
 	csa := nod.QueueBegin(slug)
 	defer csa.End()
 
-	if err := cd.rxa.IsSupported(vangogh_data.LocalManualUrl); err != nil {
+	if err := cd.rxa.IsSupported(vangogh_data.LocalManualUrlProperty); err != nil {
 		return csa.EndWithError(err)
 	}
 
@@ -131,7 +130,7 @@ func (cd *cleanupDelegate) Process(_ string, slug string, list vangogh_data.Down
 	}
 
 	for _, dl := range list {
-		if localFilename, ok := cd.rxa.GetFirstVal(vangogh_data.LocalManualUrl, dl.ManualUrl); ok {
+		if localFilename, ok := cd.rxa.GetFirstVal(vangogh_data.LocalManualUrlProperty, dl.ManualUrl); ok {
 			//local filenames are saved as relative to root downloads folder (e.g. s/slug/local_filename)
 			//so filepath.Rel would trim to local_filename (or dlc/local_filename, extra/local_filename)
 			relFilename, err := filepath.Rel(pDir, localFilename)

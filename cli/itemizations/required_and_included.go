@@ -1,28 +1,27 @@
-package itemize
+package itemizations
 
 import (
 	"github.com/arelate/gog_atu"
 	"github.com/arelate/vangogh_data"
-	"github.com/boggydigital/gost"
 	"github.com/boggydigital/nod"
 )
 
 //RequiredAndIncluded enumerates all base products for a newly acquired DLCs
-func RequiredAndIncluded(createdAfter int64) (gost.StrSet, error) {
+func RequiredAndIncluded(createdAfter int64) (vangogh_data.IdSet, error) {
 
 	raia := nod.Begin(" finding new DLCs missing required base product...")
 	defer raia.End()
 
-	newLicSet := gost.NewStrSet()
+	newLicSet := vangogh_data.NewIdSet()
 
 	vrLicences, err := vangogh_data.NewReader(vangogh_data.LicenceProducts, gog_atu.Game)
 	if err != nil {
-		return nil, raia.EndWithError(err)
+		return newLicSet, raia.EndWithError(err)
 	}
 
 	vrApv2, err := vangogh_data.NewReader(vangogh_data.ApiProductsV2, gog_atu.Game)
 	if err != nil {
-		return nil, raia.EndWithError(err)
+		return newLicSet, raia.EndWithError(err)
 	}
 
 	newLicences := vrLicences.CreatedAfter(createdAfter)
@@ -41,7 +40,7 @@ func RequiredAndIncluded(createdAfter int64) (gost.StrSet, error) {
 		//for newly acquired licences.
 		apv2, err := vrApv2.ApiProductV2(id)
 		if err != nil {
-			return nil, raia.EndWithError(err)
+			return newLicSet, raia.EndWithError(err)
 		}
 
 		grg := apv2.GetRequiresGames()
@@ -71,7 +70,7 @@ func RequiredAndIncluded(createdAfter int64) (gost.StrSet, error) {
 		}
 		apv2, err := vrApv2.ApiProductV2(id)
 		if err != nil {
-			return nil, raia.EndWithError(err)
+			return newLicSet, raia.EndWithError(err)
 		}
 		if apv2.Embedded.ProductType != "GAME" {
 			newLicSet.Remove(id)

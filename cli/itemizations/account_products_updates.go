@@ -1,19 +1,18 @@
-package itemize
+package itemizations
 
 import (
 	"github.com/arelate/gog_atu"
 	"github.com/arelate/vangogh_data"
-	"github.com/boggydigital/gost"
 	"github.com/boggydigital/nod"
 	"strconv"
 )
 
-func AccountProductsUpdates(mt gog_atu.Media) (gost.StrSet, error) {
+func AccountProductsUpdates(mt gog_atu.Media) (vangogh_data.IdSet, error) {
 
 	apua := nod.Begin(" finding %s updates...", vangogh_data.AccountProducts)
 	defer apua.End()
 
-	updatesSet := gost.NewStrSet()
+	updatesSet := vangogh_data.NewIdSet()
 	vrAccountPages, err := vangogh_data.NewReader(vangogh_data.AccountPage, mt)
 	if err != nil {
 		return updatesSet, apua.EndWithError(err)

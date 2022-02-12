@@ -3,7 +3,6 @@ package cli
 import (
 	"fmt"
 	"github.com/arelate/gog_atu"
-	"github.com/arelate/vangogh_api/cli/hours"
 	"github.com/arelate/vangogh_data"
 	"github.com/boggydigital/nod"
 	"net/url"
@@ -34,11 +33,10 @@ var filterUpdatedProductTypes = map[vangogh_data.ProductType]bool{
 }
 
 func SummaryHandler(u *url.URL) error {
-	sha, err := hours.Atoi(vangogh_data.ValueFromUrl(u, "since-hours-ago"))
+	since, err := vangogh_data.SinceFromUrl(u)
 	if err != nil {
 		return err
 	}
-	since := time.Now().Unix() - int64(sha*60*60)
 
 	return Summary(
 		vangogh_data.MediaFromUrl(u),

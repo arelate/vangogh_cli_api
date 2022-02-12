@@ -1,26 +1,25 @@
-package itemize
+package itemizations
 
 import (
 	"fmt"
 	"github.com/arelate/gog_atu"
 	"github.com/arelate/vangogh_data"
-	"github.com/boggydigital/gost"
 	"github.com/boggydigital/kvas"
 	"github.com/boggydigital/nod"
 )
 
-func itemizationResult(set gost.StrSet) string {
-	if set.Len() == 0 {
+func itemizationResult(idSet vangogh_data.IdSet) string {
+	if idSet.Len() == 0 {
 		return "found nothing"
 	} else {
-		return fmt.Sprintf("found %d", set.Len())
+		return fmt.Sprintf("found %d", idSet.Len())
 	}
 }
 
 func missingDetail(
 	detailPt, mainPt vangogh_data.ProductType,
 	mt gog_atu.Media,
-	since int64) (gost.StrSet, error) {
+	since int64) (vangogh_data.IdSet, error) {
 
 	//api-products-v2 provides
 	//includes-games, is-included-by-games,
@@ -48,7 +47,7 @@ func missingDetail(
 	mda := nod.Begin(" finding missing %s for %s...", detailPt, mainPt)
 	defer mda.End()
 
-	missingIdSet := gost.NewStrSet()
+	missingIdSet := vangogh_data.NewIdSet()
 
 	mainDestUrl, err := vangogh_data.AbsLocalProductTypeDir(mainPt, mt)
 	if err != nil {
@@ -85,7 +84,7 @@ func missingDetail(
 		if err != nil {
 			return missingIdSet, err
 		}
-		for uapId := range updatedAccountProducts {
+		for _, uapId := range updatedAccountProducts.All() {
 			missingIdSet.Add(uapId)
 		}
 	}

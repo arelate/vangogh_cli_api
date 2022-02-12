@@ -6,11 +6,8 @@ import (
 	"errors"
 	"fmt"
 	"github.com/arelate/gog_atu"
-	"github.com/arelate/vangogh_api/cli/url_helpers"
-	"github.com/arelate/vangogh_api/cli/validation"
 	"github.com/arelate/vangogh_data"
 	"github.com/boggydigital/dolo"
-	"github.com/boggydigital/gost"
 	"github.com/boggydigital/kvas"
 	"github.com/boggydigital/nod"
 	"net/url"
@@ -26,7 +23,7 @@ var (
 )
 
 func ValidateHandler(u *url.URL) error {
-	idSet, err := url_helpers.IdSet(u)
+	idSet, err := vangogh_data.IdSetFromUrl(u)
 	if err != nil {
 		return err
 	}
@@ -41,7 +38,7 @@ func ValidateHandler(u *url.URL) error {
 }
 
 func Validate(
-	idSet gost.StrSet,
+	idSet vangogh_data.IdSet,
 	mt gog_atu.Media,
 	operatingSystems []vangogh_data.OperatingSystem,
 	downloadTypes []vangogh_data.DownloadType,
@@ -54,7 +51,7 @@ func Validate(
 	rxa, err := vangogh_data.ConnectReduxAssets(
 		vangogh_data.SlugProperty,
 		vangogh_data.NativeLanguageNameProperty,
-		vangogh_data.LocalManualUrl)
+		vangogh_data.LocalManualUrlProperty)
 	if err != nil {
 		return err
 	}
@@ -116,7 +113,7 @@ func validateManualUrl(
 	dl *vangogh_data.Download,
 	rxa kvas.ReduxAssets) error {
 
-	if err := rxa.IsSupported(vangogh_data.LocalManualUrl); err != nil {
+	if err := rxa.IsSupported(vangogh_data.LocalManualUrlProperty); err != nil {
 		return err
 	}
 
@@ -124,7 +121,7 @@ func validateManualUrl(
 	defer mua.End()
 
 	//local filenames are saved as relative to root downloads folder (e.g. s/slug/local_filename)
-	localFile, ok := rxa.GetFirstVal(vangogh_data.LocalManualUrl, dl.ManualUrl)
+	localFile, ok := rxa.GetFirstVal(vangogh_data.LocalManualUrlProperty, dl.ManualUrl)
 	if !ok {
 		mua.EndWithResult(ErrUnresolvedManualUrl.Error())
 		return ErrUnresolvedManualUrl
@@ -156,7 +153,7 @@ func validateManualUrl(
 	}
 	defer chkFile.Close()
 
-	var chkData validation.File
+	var chkData vangogh_data.ValidationFile
 	if err := xml.NewDecoder(chkFile).Decode(&chkData); err != nil {
 		return mua.EndWithError(err)
 	}
