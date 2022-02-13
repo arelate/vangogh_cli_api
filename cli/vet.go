@@ -1,9 +1,9 @@
 package cli
 
 import (
-	"github.com/arelate/gog_atu"
-	"github.com/arelate/vangogh_api/cli/vets"
-	"github.com/arelate/vangogh_data"
+	"github.com/arelate/gog_integration"
+	"github.com/arelate/vangogh_cli_api/cli/vets"
+	"github.com/arelate/vangogh_local_data"
 	"github.com/boggydigital/nod"
 	"net/url"
 )
@@ -25,17 +25,17 @@ type vetOptions struct {
 func initVetOptions(u *url.URL) *vetOptions {
 
 	vo := &vetOptions{
-		localOnlyData:        vangogh_data.FlagFromUrl(u, VetOptionLocalOnlyData),
-		recycleBin:           vangogh_data.FlagFromUrl(u, VetOptionRecycleBin),
-		invalidData:          vangogh_data.FlagFromUrl(u, VetOptionInvalidData),
-		unresolvedManualUrls: vangogh_data.FlagFromUrl(u, VetOptionUnresolvedManualUrls),
+		localOnlyData:        vangogh_local_data.FlagFromUrl(u, VetOptionLocalOnlyData),
+		recycleBin:           vangogh_local_data.FlagFromUrl(u, VetOptionRecycleBin),
+		invalidData:          vangogh_local_data.FlagFromUrl(u, VetOptionInvalidData),
+		unresolvedManualUrls: vangogh_local_data.FlagFromUrl(u, VetOptionUnresolvedManualUrls),
 	}
 
-	if vangogh_data.FlagFromUrl(u, "all") {
-		vo.localOnlyData = !vangogh_data.FlagFromUrl(u, NegOpt(VetOptionLocalOnlyData))
-		vo.recycleBin = !vangogh_data.FlagFromUrl(u, NegOpt(VetOptionRecycleBin))
-		vo.invalidData = !vangogh_data.FlagFromUrl(u, NegOpt(VetOptionInvalidData))
-		vo.unresolvedManualUrls = !vangogh_data.FlagFromUrl(u, NegOpt(VetOptionUnresolvedManualUrls))
+	if vangogh_local_data.FlagFromUrl(u, "all") {
+		vo.localOnlyData = !vangogh_local_data.FlagFromUrl(u, NegOpt(VetOptionLocalOnlyData))
+		vo.recycleBin = !vangogh_local_data.FlagFromUrl(u, NegOpt(VetOptionRecycleBin))
+		vo.invalidData = !vangogh_local_data.FlagFromUrl(u, NegOpt(VetOptionInvalidData))
+		vo.unresolvedManualUrls = !vangogh_local_data.FlagFromUrl(u, NegOpt(VetOptionUnresolvedManualUrls))
 	}
 
 	return vo
@@ -46,19 +46,19 @@ func VetHandler(u *url.URL) error {
 	vetOpts := initVetOptions(u)
 
 	return Vet(
-		vangogh_data.MediaFromUrl(u),
+		vangogh_local_data.MediaFromUrl(u),
 		vetOpts,
-		vangogh_data.OperatingSystemsFromUrl(u),
-		vangogh_data.DownloadTypesFromUrl(u),
-		vangogh_data.ValuesFromUrl(u, "language-code"),
-		vangogh_data.FlagFromUrl(u, "fix"))
+		vangogh_local_data.OperatingSystemsFromUrl(u),
+		vangogh_local_data.DownloadTypesFromUrl(u),
+		vangogh_local_data.ValuesFromUrl(u, "language-code"),
+		vangogh_local_data.FlagFromUrl(u, "fix"))
 }
 
 func Vet(
-	mt gog_atu.Media,
+	mt gog_integration.Media,
 	vetOpts *vetOptions,
-	operatingSystems []vangogh_data.OperatingSystem,
-	downloadTypes []vangogh_data.DownloadType,
+	operatingSystems []vangogh_local_data.OperatingSystem,
+	downloadTypes []vangogh_local_data.DownloadType,
 	langCodes []string,
 	fix bool) error {
 

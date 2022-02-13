@@ -3,7 +3,7 @@ package v1
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/arelate/vangogh_data"
+	"github.com/arelate/vangogh_local_data"
 	"github.com/boggydigital/nod"
 	"net/http"
 )
@@ -27,7 +27,7 @@ func GetIndexesList(w http.ResponseWriter, r *http.Request) {
 	}
 
 	sort, desc := getSortDesc(r.URL)
-	if !vangogh_data.IsValidProperty(sort) {
+	if !vangogh_local_data.IsValidProperty(sort) {
 		err := fmt.Errorf("invalid sort property %s", sort)
 		http.Error(w, nod.Error(err).Error(), 400)
 		return

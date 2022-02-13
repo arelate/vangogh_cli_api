@@ -1,8 +1,8 @@
 package cli
 
 import (
-	"github.com/arelate/vangogh_api/cli/itemizations"
-	"github.com/arelate/vangogh_data"
+	"github.com/arelate/vangogh_cli_api/cli/itemizations"
+	"github.com/arelate/vangogh_local_data"
 	"github.com/boggydigital/dolo"
 	"github.com/boggydigital/nod"
 	"github.com/boggydigital/yt_urls"
@@ -15,26 +15,26 @@ const (
 )
 
 func GetVideosHandler(u *url.URL) error {
-	idSet, err := vangogh_data.IdSetFromUrl(u)
+	idSet, err := vangogh_local_data.IdSetFromUrl(u)
 	if err != nil {
 		return err
 	}
 
 	return GetVideos(
 		idSet,
-		vangogh_data.FlagFromUrl(u, "missing"))
+		vangogh_local_data.FlagFromUrl(u, "missing"))
 }
 
-func GetVideos(idSet vangogh_data.IdSet, missing bool) error {
+func GetVideos(idSet vangogh_local_data.IdSet, missing bool) error {
 
 	gva := nod.NewProgress("getting videos...")
 	defer gva.End()
 
-	rxa, err := vangogh_data.ConnectReduxAssets(
-		vangogh_data.TitleProperty,
-		vangogh_data.SlugProperty,
-		vangogh_data.VideoIdProperty,
-		vangogh_data.MissingVideoUrlProperty)
+	rxa, err := vangogh_local_data.ConnectReduxAssets(
+		vangogh_local_data.TitleProperty,
+		vangogh_local_data.SlugProperty,
+		vangogh_local_data.VideoIdProperty,
+		vangogh_local_data.MissingVideoUrlProperty)
 
 	if err != nil {
 		return gva.EndWithError(err)
@@ -60,13 +60,13 @@ func GetVideos(idSet vangogh_data.IdSet, missing bool) error {
 	gva.TotalInt(idSet.Len())
 
 	for _, id := range idSet.All() {
-		videoIds, ok := rxa.GetAllUnchangedValues(vangogh_data.VideoIdProperty, id)
+		videoIds, ok := rxa.GetAllUnchangedValues(vangogh_local_data.VideoIdProperty, id)
 		if !ok || len(videoIds) == 0 {
 			gva.Increment()
 			continue
 		}
 
-		title, _ := rxa.GetFirstVal(vangogh_data.TitleProperty, id)
+		title, _ := rxa.GetFirstVal(vangogh_local_data.TitleProperty, id)
 
 		va := nod.Begin("%s %s", id, title)
 
@@ -77,7 +77,7 @@ func GetVideos(idSet vangogh_data.IdSet, missing bool) error {
 			vp, err := yt_urls.GetVideoPage(http.DefaultClient, videoId)
 			if err != nil {
 				va.Error(err)
-				if addErr := rxa.AddVal(vangogh_data.MissingVideoUrlProperty, videoId, err.Error()); addErr != nil {
+				if addErr := rxa.AddVal(vangogh_local_data.MissingVideoUrlProperty, videoId, err.Error()); addErr != nil {
 					return addErr
 				}
 				continue
@@ -88,7 +88,7 @@ func GetVideos(idSet vangogh_data.IdSet, missing bool) error {
 			vidUrls := vp.StreamingFormats()
 
 			if len(vidUrls) == 0 {
-				if err := rxa.AddVal(vangogh_data.MissingVideoUrlProperty, videoId, missingStr); err != nil {
+				if err := rxa.AddVal(vangogh_local_data.MissingVideoUrlProperty, videoId, missingStr); err != nil {
 					return vfa.EndWithError(err)
 				}
 			}
@@ -96,13 +96,13 @@ func GetVideos(idSet vangogh_data.IdSet, missing bool) error {
 			for _, vidUrl := range vidUrls {
 
 				if vidUrl.Url == "" {
-					if err := rxa.AddVal(vangogh_data.MissingVideoUrlProperty, videoId, missingStr); err != nil {
+					if err := rxa.AddVal(vangogh_local_data.MissingVideoUrlProperty, videoId, missingStr); err != nil {
 						return vfa.EndWithError(err)
 					}
 					continue
 				}
 
-				dir := vangogh_data.AbsDirByVideoId(videoId)
+				dir := vangogh_local_data.AbsDirByVideoId(videoId)
 
 				u, err := url.Parse(vidUrl.Url)
 				if err != nil {

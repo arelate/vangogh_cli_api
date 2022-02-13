@@ -1,8 +1,8 @@
 package reductions
 
 import (
-	"github.com/arelate/gog_atu"
-	"github.com/arelate/vangogh_data"
+	"github.com/arelate/gog_integration"
+	"github.com/arelate/vangogh_local_data"
 	"github.com/boggydigital/nod"
 	"strconv"
 	"time"
@@ -10,15 +10,15 @@ import (
 
 func Orders(modifiedAfter int64) error {
 
-	oa := nod.NewProgress(" %s...", vangogh_data.GOGOrderDateProperty)
+	oa := nod.NewProgress(" %s...", vangogh_local_data.GOGOrderDateProperty)
 	defer oa.End()
 
-	rxa, err := vangogh_data.ConnectReduxAssets(vangogh_data.GOGOrderDateProperty)
+	rxa, err := vangogh_local_data.ConnectReduxAssets(vangogh_local_data.GOGOrderDateProperty)
 	if err != nil {
 		return oa.EndWithError(err)
 	}
 
-	vrOrders, err := vangogh_data.NewReader(vangogh_data.Orders, gog_atu.Game)
+	vrOrders, err := vangogh_local_data.NewReader(vangogh_local_data.Orders, gog_integration.Game)
 	if err != nil {
 		return oa.EndWithError(err)
 	}
@@ -54,7 +54,7 @@ func Orders(modifiedAfter int64) error {
 		oa.Increment()
 	}
 
-	if err := rxa.BatchReplaceValues(vangogh_data.GOGOrderDateProperty, gogOrderDates); err != nil {
+	if err := rxa.BatchReplaceValues(vangogh_local_data.GOGOrderDateProperty, gogOrderDates); err != nil {
 		return oa.EndWithError(err)
 	}
 

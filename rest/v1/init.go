@@ -1,14 +1,14 @@
 package v1
 
 import (
-	"github.com/arelate/gog_atu"
-	"github.com/arelate/vangogh_data"
+	"github.com/arelate/gog_integration"
+	"github.com/arelate/vangogh_local_data"
 	"github.com/boggydigital/kvas"
 )
 
 type productTypeMedia struct {
-	productType vangogh_data.ProductType
-	media       gog_atu.Media
+	productType vangogh_local_data.ProductType
+	media       gog_integration.Media
 }
 
 type productTypeMediaSort struct {
@@ -18,23 +18,23 @@ type productTypeMediaSort struct {
 }
 
 var rxa kvas.ReduxAssets
-var valueReaders map[productTypeMedia]*vangogh_data.ValueReader
+var valueReaders map[productTypeMedia]*vangogh_local_data.ValueReader
 var sortedIds map[productTypeMediaSort][]string
-var defaultSort = vangogh_data.TitleProperty
+var defaultSort = vangogh_local_data.TitleProperty
 
 func Init() error {
 	var err error
 
-	rxa, err = vangogh_data.ConnectReduxAssets(vangogh_data.ExtractedProperties()...)
+	rxa, err = vangogh_local_data.ConnectReduxAssets(vangogh_local_data.ExtractedProperties()...)
 	if err != nil {
 		return err
 	}
 
-	valueReaders = make(map[productTypeMedia]*vangogh_data.ValueReader)
-	mt := gog_atu.Game
-	for _, pt := range vangogh_data.LocalProducts() {
+	valueReaders = make(map[productTypeMedia]*vangogh_local_data.ValueReader)
+	mt := gog_integration.Game
+	for _, pt := range vangogh_local_data.LocalProducts() {
 		ptm := productTypeMedia{productType: pt, media: mt}
-		valueReaders[ptm], err = vangogh_data.NewReader(pt, mt)
+		valueReaders[ptm], err = vangogh_local_data.NewReader(pt, mt)
 		if err != nil {
 			return err
 		}

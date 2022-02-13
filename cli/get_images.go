@@ -2,8 +2,8 @@ package cli
 
 import (
 	"fmt"
-	"github.com/arelate/vangogh_api/cli/itemizations"
-	"github.com/arelate/vangogh_data"
+	"github.com/arelate/vangogh_cli_api/cli/itemizations"
+	"github.com/arelate/vangogh_local_data"
 	"github.com/boggydigital/dolo"
 	"github.com/boggydigital/gost"
 	"github.com/boggydigital/nod"
@@ -12,51 +12,51 @@ import (
 )
 
 func GetImagesHandler(u *url.URL) error {
-	idSet, err := vangogh_data.IdSetFromUrl(u)
+	idSet, err := vangogh_local_data.IdSetFromUrl(u)
 	if err != nil {
 		return err
 	}
 
 	return GetImages(
 		idSet,
-		vangogh_data.ImageTypesFromUrl(u),
-		vangogh_data.FlagFromUrl(u, "missing"))
+		vangogh_local_data.ImageTypesFromUrl(u),
+		vangogh_local_data.FlagFromUrl(u, "missing"))
 }
 
 //GetImages fetches remote images for a given type (box-art, screenshots, background, etc.).
 //If requested it can check locally present files and download all missing (used in data files,
 //but not present locally) images for a given type.
 func GetImages(
-	idSet vangogh_data.IdSet,
-	its []vangogh_data.ImageType,
+	idSet vangogh_local_data.IdSet,
+	its []vangogh_local_data.ImageType,
 	missing bool) error {
 
 	gia := nod.NewProgress("getting images...")
 	defer gia.End()
 
 	for _, it := range its {
-		if !vangogh_data.IsValidImageType(it) {
+		if !vangogh_local_data.IsValidImageType(it) {
 			return gia.EndWithError(fmt.Errorf("invalid image type %s", it))
 		}
 	}
 
 	propSet := gost.NewStrSetWith(
-		vangogh_data.TitleProperty)
+		vangogh_local_data.TitleProperty)
 
 	for _, it := range its {
-		propSet.Add(vangogh_data.PropertyFromImageType(it))
+		propSet.Add(vangogh_local_data.PropertyFromImageType(it))
 	}
 
-	rxa, err := vangogh_data.ConnectReduxAssets(propSet.All()...)
+	rxa, err := vangogh_local_data.ConnectReduxAssets(propSet.All()...)
 	if err != nil {
 		return gia.EndWithError(err)
 	}
 
 	//for every product we'll collect image types missing for id and download only those
-	idMissingTypes := map[string][]vangogh_data.ImageType{}
+	idMissingTypes := map[string][]vangogh_local_data.ImageType{}
 
 	if missing {
-		localImageSet, err := vangogh_data.LocalImageIds()
+		localImageSet, err := vangogh_local_data.LocalImageIds()
 		if err != nil {
 			return gia.EndWithError(err)
 		}
@@ -73,7 +73,7 @@ func GetImages(
 			//2
 			for _, id := range missingImageIds.All() {
 				if idMissingTypes[id] == nil {
-					idMissingTypes[id] = make([]vangogh_data.ImageType, 0)
+					idMissingTypes[id] = make([]vangogh_local_data.ImageType, 0)
 				}
 				idMissingTypes[id] = append(idMissingTypes[id], it)
 			}
@@ -100,7 +100,7 @@ func GetImages(
 		//for every product collect all image URLs and all corresponding local filenames
 		//to pass to dolo.GetSet, that'll concurrently download all required product images
 
-		title, ok := rxa.GetFirstVal(vangogh_data.TitleProperty, id)
+		title, ok := rxa.GetFirstVal(vangogh_local_data.TitleProperty, id)
 		if !ok {
 			title = id
 		}
@@ -114,12 +114,12 @@ func GetImages(
 
 		for _, it := range missingIts {
 
-			images, ok := rxa.GetAllValues(vangogh_data.PropertyFromImageType(it), id)
+			images, ok := rxa.GetAllValues(vangogh_local_data.PropertyFromImageType(it), id)
 			if !ok || len(images) == 0 {
 				continue
 			}
 
-			srcUrls, err := vangogh_data.ImagePropertyUrls(images, it)
+			srcUrls, err := vangogh_local_data.ImagePropertyUrls(images, it)
 			if err != nil {
 				return mita.EndWithError(err)
 			}
@@ -127,7 +127,7 @@ func GetImages(
 			urls = append(urls, srcUrls...)
 
 			for _, srcUrl := range srcUrls {
-				dstDir := vangogh_data.AbsDirByImageId(srcUrl.Path)
+				dstDir := vangogh_local_data.AbsDirByImageId(srcUrl.Path)
 				filenames = append(filenames, filepath.Join(dstDir, srcUrl.Path))
 			}
 		}

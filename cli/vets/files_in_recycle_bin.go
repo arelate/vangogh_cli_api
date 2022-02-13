@@ -1,7 +1,7 @@
 package vets
 
 import (
-	"github.com/arelate/vangogh_data"
+	"github.com/arelate/vangogh_local_data"
 	"github.com/boggydigital/gost"
 	"github.com/boggydigital/nod"
 	"os"
@@ -13,11 +13,11 @@ func FilesInRecycleBin(fix bool) error {
 	srba := nod.Begin("checking files in recycle bin...")
 	defer srba.End()
 
-	recycleBinFiles, err := vangogh_data.RecycleBinFiles()
+	recycleBinFiles, err := vangogh_local_data.RecycleBinFiles()
 	if err != nil {
 		return srba.EndWithError(err)
 	}
-	recycleBinDirs, err := vangogh_data.RecycleBinDirs()
+	recycleBinDirs, err := vangogh_local_data.RecycleBinDirs()
 	if err != nil {
 		return srba.EndWithError(err)
 	}
@@ -32,7 +32,7 @@ func FilesInRecycleBin(fix bool) error {
 			rfa := nod.NewProgress(" emptying recycle bin...")
 			rfa.TotalInt(len(recycleBinFiles))
 			for file := range recycleBinFiles {
-				if err := os.Remove(filepath.Join(vangogh_data.AbsRecycleBinDir(), file)); err != nil {
+				if err := os.Remove(filepath.Join(vangogh_local_data.AbsRecycleBinDir(), file)); err != nil {
 					return rfa.EndWithError(err)
 				}
 				rfa.Increment()

@@ -1,11 +1,11 @@
 package v1
 
 import (
-	"github.com/arelate/gog_atu"
-	"github.com/arelate/vangogh_data"
+	"github.com/arelate/gog_integration"
+	"github.com/arelate/vangogh_local_data"
 )
 
-func getSortedIds(pt vangogh_data.ProductType, mt gog_atu.Media, sort string, desc bool) ([]string, error) {
+func getSortedIds(pt vangogh_local_data.ProductType, mt gog_integration.Media, sort string, desc bool) ([]string, error) {
 
 	ptms := productTypeMediaSort{
 		productTypeMedia: productTypeMedia{productType: pt, media: mt},
@@ -20,7 +20,7 @@ func getSortedIds(pt vangogh_data.ProductType, mt gog_atu.Media, sort string, de
 	if vr, err := getValueReader(pt, mt); err != nil {
 		return nil, err
 	} else {
-		idSet := vangogh_data.IdSetFromSlice(vr.Keys()...)
+		idSet := vangogh_local_data.IdSetFromSlice(vr.Keys()...)
 		sortedIds[ptms] = idSet.Sort(rxa, sort, desc)
 	}
 

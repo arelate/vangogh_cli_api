@@ -1,18 +1,18 @@
 package itemizations
 
 import (
-	"github.com/arelate/gog_atu"
-	"github.com/arelate/vangogh_data"
+	"github.com/arelate/gog_integration"
+	"github.com/arelate/vangogh_local_data"
 )
 
 func All(
-	idSet vangogh_data.IdSet,
+	idSet vangogh_local_data.IdSet,
 	missing, updated bool,
 	modifiedAfter int64,
-	pt vangogh_data.ProductType,
-	mt gog_atu.Media) (vangogh_data.IdSet, error) {
+	pt vangogh_local_data.ProductType,
+	mt gog_integration.Media) (vangogh_local_data.IdSet, error) {
 
-	for _, mainPt := range vangogh_data.MainProductTypes(pt) {
+	for _, mainPt := range vangogh_local_data.MainProductTypes(pt) {
 		if missing {
 			missingIds, err := missingDetail(pt, mainPt, mt, modifiedAfter)
 			if err != nil {

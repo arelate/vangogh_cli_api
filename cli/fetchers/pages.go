@@ -3,8 +3,8 @@ package fetchers
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/arelate/gog_atu"
-	"github.com/arelate/vangogh_data"
+	"github.com/arelate/gog_integration"
+	"github.com/arelate/vangogh_local_data"
 	"github.com/boggydigital/dolo"
 	"github.com/boggydigital/kvas"
 	"github.com/boggydigital/nod"
@@ -50,9 +50,9 @@ func (kis *kvasIndexSetter) Get(key string) (io.ReadCloser, error) {
 	return kis.keyValues.Get(key)
 }
 
-func NewKvasIndexSetter(pt vangogh_data.ProductType, mt gog_atu.Media, ids []string) (*kvasIndexSetter, error) {
+func NewKvasIndexSetter(pt vangogh_local_data.ProductType, mt gog_integration.Media, ids []string) (*kvasIndexSetter, error) {
 
-	localDir, err := vangogh_data.AbsLocalProductTypeDir(pt, mt)
+	localDir, err := vangogh_local_data.AbsLocalProductTypeDir(pt, mt)
 	if err != nil {
 		return nil, err
 	}
@@ -72,12 +72,12 @@ func NewKvasIndexSetter(pt vangogh_data.ProductType, mt gog_atu.Media, ids []str
 //To do that it downloads the first page, decodes that to get TotalPages,
 //then constructs a slice of URLs and page ids to download all the remaining
 //pages from 2nd to TotalPages using kvas index setter.
-func Pages(pt vangogh_data.ProductType, mt gog_atu.Media, httpClient *http.Client, tpw nod.TotalProgressWriter) error {
+func Pages(pt vangogh_local_data.ProductType, mt gog_integration.Media, httpClient *http.Client, tpw nod.TotalProgressWriter) error {
 
 	gfp := nod.Begin(" getting the first %s (%s)...", pt, mt)
 	defer gfp.End()
 
-	remoteUrl, err := vangogh_data.RemoteProductsUrl(pt)
+	remoteUrl, err := vangogh_local_data.RemoteProductsUrl(pt)
 	if err != nil {
 		return err
 	}
@@ -117,7 +117,7 @@ func Pages(pt vangogh_data.ProductType, mt gog_atu.Media, httpClient *http.Clien
 	}
 
 	//...and decode it using minimal data structure to get total pages amount
-	var page gog_atu.TotalPages
+	var page gog_integration.TotalPages
 	if err = json.NewDecoder(fpReadCloser).Decode(&page); err != nil {
 		return tpw.EndWithError(err)
 	}

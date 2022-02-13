@@ -2,13 +2,13 @@ package itemizations
 
 import (
 	"fmt"
-	"github.com/arelate/gog_atu"
-	"github.com/arelate/vangogh_data"
+	"github.com/arelate/gog_integration"
+	"github.com/arelate/vangogh_local_data"
 	"github.com/boggydigital/kvas"
 	"github.com/boggydigital/nod"
 )
 
-func itemizationResult(idSet vangogh_data.IdSet) string {
+func itemizationResult(idSet vangogh_local_data.IdSet) string {
 	if idSet.Len() == 0 {
 		return "found nothing"
 	} else {
@@ -17,15 +17,15 @@ func itemizationResult(idSet vangogh_data.IdSet) string {
 }
 
 func missingDetail(
-	detailPt, mainPt vangogh_data.ProductType,
-	mt gog_atu.Media,
-	since int64) (vangogh_data.IdSet, error) {
+	detailPt, mainPt vangogh_local_data.ProductType,
+	mt gog_integration.Media,
+	since int64) (vangogh_local_data.IdSet, error) {
 
 	//api-products-v2 provides
 	//includes-games, is-included-by-games,
 	//requires-games, is-required-by-games
-	if mainPt == vangogh_data.ApiProductsV2 &&
-		detailPt == vangogh_data.ApiProductsV2 {
+	if mainPt == vangogh_local_data.ApiProductsV2 &&
+		detailPt == vangogh_local_data.ApiProductsV2 {
 		lg, err := linkedGames(since)
 		if err != nil {
 			return lg, err
@@ -35,8 +35,8 @@ func missingDetail(
 
 	//licences give a signal when DLC has been purchased, this would add
 	//required (base) game details to the updates
-	if mainPt == vangogh_data.LicenceProducts &&
-		detailPt == vangogh_data.Details {
+	if mainPt == vangogh_local_data.LicenceProducts &&
+		detailPt == vangogh_local_data.Details {
 		rg, err := RequiredAndIncluded(since)
 		if err != nil {
 			return rg, err
@@ -47,14 +47,14 @@ func missingDetail(
 	mda := nod.Begin(" finding missing %s for %s...", detailPt, mainPt)
 	defer mda.End()
 
-	missingIdSet := vangogh_data.NewIdSet()
+	missingIdSet := vangogh_local_data.NewIdSet()
 
-	mainDestUrl, err := vangogh_data.AbsLocalProductTypeDir(mainPt, mt)
+	mainDestUrl, err := vangogh_local_data.AbsLocalProductTypeDir(mainPt, mt)
 	if err != nil {
 		return missingIdSet, mda.EndWithError(err)
 	}
 
-	detailDestUrl, err := vangogh_data.AbsLocalProductTypeDir(detailPt, mt)
+	detailDestUrl, err := vangogh_local_data.AbsLocalProductTypeDir(detailPt, mt)
 	if err != nil {
 		return missingIdSet, mda.EndWithError(err)
 	}
@@ -78,8 +78,8 @@ func missingDetail(
 
 	mda.EndWithResult(itemizationResult(missingIdSet))
 
-	if mainPt == vangogh_data.AccountProducts &&
-		detailPt == vangogh_data.Details {
+	if mainPt == vangogh_local_data.AccountProducts &&
+		detailPt == vangogh_local_data.Details {
 		updatedAccountProducts, err := AccountProductsUpdates(mt)
 		if err != nil {
 			return missingIdSet, err

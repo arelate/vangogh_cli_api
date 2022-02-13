@@ -1,1 +1,1 @@
-# vangogh_api
+# vangogh_cli_api

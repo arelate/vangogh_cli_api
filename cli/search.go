@@ -1,7 +1,7 @@
 package cli
 
 import (
-	"github.com/arelate/vangogh_data"
+	"github.com/arelate/vangogh_local_data"
 	"github.com/boggydigital/gost"
 	"github.com/boggydigital/nod"
 	"net/url"
@@ -10,8 +10,8 @@ import (
 func SearchHandler(u *url.URL) error {
 	query := make(map[string][]string)
 
-	for _, prop := range vangogh_data.SearchableProperties() {
-		if values := vangogh_data.ValuesFromUrl(u, prop); len(values) > 0 {
+	for _, prop := range vangogh_local_data.SearchableProperties() {
+		if values := vangogh_local_data.ValuesFromUrl(u, prop); len(values) > 0 {
 			query[prop] = values
 		}
 	}
@@ -27,12 +27,12 @@ func Search(query map[string][]string) error {
 	//prepare a list of all properties to load extracts for and
 	//always start with a `title` property since it is printed for all matched item
 	//(even if the match is for another property)
-	propSet := gost.NewStrSetWith(vangogh_data.TitleProperty)
+	propSet := gost.NewStrSetWith(vangogh_local_data.TitleProperty)
 	for qp := range query {
 		propSet.Add(qp)
 	}
 
-	rxa, err := vangogh_data.ConnectReduxAssets(propSet.All()...)
+	rxa, err := vangogh_local_data.ConnectReduxAssets(propSet.All()...)
 	if err != nil {
 		return sa.EndWithError(err)
 	}
@@ -43,29 +43,32 @@ func Search(query map[string][]string) error {
 	//since it's not aware of collapsed/expanded properties concept
 	propertyFilter := make(map[string][]string, 0)
 
-	//TODO: This needs to be restored
-	//for prop, terms := range query {
-	//	if vangogh_data.IsCollapsed(prop) {
-	//		for _, ep := range vangogh_data.Expand(prop) {
-	//			propertyFilter[ep] = terms
-	//		}
-	//	} else {
-	//		propertyFilter[prop] = terms
-	//	}
-	//}
+	for prop, terms := range query {
+		if vangogh_local_data.IsPropertyAggregate(prop) {
+			for _, ep := range vangogh_local_data.DetailAggregateProperty(prop) {
+				propertyFilter[ep] = terms
+			}
+		} else {
+			propertyFilter[prop] = terms
+		}
+	}
 
 	if len(results) == 0 {
 		sa.EndWithResult("no products found")
 		return nil
 	}
 
-	itp, err := vangogh_data.PropertyListsFromIdSet(
-		vangogh_data.IdSetFromMap(results),
+	//similarly for propertyFilter (see comment above) - expand all properties to display
+	expandedPropsMap := vangogh_local_data.DetailAllAggregateProperties(propSet.All()...)
+	expandedProps := make([]string, 0, len(expandedPropsMap))
+	for p := range expandedPropsMap {
+		expandedProps = append(expandedProps, p)
+	}
+
+	itp, err := vangogh_local_data.PropertyListsFromIdSet(
+		vangogh_local_data.IdSetFromMap(results),
 		propertyFilter,
-		//similarly for propertyFilter (see comment above) - expand all properties to display
-		//TODO: restore this as well
-		//vangogh_data.ExpandAll(propSet.All()),
-		propSet.All(),
+		expandedProps,
 		rxa)
 
 	if err != nil {

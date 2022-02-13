@@ -2,8 +2,8 @@ package cli
 
 import (
 	"fmt"
-	"github.com/arelate/gog_atu"
-	"github.com/arelate/vangogh_data"
+	"github.com/arelate/gog_integration"
+	"github.com/arelate/vangogh_local_data"
 	"github.com/boggydigital/gost"
 	"github.com/boggydigital/nod"
 	"net/url"
@@ -11,12 +11,12 @@ import (
 )
 
 func ListHandler(u *url.URL) error {
-	idSet, err := vangogh_data.IdSetFromUrl(u)
+	idSet, err := vangogh_local_data.IdSetFromUrl(u)
 	if err != nil {
 		return err
 	}
 
-	since, err := vangogh_data.SinceFromUrl(u)
+	since, err := vangogh_local_data.SinceFromUrl(u)
 	if err != nil {
 		return err
 	}
@@ -24,28 +24,28 @@ func ListHandler(u *url.URL) error {
 	return List(
 		idSet,
 		since,
-		vangogh_data.ProductTypeFromUrl(u),
-		vangogh_data.MediaFromUrl(u),
-		vangogh_data.PropertiesFromUrl(u))
+		vangogh_local_data.ProductTypeFromUrl(u),
+		vangogh_local_data.MediaFromUrl(u),
+		vangogh_local_data.PropertiesFromUrl(u))
 }
 
 //List prints products of a certain type and media.
 //Can be filtered to products that were created or modified since a certain time.
 //Provided properties will be printed for each product (if supported) in addition to default ID, Title.
 func List(
-	idSet vangogh_data.IdSet,
+	idSet vangogh_local_data.IdSet,
 	modifiedSince int64,
-	pt vangogh_data.ProductType,
-	mt gog_atu.Media,
+	pt vangogh_local_data.ProductType,
+	mt gog_integration.Media,
 	properties []string) error {
 
 	la := nod.Begin("listing %s...", pt)
 	defer la.End()
 
-	if !vangogh_data.IsValidProductType(pt) {
+	if !vangogh_local_data.IsValidProductType(pt) {
 		return la.EndWithError(fmt.Errorf("can't list invalid product type %s", pt))
 	}
-	if !gog_atu.ValidMedia(mt) {
+	if !gog_integration.IsValidMedia(mt) {
 		return la.EndWithError(fmt.Errorf("can't list invalid media %s", mt))
 	}
 
@@ -54,14 +54,14 @@ func List(
 	//if no properties have been provided - print ID, Title
 	if propSet.Len() == 0 {
 		propSet.Add(
-			vangogh_data.IdProperty,
-			vangogh_data.TitleProperty)
+			vangogh_local_data.IdProperty,
+			vangogh_local_data.TitleProperty)
 	}
 
 	//if Title property has not been provided - add it.
 	//we'll always print the title.
 	//same goes for sort-by property
-	propSet.Add(vangogh_data.TitleProperty)
+	propSet.Add(vangogh_local_data.TitleProperty)
 
 	//rules for collecting IDs to print:
 	//1. start with user provided IDs
@@ -70,7 +70,7 @@ func List(
 	//4. if no IDs have been collected and the request have not provided createdAfter or modifiedAfter:
 	// add all product IDs
 
-	vr, err := vangogh_data.NewReader(pt, mt)
+	vr, err := vangogh_local_data.NewReader(pt, mt)
 	if err != nil {
 		return la.EndWithError(err)
 	}
@@ -87,10 +87,10 @@ func List(
 		idSet.Add(vr.Keys()...)
 	}
 
-	itp, err := vangogh_data.PropertyListsFromIdSet(
+	itp, err := vangogh_local_data.PropertyListsFromIdSet(
 		idSet,
 		nil,
-		vangogh_data.SupportedPropertiesOnly(pt, properties),
+		vangogh_local_data.SupportedPropertiesOnly(pt, properties),
 		nil)
 
 	if err != nil {

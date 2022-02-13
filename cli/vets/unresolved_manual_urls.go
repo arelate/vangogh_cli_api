@@ -2,36 +2,36 @@ package vets
 
 import (
 	"fmt"
-	"github.com/arelate/gog_atu"
-	"github.com/arelate/vangogh_data"
+	"github.com/arelate/gog_integration"
+	"github.com/arelate/vangogh_local_data"
 	"github.com/boggydigital/nod"
 )
 
 func UnresolvedManualUrls(
-	mt gog_atu.Media,
-	operatingSystems []vangogh_data.OperatingSystem,
-	downloadTypes []vangogh_data.DownloadType,
+	mt gog_integration.Media,
+	operatingSystems []vangogh_local_data.OperatingSystem,
+	downloadTypes []vangogh_local_data.DownloadType,
 	langCodes []string,
 	fix bool) error {
 
 	cumu := nod.NewProgress("checking unresolved manual-urls...")
 	defer cumu.End()
 
-	rxa, err := vangogh_data.ConnectReduxAssets(
-		vangogh_data.TitleProperty,
-		vangogh_data.NativeLanguageNameProperty,
-		vangogh_data.LocalManualUrlProperty)
+	rxa, err := vangogh_local_data.ConnectReduxAssets(
+		vangogh_local_data.TitleProperty,
+		vangogh_local_data.NativeLanguageNameProperty,
+		vangogh_local_data.LocalManualUrlProperty)
 	if err != nil {
 		return cumu.EndWithError(err)
 	}
 
-	vrDetails, err := vangogh_data.NewReader(vangogh_data.Details, mt)
+	vrDetails, err := vangogh_local_data.NewReader(vangogh_local_data.Details, mt)
 	if err != nil {
 		return cumu.EndWithError(err)
 	}
 
 	allDetails := vrDetails.Keys()
-	unresolvedIds := vangogh_data.NewIdSet()
+	unresolvedIds := vangogh_local_data.NewIdSet()
 
 	cumu.TotalInt(len(allDetails))
 	for _, id := range allDetails {
@@ -43,7 +43,7 @@ func UnresolvedManualUrls(
 			continue
 		}
 
-		downloadsList, err := vangogh_data.FromDetails(det, mt, rxa)
+		downloadsList, err := vangogh_local_data.FromDetails(det, mt, rxa)
 		if err != nil {
 			cumu.Error(err)
 			cumu.Increment()
@@ -53,7 +53,7 @@ func UnresolvedManualUrls(
 		downloadsList = downloadsList.Only(operatingSystems, downloadTypes, langCodes)
 
 		for _, dl := range downloadsList {
-			if _, ok := rxa.GetFirstVal(vangogh_data.LocalManualUrlProperty, dl.ManualUrl); !ok {
+			if _, ok := rxa.GetFirstVal(vangogh_local_data.LocalManualUrlProperty, dl.ManualUrl); !ok {
 				unresolvedIds.Add(id)
 			}
 		}
@@ -65,10 +65,10 @@ func UnresolvedManualUrls(
 		cumu.EndWithResult("all good")
 	} else {
 
-		summary, err := vangogh_data.PropertyListsFromIdSet(
+		summary, err := vangogh_local_data.PropertyListsFromIdSet(
 			unresolvedIds,
 			nil,
-			[]string{vangogh_data.TitleProperty},
+			[]string{vangogh_local_data.TitleProperty},
 			rxa)
 
 		heading := fmt.Sprintf("found %d problems:", unresolvedIds.Len())

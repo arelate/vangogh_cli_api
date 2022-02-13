@@ -1,32 +1,32 @@
 package itemizations
 
 import (
-	"github.com/arelate/gog_atu"
-	"github.com/arelate/vangogh_data"
+	"github.com/arelate/gog_integration"
+	"github.com/arelate/vangogh_local_data"
 	"github.com/boggydigital/nod"
 )
 
 //RequiredAndIncluded enumerates all base products for a newly acquired DLCs
-func RequiredAndIncluded(createdAfter int64) (vangogh_data.IdSet, error) {
+func RequiredAndIncluded(createdAfter int64) (vangogh_local_data.IdSet, error) {
 
 	raia := nod.Begin(" finding new DLCs missing required base product...")
 	defer raia.End()
 
-	newLicSet := vangogh_data.NewIdSet()
+	newLicSet := vangogh_local_data.NewIdSet()
 
-	vrLicences, err := vangogh_data.NewReader(vangogh_data.LicenceProducts, gog_atu.Game)
+	vrLicences, err := vangogh_local_data.NewReader(vangogh_local_data.LicenceProducts, gog_integration.Game)
 	if err != nil {
 		return newLicSet, raia.EndWithError(err)
 	}
 
-	vrApv2, err := vangogh_data.NewReader(vangogh_data.ApiProductsV2, gog_atu.Game)
+	vrApv2, err := vangogh_local_data.NewReader(vangogh_local_data.ApiProductsV2, gog_integration.Game)
 	if err != nil {
 		return newLicSet, raia.EndWithError(err)
 	}
 
 	newLicences := vrLicences.CreatedAfter(createdAfter)
 	if len(newLicences) > 0 {
-		nod.Log("new %s: %v", vangogh_data.LicenceProducts, newLicences)
+		nod.Log("new %s: %v", vangogh_local_data.LicenceProducts, newLicences)
 	}
 
 	for _, id := range newLicences {
@@ -45,7 +45,7 @@ func RequiredAndIncluded(createdAfter int64) (vangogh_data.IdSet, error) {
 
 		grg := apv2.GetRequiresGames()
 		if len(grg) > 0 {
-			nod.Log("%s #%s requires-games: %v", vangogh_data.ApiProductsV2, id, grg)
+			nod.Log("%s #%s requires-games: %v", vangogh_local_data.ApiProductsV2, id, grg)
 		}
 		for _, reqGame := range grg {
 			newLicSet.Add(reqGame)
@@ -53,7 +53,7 @@ func RequiredAndIncluded(createdAfter int64) (vangogh_data.IdSet, error) {
 
 		gig := apv2.GetIncludesGames()
 		if len(gig) > 0 {
-			nod.Log("%s #%s includes-games: %v", vangogh_data.ApiProductsV2, id, gig)
+			nod.Log("%s #%s includes-games: %v", vangogh_local_data.ApiProductsV2, id, gig)
 		}
 
 		for _, inclGame := range gig {

@@ -2,7 +2,7 @@ package cli
 
 import (
 	"fmt"
-	"github.com/arelate/vangogh_data"
+	"github.com/arelate/vangogh_local_data"
 	"github.com/boggydigital/gost"
 	"github.com/boggydigital/nod"
 	"net/url"
@@ -10,7 +10,7 @@ import (
 
 func DigestHandler(u *url.URL) error {
 	return Digest(
-		vangogh_data.PropertyFromUrl(u))
+		vangogh_local_data.PropertyFromUrl(u))
 }
 
 func Digest(property string) error {
@@ -18,7 +18,7 @@ func Digest(property string) error {
 	da := nod.Begin("digesting...")
 	defer da.End()
 
-	rxa, err := vangogh_data.ConnectReduxAssets(property)
+	rxa, err := vangogh_local_data.ConnectReduxAssets(property)
 	if err != nil {
 		return err
 	}
@@ -44,7 +44,7 @@ func Digest(property string) error {
 		keys = append(keys, key)
 	}
 
-	_, sorted := gost.NewIntSortedStrSetWith(distValues, vangogh_data.DefaultDesc)
+	_, sorted := gost.NewIntSortedStrSetWith(distValues, vangogh_local_data.DefaultDesc)
 
 	summary := make(map[string][]string)
 	summary[""] = make([]string, 0, len(sorted))

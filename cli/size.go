@@ -1,34 +1,34 @@
 package cli
 
 import (
-	"github.com/arelate/gog_atu"
-	"github.com/arelate/vangogh_api/cli/itemizations"
-	"github.com/arelate/vangogh_data"
+	"github.com/arelate/gog_integration"
+	"github.com/arelate/vangogh_cli_api/cli/itemizations"
+	"github.com/arelate/vangogh_local_data"
 	"github.com/boggydigital/nod"
 	"net/url"
 )
 
 func SizeHandler(u *url.URL) error {
-	idSet, err := vangogh_data.IdSetFromUrl(u)
+	idSet, err := vangogh_local_data.IdSetFromUrl(u)
 	if err != nil {
 		return err
 	}
 
 	return Size(
 		idSet,
-		vangogh_data.MediaFromUrl(u),
-		vangogh_data.OperatingSystemsFromUrl(u),
-		vangogh_data.DownloadTypesFromUrl(u),
-		vangogh_data.ValuesFromUrl(u, "language-code"),
-		vangogh_data.FlagFromUrl(u, "missing"),
-		vangogh_data.FlagFromUrl(u, "all"))
+		vangogh_local_data.MediaFromUrl(u),
+		vangogh_local_data.OperatingSystemsFromUrl(u),
+		vangogh_local_data.DownloadTypesFromUrl(u),
+		vangogh_local_data.ValuesFromUrl(u, "language-code"),
+		vangogh_local_data.FlagFromUrl(u, "missing"),
+		vangogh_local_data.FlagFromUrl(u, "all"))
 }
 
 func Size(
-	idSet vangogh_data.IdSet,
-	mt gog_atu.Media,
-	operatingSystems []vangogh_data.OperatingSystem,
-	downloadTypes []vangogh_data.DownloadType,
+	idSet vangogh_local_data.IdSet,
+	mt gog_integration.Media,
+	operatingSystems []vangogh_local_data.OperatingSystem,
+	downloadTypes []vangogh_local_data.DownloadType,
 	langCodes []string,
 	missing bool,
 	all bool) error {
@@ -36,11 +36,11 @@ func Size(
 	sa := nod.NewProgress("estimating downloads size...")
 	defer sa.End()
 
-	rxa, err := vangogh_data.ConnectReduxAssets(
-		vangogh_data.LocalManualUrlProperty,
-		vangogh_data.NativeLanguageNameProperty,
-		vangogh_data.SlugProperty,
-		vangogh_data.DownloadStatusErrorProperty)
+	rxa, err := vangogh_local_data.ConnectReduxAssets(
+		vangogh_local_data.LocalManualUrlProperty,
+		vangogh_local_data.NativeLanguageNameProperty,
+		vangogh_local_data.SlugProperty,
+		vangogh_local_data.DownloadStatusErrorProperty)
 	if err != nil {
 		return sa.EndWithError(err)
 	}
@@ -60,7 +60,7 @@ func Size(
 	}
 
 	if all {
-		vrDetails, err := vangogh_data.NewReader(vangogh_data.Details, mt)
+		vrDetails, err := vangogh_local_data.NewReader(vangogh_local_data.Details, mt)
 		if err != nil {
 			return sa.EndWithError(err)
 		}
@@ -76,7 +76,7 @@ func Size(
 
 	sa.TotalInt(idSet.Len())
 
-	if err := vangogh_data.MapDownloads(
+	if err := vangogh_local_data.MapDownloads(
 		idSet,
 		mt,
 		rxa,
@@ -94,12 +94,12 @@ func Size(
 }
 
 type sizeDelegate struct {
-	dlList vangogh_data.DownloadsList
+	dlList vangogh_local_data.DownloadsList
 }
 
-func (sd *sizeDelegate) Process(_, _ string, list vangogh_data.DownloadsList) error {
+func (sd *sizeDelegate) Process(_, _ string, list vangogh_local_data.DownloadsList) error {
 	if sd.dlList == nil {
-		sd.dlList = make(vangogh_data.DownloadsList, 0)
+		sd.dlList = make(vangogh_local_data.DownloadsList, 0)
 	}
 	sd.dlList = append(sd.dlList, list...)
 	return nil

@@ -1,8 +1,8 @@
 package cli
 
 import (
-	"github.com/arelate/gog_atu"
-	"github.com/arelate/vangogh_data"
+	"github.com/arelate/gog_integration"
+	"github.com/arelate/vangogh_local_data"
 	"github.com/boggydigital/coost"
 	"github.com/boggydigital/nod"
 	"net/http"
@@ -12,24 +12,24 @@ import (
 
 func WishlistHandler(u *url.URL) error {
 	return Wishlist(
-		vangogh_data.MediaFromUrl(u),
-		vangogh_data.ValuesFromUrl(u, "add"),
-		vangogh_data.ValuesFromUrl(u, "remove"),
-		vangogh_data.ValueFromUrl(u, "temp-directory"))
+		vangogh_local_data.MediaFromUrl(u),
+		vangogh_local_data.ValuesFromUrl(u, "add"),
+		vangogh_local_data.ValuesFromUrl(u, "remove"),
+		vangogh_local_data.ValueFromUrl(u, "temp-directory"))
 }
 
-func Wishlist(mt gog_atu.Media, addProductIds, removeProductIds []string, tempDir string) error {
+func Wishlist(mt gog_integration.Media, addProductIds, removeProductIds []string, tempDir string) error {
 
 	wa := nod.Begin("performing requested wishlist operations...")
 	defer wa.End()
 
 	hc, err := coost.NewHttpClientFromFile(
-		filepath.Join(tempDir, cookiesFilename), gog_atu.GogHost)
+		filepath.Join(tempDir, cookiesFilename), gog_integration.GogHost)
 	if err != nil {
 		return wa.EndWithError(err)
 	}
 
-	vrStoreProducts, err := vangogh_data.NewReader(vangogh_data.StoreProducts, mt)
+	vrStoreProducts, err := vangogh_local_data.NewReader(vangogh_local_data.StoreProducts, mt)
 	if err != nil {
 		return wa.EndWithError(err)
 	}
@@ -54,8 +54,8 @@ func Wishlist(mt gog_atu.Media, addProductIds, removeProductIds []string, tempDi
 func wishlistAdd(
 	ids []string,
 	httpClient *http.Client,
-	vrStoreProducts *vangogh_data.ValueReader,
-	mt gog_atu.Media) error {
+	vrStoreProducts *vangogh_local_data.ValueReader,
+	mt gog_integration.Media) error {
 
 	waa := nod.NewProgress(" adding product(s) to local wishlist...")
 	defer waa.End()
@@ -63,7 +63,7 @@ func wishlistAdd(
 	waa.TotalInt(len(ids))
 
 	for _, id := range ids {
-		if err := vrStoreProducts.CopyToType(id, vangogh_data.WishlistProducts, mt); err != nil {
+		if err := vrStoreProducts.CopyToType(id, vangogh_local_data.WishlistProducts, mt); err != nil {
 			return waa.EndWithError(err)
 		}
 		waa.Increment()
@@ -73,7 +73,7 @@ func wishlistAdd(
 
 	return remoteWishlistCommand(
 		ids,
-		gog_atu.AddToWishlistUrl,
+		gog_integration.AddToWishlistUrl,
 		httpClient,
 		vrStoreProducts)
 }
@@ -81,13 +81,13 @@ func wishlistAdd(
 func wishlistRemove(
 	ids []string,
 	httpClient *http.Client,
-	vrStoreProducts *vangogh_data.ValueReader,
-	mt gog_atu.Media) error {
+	vrStoreProducts *vangogh_local_data.ValueReader,
+	mt gog_integration.Media) error {
 
 	wra := nod.NewProgress(" removing product(s) from local wishlist...")
 	defer wra.End()
 
-	if err := vangogh_data.Cut(ids, vangogh_data.WishlistProducts, mt); err != nil {
+	if err := vangogh_local_data.Cut(ids, vangogh_local_data.WishlistProducts, mt); err != nil {
 		return wra.EndWithError(err)
 	}
 
@@ -95,7 +95,7 @@ func wishlistRemove(
 
 	return remoteWishlistCommand(
 		ids,
-		gog_atu.RemoveFromWishlistUrl,
+		gog_integration.RemoveFromWishlistUrl,
 		httpClient,
 		vrStoreProducts)
 }
@@ -104,7 +104,7 @@ func remoteWishlistCommand(
 	ids []string,
 	wishlistUrl func(string) *url.URL,
 	httpClient *http.Client,
-	vrStoreProducts *vangogh_data.ValueReader) error {
+	vrStoreProducts *vangogh_local_data.ValueReader) error {
 
 	rwca := nod.NewProgress(" syncing to remote wishlist...")
 	defer rwca.End()

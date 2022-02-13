@@ -2,22 +2,22 @@ package vets
 
 import (
 	"fmt"
-	"github.com/arelate/gog_atu"
-	"github.com/arelate/vangogh_data"
+	"github.com/arelate/gog_integration"
+	"github.com/arelate/vangogh_local_data"
 	"github.com/boggydigital/gost"
 	"strconv"
 )
 
-func findLocalOnlySplitProducts(pagedPt vangogh_data.ProductType, mt gog_atu.Media) (vangogh_data.IdSet, error) {
-	emptyIdSet := vangogh_data.NewIdSet()
+func findLocalOnlySplitProducts(pagedPt vangogh_local_data.ProductType, mt gog_integration.Media) (vangogh_local_data.IdSet, error) {
+	emptyIdSet := vangogh_local_data.NewIdSet()
 
-	if !vangogh_data.IsPagedProduct(pagedPt) {
+	if !vangogh_local_data.IsPagedProduct(pagedPt) {
 		return emptyIdSet, fmt.Errorf("%s is not a paged type", pagedPt)
 	}
 
 	pagedIds := gost.NewStrSet()
 
-	vrPaged, err := vangogh_data.NewReader(pagedPt, mt)
+	vrPaged, err := vangogh_local_data.NewReader(pagedPt, mt)
 	if err != nil {
 		return emptyIdSet, err
 	}
@@ -32,13 +32,13 @@ func findLocalOnlySplitProducts(pagedPt vangogh_data.ProductType, mt gog_atu.Med
 		}
 	}
 
-	splitPt := vangogh_data.SplitProductType(pagedPt)
-	vrSplit, err := vangogh_data.NewReader(splitPt, mt)
+	splitPt := vangogh_local_data.SplitProductType(pagedPt)
+	vrSplit, err := vangogh_local_data.NewReader(splitPt, mt)
 	if err != nil {
 		return emptyIdSet, err
 	}
 
 	splitIdSet := gost.NewStrSetWith(vrSplit.Keys()...)
 
-	return vangogh_data.IdSetFromSlice(splitIdSet.Except(pagedIds)...), nil
+	return vangogh_local_data.IdSetFromSlice(splitIdSet.Except(pagedIds)...), nil
 }

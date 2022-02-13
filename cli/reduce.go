@@ -1,9 +1,9 @@
 package cli
 
 import (
-	"github.com/arelate/gog_atu"
-	"github.com/arelate/vangogh_api/cli/reductions"
-	"github.com/arelate/vangogh_data"
+	"github.com/arelate/gog_integration"
+	"github.com/arelate/vangogh_cli_api/cli/reductions"
+	"github.com/arelate/vangogh_local_data"
 	"github.com/boggydigital/gost"
 	"github.com/boggydigital/nod"
 	"net/url"
@@ -13,39 +13,39 @@ import (
 func ExtractHandler(u *url.URL) error {
 	return Reduce(
 		0,
-		vangogh_data.MediaFromUrl(u),
-		vangogh_data.PropertiesFromUrl(u))
+		vangogh_local_data.MediaFromUrl(u),
+		vangogh_local_data.PropertiesFromUrl(u))
 }
 
-func Reduce(modifiedAfter int64, mt gog_atu.Media, properties []string) error {
+func Reduce(modifiedAfter int64, mt gog_integration.Media, properties []string) error {
 
 	propSet := gost.NewStrSetWith(properties...)
 
 	if len(properties) == 0 {
-		propSet.Add(vangogh_data.ExtractedProperties()...)
+		propSet.Add(vangogh_local_data.ExtractedProperties()...)
 	}
 
 	//required for language-* properties extraction below
-	if !propSet.Has(vangogh_data.LanguageCodeProperty) {
-		propSet.Add(vangogh_data.LanguageCodeProperty)
+	if !propSet.Has(vangogh_local_data.LanguageCodeProperty) {
+		propSet.Add(vangogh_local_data.LanguageCodeProperty)
 	}
 
 	ea := nod.Begin("extracting properties...")
 	defer ea.End()
 
-	rxa, err := vangogh_data.ConnectReduxAssets(propSet.All()...)
+	rxa, err := vangogh_local_data.ConnectReduxAssets(propSet.All()...)
 	if err != nil {
 		return ea.EndWithError(err)
 	}
 
-	for _, pt := range vangogh_data.LocalProducts() {
+	for _, pt := range vangogh_local_data.LocalProducts() {
 
-		vr, err := vangogh_data.NewReader(pt, mt)
+		vr, err := vangogh_local_data.NewReader(pt, mt)
 		if err != nil {
 			return ea.EndWithError(err)
 		}
 
-		missingProps := vangogh_data.SupportedPropertiesOnly(pt, propSet.All())
+		missingProps := vangogh_local_data.SupportedPropertiesOnly(pt, propSet.All())
 
 		missingPropExtracts := make(map[string]map[string][]string, 0)
 
@@ -70,7 +70,7 @@ func Reduce(modifiedAfter int64, mt gog_atu.Media, properties []string) error {
 				continue
 			}
 
-			propValues, err := vangogh_data.GetProperties(id, vr, missingProps)
+			propValues, err := vangogh_local_data.GetProperties(id, vr, missingProps)
 			if err != nil {
 				pta.Error(err)
 				continue
