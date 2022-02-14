@@ -11,9 +11,13 @@ import (
 )
 
 func ReduceHandler(u *url.URL) error {
-	since, err := vangogh_local_data.SinceFromUrl(u)
-	if err != nil {
-		return err
+	var since int64
+	if vangogh_local_data.FlagFromUrl(u, "since-hours-ago") {
+		var err error
+		since, err = vangogh_local_data.SinceFromUrl(u)
+		if err != nil {
+			return err
+		}
 	}
 	return Reduce(
 		since,
