@@ -3,6 +3,7 @@ package cli
 import (
 	"fmt"
 	"github.com/arelate/gog_integration"
+	"github.com/arelate/vangogh_cli_api/cli/dirs"
 	"github.com/arelate/vangogh_local_data"
 	"github.com/boggydigital/gost"
 	"github.com/boggydigital/kvas"
@@ -89,15 +90,20 @@ func Cleanup(
 	return nil
 }
 
-func moveToRecycleBin(fp string) error {
-	rbFilepath := filepath.Join(vangogh_local_data.AbsRecycleBinDir(), fp)
+func moveToRecycleBin(absPath string) error {
+	relPath, err := filepath.Rel(dirs.GetStateDir(), absPath)
+	if err != nil {
+		return err
+	}
+
+	rbFilepath := filepath.Join(vangogh_local_data.AbsRecycleBinDir(), relPath)
 	rbDir, _ := filepath.Split(rbFilepath)
 	if _, err := os.Stat(rbDir); os.IsNotExist(err) {
 		if err := os.MkdirAll(rbDir, 0755); err != nil {
 			return err
 		}
 	}
-	return os.Rename(fp, rbFilepath)
+	return os.Rename(absPath, rbFilepath)
 }
 
 type cleanupDelegate struct {
@@ -169,8 +175,8 @@ func (cd *cleanupDelegate) Process(_ string, slug string, list vangogh_local_dat
 
 	for _, unexpectedFile := range unexpectedFiles {
 		//restore absolute from local_filename to s/slug/local_filename
-		downloadFilename := vangogh_local_data.AbsDownloadDirFromRel(filepath.Join(pDir, unexpectedFile))
-		if stat, err := os.Stat(downloadFilename); err == nil {
+		absDownloadFilename := vangogh_local_data.AbsDownloadDirFromRel(filepath.Join(pDir, unexpectedFile))
+		if stat, err := os.Stat(absDownloadFilename); err == nil {
 			cd.totalBytes += stat.Size()
 		} else if os.IsNotExist(err) {
 			continue
@@ -183,16 +189,21 @@ func (cd *cleanupDelegate) Process(_ string, slug string, list vangogh_local_dat
 			prefix = "TEST"
 		}
 
-		dft := nod.Begin(" %s %s", prefix, downloadFilename)
+		relDownloadFilename, err := filepath.Rel(vangogh_local_data.AbsDownloadsDir(), absDownloadFilename)
+		if err != nil {
+			return csa.EndWithError(err)
+		}
+
+		dft := nod.Begin(" %s %s", prefix, relDownloadFilename)
 		if !cd.test {
-			if err := moveToRecycleBin(downloadFilename); err != nil {
+			if err := moveToRecycleBin(absDownloadFilename); err != nil {
 				return dft.EndWithError(err)
 			}
 		}
 		dft.End()
 
-		checksumFile := vangogh_local_data.AbsLocalChecksumPath(downloadFilename)
-		if stat, err := os.Stat(checksumFile); err == nil {
+		absChecksumFile := vangogh_local_data.AbsLocalChecksumPath(absDownloadFilename)
+		if stat, err := os.Stat(absChecksumFile); err == nil {
 			cd.totalBytes += stat.Size()
 		} else if os.IsNotExist(err) {
 			continue
@@ -200,9 +211,14 @@ func (cd *cleanupDelegate) Process(_ string, slug string, list vangogh_local_dat
 			return csa.EndWithError(err)
 		}
 
-		cft := nod.Begin(" %s %s", prefix, checksumFile)
+		relChecksumFile, err := filepath.Rel(vangogh_local_data.AbsChecksumsDir(), absChecksumFile)
+		if err != nil {
+			return csa.EndWithError(err)
+		}
+
+		cft := nod.Begin(" %s %s", prefix, relChecksumFile)
 		if !cd.test {
-			if err := moveToRecycleBin(checksumFile); err != nil {
+			if err := moveToRecycleBin(absChecksumFile); err != nil {
 				return cft.EndWithError(err)
 			}
 		}

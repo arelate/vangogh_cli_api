@@ -34,7 +34,7 @@ func RequiredAndIncluded(createdAfter int64) (vangogh_local_data.IdSet, error) {
 		if !vrApv2.Has(id) {
 			continue
 		}
-		//like in itemizeMissingIncludesGames, we can't use extracts here,
+		//like in itemizeMissingIncludesGames, we can't use redux here,
 		//because we're in process of getting data and would rather query api-products-v2 directly.
 		//the performance impact is expected to be minimal since we're only loading api-products-v2
 		//for newly acquired licences.

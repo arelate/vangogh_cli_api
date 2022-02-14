@@ -70,7 +70,6 @@ func SyncHandler(u *url.URL) error {
 		vangogh_local_data.OperatingSystemsFromUrl(u),
 		vangogh_local_data.DownloadTypesFromUrl(u),
 		vangogh_local_data.ValuesFromUrl(u, "language-code"),
-		vangogh_local_data.ValueFromUrl(u, "temp-directory"),
 		vangogh_local_data.FlagFromUrl(u, "updates-only"))
 }
 
@@ -81,7 +80,6 @@ func Sync(
 	operatingSystems []vangogh_local_data.OperatingSystem,
 	downloadTypes []vangogh_local_data.DownloadType,
 	langCodes []string,
-	tempDir string,
 	updatesOnly bool) error {
 
 	sa := nod.Begin("syncing source data...")
@@ -92,7 +90,7 @@ func Sync(
 		paData := vangogh_local_data.ArrayProducts()
 		paData = append(paData, vangogh_local_data.PagedProducts()...)
 		for _, pt := range paData {
-			if err := GetData(vangogh_local_data.NewIdSet(), nil, pt, mt, since, tempDir, false, false); err != nil {
+			if err := GetData(vangogh_local_data.NewIdSet(), nil, pt, mt, since, false, false); err != nil {
 				return sa.EndWithError(err)
 			}
 		}
@@ -123,13 +121,13 @@ func Sync(
 				sa.Log("no skip list for %s", pt)
 			}
 
-			if err := GetData(vangogh_local_data.NewIdSet(), skipIds, pt, mt, since, tempDir, true, true); err != nil {
+			if err := GetData(vangogh_local_data.NewIdSet(), skipIds, pt, mt, since, true, true); err != nil {
 				return sa.EndWithError(err)
 			}
 		}
 
-		//extract data
-		if err := Reduce(since, mt, vangogh_local_data.ExtractedProperties()); err != nil {
+		//reduce data
+		if err := Reduce(since, mt, vangogh_local_data.ReduxProperties()); err != nil {
 			return sa.EndWithError(err)
 		}
 	}
@@ -163,7 +161,6 @@ func Sync(
 			downloadTypes,
 			langCodes,
 			since,
-			tempDir,
 			updatesOnly); err != nil {
 			return sa.EndWithError(err)
 		}

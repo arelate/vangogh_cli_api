@@ -4,6 +4,7 @@ import (
 	"archive/tar"
 	"compress/gzip"
 	"fmt"
+	"github.com/arelate/vangogh_cli_api/cli/dirs"
 	"github.com/arelate/vangogh_local_data"
 	"github.com/boggydigital/nod"
 	"io"
@@ -14,11 +15,10 @@ import (
 )
 
 func ExportHandler(u *url.URL) error {
-	return Export(
-		vangogh_local_data.ValueFromUrl(u, "temp-directory"))
+	return Export()
 }
 
-func Export(tempDir string) error {
+func Export() error {
 
 	ea := nod.NewProgress("exporting metadata...")
 	defer ea.End()
@@ -27,7 +27,7 @@ func Export(tempDir string) error {
 		"export-%s.tar.gz",
 		time.Now().Format("2006-01-02-15-04-05"))
 
-	exportedPath := filepath.Join(tempDir, efn)
+	exportedPath := filepath.Join(dirs.GetTempDir(), efn)
 
 	if _, err := os.Stat(exportedPath); os.IsExist(err) {
 		return ea.EndWithError(err)

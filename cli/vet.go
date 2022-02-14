@@ -89,7 +89,7 @@ func Vet(
 		}
 	}
 
-	//products with values different from extracts
+	//products with values different from redux
 	//images that are not linked to a product
 	//videos that are not linked to a product
 	//logs older than 30 days

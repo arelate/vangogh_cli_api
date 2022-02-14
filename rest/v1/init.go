@@ -25,7 +25,7 @@ var defaultSort = vangogh_local_data.TitleProperty
 func Init() error {
 	var err error
 
-	rxa, err = vangogh_local_data.ConnectReduxAssets(vangogh_local_data.ExtractedProperties()...)
+	rxa, err = vangogh_local_data.ConnectReduxAssets(vangogh_local_data.ReduxProperties()...)
 	if err != nil {
 		return err
 	}

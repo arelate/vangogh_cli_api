@@ -2,6 +2,7 @@ package cli
 
 import (
 	"github.com/arelate/gog_integration"
+	"github.com/arelate/vangogh_cli_api/cli/dirs"
 	"github.com/arelate/vangogh_local_data"
 	"github.com/boggydigital/coost"
 	"github.com/boggydigital/nod"
@@ -14,17 +15,16 @@ func WishlistHandler(u *url.URL) error {
 	return Wishlist(
 		vangogh_local_data.MediaFromUrl(u),
 		vangogh_local_data.ValuesFromUrl(u, "add"),
-		vangogh_local_data.ValuesFromUrl(u, "remove"),
-		vangogh_local_data.ValueFromUrl(u, "temp-directory"))
+		vangogh_local_data.ValuesFromUrl(u, "remove"))
 }
 
-func Wishlist(mt gog_integration.Media, addProductIds, removeProductIds []string, tempDir string) error {
+func Wishlist(mt gog_integration.Media, addProductIds, removeProductIds []string) error {
 
 	wa := nod.Begin("performing requested wishlist operations...")
 	defer wa.End()
 
 	hc, err := coost.NewHttpClientFromFile(
-		filepath.Join(tempDir, cookiesFilename), gog_integration.GogHost)
+		filepath.Join(dirs.GetTempDir(), cookiesFilename), gog_integration.GogHost)
 	if err != nil {
 		return wa.EndWithError(err)
 	}

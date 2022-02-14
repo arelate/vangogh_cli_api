@@ -8,9 +8,9 @@ import (
 	"net/http"
 )
 
-func GetIndexesList(w http.ResponseWriter, r *http.Request) {
+func GetKeys(w http.ResponseWriter, r *http.Request) {
 
-	// GET /v1/indexes-list?product-type&media&sort&desc
+	// GET /v1/keys?product-type&media&sort&desc
 
 	nod.Log("GET %v", r.URL)
 

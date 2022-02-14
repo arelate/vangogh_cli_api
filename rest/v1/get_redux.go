@@ -8,9 +8,9 @@ import (
 	"strings"
 )
 
-func GetExtracts(w http.ResponseWriter, r *http.Request) {
+func GetRedux(w http.ResponseWriter, r *http.Request) {
 
-	// GET /v1/extracts?property&id
+	// GET /v1/redux?property&id
 
 	nod.Log("GET %v", r.URL)
 

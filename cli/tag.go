@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/arelate/gog_integration"
+	"github.com/arelate/vangogh_cli_api/cli/dirs"
 	"github.com/arelate/vangogh_local_data"
 	"github.com/boggydigital/coost"
 	"github.com/boggydigital/kvas"
@@ -29,11 +30,10 @@ func TagHandler(u *url.URL) error {
 	return Tag(
 		idSet,
 		vangogh_local_data.ValueFromUrl(u, "operation"),
-		vangogh_local_data.ValueFromUrl(u, "tag-name"),
-		vangogh_local_data.ValueFromUrl(u, "temp-directory"))
+		vangogh_local_data.ValueFromUrl(u, "tag-name"))
 }
 
-func Tag(idSet vangogh_local_data.IdSet, operation, tagName, tempDir string) error {
+func Tag(idSet vangogh_local_data.IdSet, operation, tagName string) error {
 
 	ta := nod.Begin("performing requested tag operation...")
 	defer ta.End()
@@ -60,13 +60,13 @@ func Tag(idSet vangogh_local_data.IdSet, operation, tagName, tempDir string) err
 
 	switch operation {
 	case createOp:
-		return createTag(tagName, rxa, tempDir)
+		return createTag(tagName, rxa, dirs.GetTempDir())
 	case deleteOp:
-		return deleteTag(tagName, tagId, rxa, tempDir)
+		return deleteTag(tagName, tagId, rxa, dirs.GetTempDir())
 	case addOp:
-		return addTag(idSet, tagName, tagId, rxa, tempDir)
+		return addTag(idSet, tagName, tagId, rxa, dirs.GetTempDir())
 	case removeOp:
-		return removeTag(idSet, tagName, tagId, rxa, tempDir)
+		return removeTag(idSet, tagName, tagId, rxa, dirs.GetTempDir())
 	default:
 		return ta.EndWithError(fmt.Errorf("unknown tag operation %s", operation))
 	}

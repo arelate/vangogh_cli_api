@@ -10,7 +10,7 @@ import (
 	"strings"
 )
 
-func ExtractHandler(u *url.URL) error {
+func ReduceHandler(u *url.URL) error {
 	return Reduce(
 		0,
 		vangogh_local_data.MediaFromUrl(u),
@@ -22,32 +22,32 @@ func Reduce(modifiedAfter int64, mt gog_integration.Media, properties []string) 
 	propSet := gost.NewStrSetWith(properties...)
 
 	if len(properties) == 0 {
-		propSet.Add(vangogh_local_data.ExtractedProperties()...)
+		propSet.Add(vangogh_local_data.ReduxProperties()...)
 	}
 
-	//required for language-* properties extraction below
+	//required for language-* properties reduction below
 	if !propSet.Has(vangogh_local_data.LanguageCodeProperty) {
 		propSet.Add(vangogh_local_data.LanguageCodeProperty)
 	}
 
-	ea := nod.Begin("extracting properties...")
-	defer ea.End()
+	ra := nod.Begin("reducing properties...")
+	defer ra.End()
 
 	rxa, err := vangogh_local_data.ConnectReduxAssets(propSet.All()...)
 	if err != nil {
-		return ea.EndWithError(err)
+		return ra.EndWithError(err)
 	}
 
 	for _, pt := range vangogh_local_data.LocalProducts() {
 
 		vr, err := vangogh_local_data.NewReader(pt, mt)
 		if err != nil {
-			return ea.EndWithError(err)
+			return ra.EndWithError(err)
 		}
 
 		missingProps := vangogh_local_data.SupportedPropertiesOnly(pt, propSet.All())
 
-		missingPropExtracts := make(map[string]map[string][]string, 0)
+		missingPropRedux := make(map[string]map[string][]string, 0)
 
 		var modifiedIds []string
 		if modifiedAfter > 0 {
@@ -77,22 +77,22 @@ func Reduce(modifiedAfter int64, mt gog_integration.Media, properties []string) 
 			}
 
 			for prop, values := range propValues {
-				if _, ok := missingPropExtracts[prop]; !ok {
-					missingPropExtracts[prop] = make(map[string][]string, 0)
+				if _, ok := missingPropRedux[prop]; !ok {
+					missingPropRedux[prop] = make(map[string][]string, 0)
 				}
 				if trValues := stringsTrimSpace(values); len(trValues) > 0 {
-					missingPropExtracts[prop][id] = trValues
+					missingPropRedux[prop][id] = trValues
 				}
 			}
 
 			pta.Increment()
 		}
 
-		for prop, extracts := range missingPropExtracts {
+		for prop, redux := range missingPropRedux {
 
-			//TODO: This seems like a good place to diff extracts per id with existing values
+			//TODO: This seems like a good place to diff redux per id with existing values
 			//and track additional values as a changelist
-			//for id, values := range extracts {
+			//for id, values := range redux {
 			//	exValues, ok := exl.GetAllRaw(prop, id)
 			//	if !ok {
 			//		fmt.Printf("NEW %s for %s %s: %v\n", prop, pt, id, values)
@@ -102,7 +102,7 @@ func Reduce(modifiedAfter int64, mt gog_integration.Media, properties []string) 
 			//	}
 			//}
 
-			if err := rxa.BatchReplaceValues(prop, extracts); err != nil {
+			if err := rxa.BatchReplaceValues(prop, redux); err != nil {
 				return pta.EndWithError(err)
 			}
 		}
@@ -110,35 +110,35 @@ func Reduce(modifiedAfter int64, mt gog_integration.Media, properties []string) 
 		pta.EndWithResult("done")
 	}
 
-	//language-names are extracted separately from general pipeline,
+	//language-names are reduced separately from general pipeline,
 	//given we'll be filling the blanks from api-products-v2 using
 	//GetLanguages property that returns map[string]string
 	langCodeSet, err := reductions.GetLanguageCodes(rxa)
 	if err != nil {
-		return ea.EndWithError(err)
+		return ra.EndWithError(err)
 	}
 
 	if err := reductions.LanguageNames(langCodeSet); err != nil {
-		return ea.EndWithError(err)
+		return ra.EndWithError(err)
 	}
 
 	if err := reductions.NativeLanguageNames(langCodeSet); err != nil {
-		return ea.EndWithError(err)
+		return ra.EndWithError(err)
 	}
 
-	//tag-names are extracted separately from other types,
-	//given it is most convenient to extract from account-pages
+	//tag-names are reduced separately from other types,
+	//given it is most convenient to reduce from account-pages
 	if err := reductions.TagNames(mt); err != nil {
-		return ea.EndWithError(err)
+		return ra.EndWithError(err)
 	}
 
-	//orders are extracted separately from other types
+	//orders are reduced separately from other types
 	if err := reductions.Orders(modifiedAfter); err != nil {
-		return ea.EndWithError(err)
+		return ra.EndWithError(err)
 	}
 
 	if err := reductions.Types(mt); err != nil {
-		return ea.EndWithError(err)
+		return ra.EndWithError(err)
 	}
 
 	return nil

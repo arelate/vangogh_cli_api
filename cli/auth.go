@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"github.com/arelate/gog_integration"
+	"github.com/arelate/vangogh_cli_api/cli/dirs"
 	"github.com/boggydigital/coost"
 	"net/url"
 	"os"
@@ -16,14 +17,13 @@ func AuthHandler(u *url.URL) error {
 	q := u.Query()
 	username := q.Get("username")
 	password := q.Get("password")
-	tempDir := q.Get("temp-directory")
 
-	return Auth(username, password, tempDir)
+	return Auth(username, password)
 }
 
-func Auth(username, password, tempDir string) error {
+func Auth(username, password string) error {
 
-	cookieFile, err := os.Open(filepath.Join(tempDir, cookiesFilename))
+	cookieFile, err := os.Open(filepath.Join(dirs.GetTempDir(), cookiesFilename))
 	defer cookieFile.Close()
 	if err != nil && !os.IsNotExist(err) {
 		return err

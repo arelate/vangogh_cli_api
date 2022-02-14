@@ -3,6 +3,7 @@ package cli
 import (
 	"fmt"
 	"github.com/arelate/gog_integration"
+	"github.com/arelate/vangogh_cli_api/cli/dirs"
 	"github.com/arelate/vangogh_cli_api/cli/fetchers"
 	"github.com/arelate/vangogh_cli_api/cli/itemizations"
 	"github.com/arelate/vangogh_local_data"
@@ -11,7 +12,6 @@ import (
 	"github.com/boggydigital/nod"
 	"net/url"
 	"path/filepath"
-	"time"
 )
 
 func GetDataHandler(u *url.URL) error {
@@ -23,9 +23,9 @@ func GetDataHandler(u *url.URL) error {
 	skipIds := vangogh_local_data.ValuesFromUrl(u, "skip-id")
 
 	updated := vangogh_local_data.FlagFromUrl(u, "updated")
-	since := time.Now().Unix()
-	if updated {
-		since = time.Now().Add(-time.Hour * 24).Unix()
+	since, err := vangogh_local_data.SinceFromUrl(u)
+	if err != nil {
+		return err
 	}
 
 	return GetData(
@@ -34,7 +34,6 @@ func GetDataHandler(u *url.URL) error {
 		vangogh_local_data.ProductTypeFromUrl(u),
 		vangogh_local_data.MediaFromUrl(u),
 		since,
-		vangogh_local_data.ValueFromUrl(u, "temp-directory"),
 		vangogh_local_data.FlagFromUrl(u, "missing"),
 		updated)
 }
@@ -46,7 +45,6 @@ func GetData(
 	pt vangogh_local_data.ProductType,
 	mt gog_integration.Media,
 	since int64,
-	tempDir string,
 	missing bool,
 	updated bool) error {
 
@@ -64,7 +62,7 @@ func GetData(
 	}
 
 	hc, err := coost.NewHttpClientFromFile(
-		filepath.Join(tempDir, cookiesFilename), gog_integration.GogHost)
+		filepath.Join(dirs.GetTempDir(), cookiesFilename), gog_integration.GogHost)
 	if err != nil {
 		return gda.EndWithError(err)
 	}

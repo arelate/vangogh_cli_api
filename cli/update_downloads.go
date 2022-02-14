@@ -21,7 +21,6 @@ func UpdateDownloadsHandler(u *url.URL) error {
 		vangogh_local_data.DownloadTypesFromUrl(u),
 		vangogh_local_data.ValuesFromUrl(u, "language-code"),
 		since,
-		vangogh_local_data.ValueFromUrl(u, "temp-directory"),
 		vangogh_local_data.FlagFromUrl(u, "updates-only"))
 }
 
@@ -31,7 +30,6 @@ func UpdateDownloads(
 	downloadTypes []vangogh_local_data.DownloadType,
 	langCodes []string,
 	since int64,
-	tempDir string,
 	updatesOnly bool) error {
 
 	uda := nod.Begin("itemizing updated downloads...")
@@ -101,7 +99,6 @@ func UpdateDownloads(
 		operatingSystems,
 		downloadTypes,
 		langCodes,
-		tempDir,
 		false,
 		true)
 }

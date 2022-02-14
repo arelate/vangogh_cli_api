@@ -3,6 +3,7 @@ package cli
 import (
 	"fmt"
 	"github.com/arelate/gog_integration"
+	"github.com/arelate/vangogh_cli_api/cli/dirs"
 	"github.com/arelate/vangogh_cli_api/cli/itemizations"
 	"github.com/arelate/vangogh_local_data"
 	"github.com/boggydigital/coost"
@@ -29,7 +30,6 @@ func GetDownloadsHandler(u *url.URL) error {
 		vangogh_local_data.OperatingSystemsFromUrl(u),
 		vangogh_local_data.DownloadTypesFromUrl(u),
 		vangogh_local_data.ValuesFromUrl(u, "language-code"),
-		vangogh_local_data.ValueFromUrl(u, "temp-directory"),
 		vangogh_local_data.FlagFromUrl(u, "missing"),
 		vangogh_local_data.FlagFromUrl(u, "force-update"))
 }
@@ -40,7 +40,6 @@ func GetDownloads(
 	operatingSystems []vangogh_local_data.OperatingSystem,
 	downloadTypes []vangogh_local_data.DownloadType,
 	langCodes []string,
-	tempDir string,
 	missing,
 	forceUpdate bool) error {
 
@@ -48,7 +47,7 @@ func GetDownloads(
 	defer gda.End()
 
 	hc, err := coost.NewHttpClientFromFile(
-		filepath.Join(tempDir, cookiesFilename), gog_integration.GogHost)
+		filepath.Join(dirs.GetTempDir(), cookiesFilename), gog_integration.GogHost)
 	if err != nil {
 		return gda.EndWithError(err)
 	}
@@ -87,7 +86,6 @@ func GetDownloads(
 
 	gdd := &getDownloadsDelegate{
 		rxa:         rxa,
-		tempDir:     tempDir,
 		forceUpdate: forceUpdate,
 	}
 

@@ -27,7 +27,7 @@ func linkedGames(modifiedAfter int64) (vangogh_local_data.IdSet, error) {
 
 	for _, id := range modifiedApv2 {
 
-		// have to use product reader and not extracts here, since extracts wouldn't be ready
+		// have to use product reader and not reductions here, since redux wouldn't be ready
 		// while we're still getting data. Attempting to minimize the impact by only querying
 		// new or updated api-product-v2 items since start to the sync
 		apv2, err := vrApv2.ApiProductV2(id)
