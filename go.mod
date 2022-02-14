@@ -4,7 +4,7 @@ go 1.17
 
 require (
 	github.com/arelate/gog_integration v0.1.4
-	github.com/arelate/vangogh_local_data v0.1.5
+	github.com/arelate/vangogh_local_data v0.1.6
 	github.com/boggydigital/coost v0.3.7
 	github.com/boggydigital/dolo v0.2.2
 	github.com/boggydigital/gost v0.1.1
@@ -18,5 +18,3 @@ require (
 	github.com/boggydigital/match_node v0.1.5 // indirect
 	golang.org/x/net v0.0.0-20220127200216-cd36cc0744dd // indirect
 )
-
-replace github.com/arelate/vangogh_local_data => ../vangogh_local_data
