@@ -11,13 +11,17 @@ import (
 )
 
 func ReduceHandler(u *url.URL) error {
+	since, err := vangogh_local_data.SinceFromUrl(u)
+	if err != nil {
+		return err
+	}
 	return Reduce(
-		0,
+		since,
 		vangogh_local_data.MediaFromUrl(u),
 		vangogh_local_data.PropertiesFromUrl(u))
 }
 
-func Reduce(modifiedAfter int64, mt gog_integration.Media, properties []string) error {
+func Reduce(since int64, mt gog_integration.Media, properties []string) error {
 
 	propSet := gost.NewStrSetWith(properties...)
 
@@ -50,8 +54,8 @@ func Reduce(modifiedAfter int64, mt gog_integration.Media, properties []string) 
 		missingPropRedux := make(map[string]map[string][]string, 0)
 
 		var modifiedIds []string
-		if modifiedAfter > 0 {
-			modifiedIds = vr.ModifiedAfter(modifiedAfter, false)
+		if since > 0 {
+			modifiedIds = vr.ModifiedAfter(since, false)
 		} else {
 			modifiedIds = vr.Keys()
 		}
@@ -133,7 +137,7 @@ func Reduce(modifiedAfter int64, mt gog_integration.Media, properties []string) 
 	}
 
 	//orders are reduced separately from other types
-	if err := reductions.Orders(modifiedAfter); err != nil {
+	if err := reductions.Orders(since); err != nil {
 		return ra.EndWithError(err)
 	}
 
@@ -141,7 +145,7 @@ func Reduce(modifiedAfter int64, mt gog_integration.Media, properties []string) 
 		return ra.EndWithError(err)
 	}
 
-	return nil
+	return reductions.Cascade()
 }
 
 func stringsTrimSpace(stringsWithSpace []string) []string {
