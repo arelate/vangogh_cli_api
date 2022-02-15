@@ -216,10 +216,13 @@ func (gdd *getDownloadsDelegate) downloadManualUrl(
 			originalPath := resolvedUrl.Path
 			resolvedUrl.Path = remoteChecksumPath
 			if err := dlClient.Download(resolvedUrl, dca, checksumDir, checksumFilename); err != nil {
-				return dca.EndWithError(err)
+				//don't interrupt normal download due to checksum download error,
+				//so don't return this error, just log it
+				dca.Error(err)
+			} else {
+				dca.EndWithResult("downloaded")
 			}
 			resolvedUrl.Path = originalPath
-			dca.EndWithResult("downloaded")
 		}
 	}
 
