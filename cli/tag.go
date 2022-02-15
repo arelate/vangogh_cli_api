@@ -60,21 +60,21 @@ func Tag(idSet vangogh_local_data.IdSet, operation, tagName string) error {
 
 	switch operation {
 	case createOp:
-		return createTag(tagName, rxa, dirs.GetTempDir())
+		return createTag(tagName, rxa)
 	case deleteOp:
-		return deleteTag(tagName, tagId, rxa, dirs.GetTempDir())
+		return deleteTag(tagName, tagId, rxa)
 	case addOp:
-		return addTag(idSet, tagName, tagId, rxa, dirs.GetTempDir())
+		return addTag(idSet, tagName, tagId, rxa)
 	case removeOp:
-		return removeTag(idSet, tagName, tagId, rxa, dirs.GetTempDir())
+		return removeTag(idSet, tagName, tagId, rxa)
 	default:
 		return ta.EndWithError(fmt.Errorf("unknown tag operation %s", operation))
 	}
 }
 
-func postResp(url *url.URL, respVal interface{}, tempDir string) error {
+func postResp(url *url.URL, respVal interface{}) error {
 	hc, err := coost.NewHttpClientFromFile(
-		filepath.Join(tempDir, cookiesFilename), gog_integration.GogHost)
+		filepath.Join(dirs.GetTempDir(), cookiesFilename), gog_integration.GogHost)
 	if err != nil {
 		return err
 	}
@@ -113,7 +113,7 @@ func tagIdByName(tagName string, rxa kvas.ReduxAssets) (string, error) {
 	return tagId, nil
 }
 
-func createTag(tagName string, rxa kvas.ReduxAssets, tempDir string) error {
+func createTag(tagName string, rxa kvas.ReduxAssets) error {
 
 	cta := nod.Begin(" creating tag %s...", tagName)
 	defer cta.End()
@@ -124,7 +124,7 @@ func createTag(tagName string, rxa kvas.ReduxAssets, tempDir string) error {
 
 	createTagUrl := gog_integration.CreateTagUrl(tagName)
 	var ctResp gog_integration.CreateTagResp
-	if err := postResp(createTagUrl, &ctResp, tempDir); err != nil {
+	if err := postResp(createTagUrl, &ctResp); err != nil {
 		return cta.EndWithError(err)
 	}
 	if ctResp.Id == "" {
@@ -140,7 +140,7 @@ func createTag(tagName string, rxa kvas.ReduxAssets, tempDir string) error {
 	return nil
 }
 
-func deleteTag(tagName, tagId string, rxa kvas.ReduxAssets, tempDir string) error {
+func deleteTag(tagName, tagId string, rxa kvas.ReduxAssets) error {
 
 	dta := nod.Begin(" deleting tag %s...", tagName)
 	defer dta.End()
@@ -151,7 +151,7 @@ func deleteTag(tagName, tagId string, rxa kvas.ReduxAssets, tempDir string) erro
 
 	deleteTagUrl := gog_integration.DeleteTagUrl(tagId)
 	var dtResp gog_integration.DeleteTagResp
-	if err := postResp(deleteTagUrl, &dtResp, tempDir); err != nil {
+	if err := postResp(deleteTagUrl, &dtResp); err != nil {
 		return dta.EndWithError(err)
 	}
 	if dtResp.Status != "deleted" {
@@ -167,7 +167,7 @@ func deleteTag(tagName, tagId string, rxa kvas.ReduxAssets, tempDir string) erro
 	return nil
 }
 
-func addTag(idSet vangogh_local_data.IdSet, tagName, tagId string, rxa kvas.ReduxAssets, tempDir string) error {
+func addTag(idSet vangogh_local_data.IdSet, tagName, tagId string, rxa kvas.ReduxAssets) error {
 
 	ata := nod.NewProgress(" adding tag %s to item(s)...", tagName)
 	defer ata.End()
@@ -181,7 +181,7 @@ func addTag(idSet vangogh_local_data.IdSet, tagName, tagId string, rxa kvas.Redu
 	for _, id := range idSet.All() {
 		addTagUrl := gog_integration.AddTagUrl(id, tagId)
 		var artResp gog_integration.AddRemoveTagResp
-		if err := postResp(addTagUrl, &artResp, tempDir); err != nil {
+		if err := postResp(addTagUrl, &artResp); err != nil {
 			return ata.EndWithError(err)
 		}
 		if !artResp.Success {
@@ -200,7 +200,7 @@ func addTag(idSet vangogh_local_data.IdSet, tagName, tagId string, rxa kvas.Redu
 	return nil
 }
 
-func removeTag(idSet vangogh_local_data.IdSet, tagName, tagId string, rxa kvas.ReduxAssets, tempDir string) error {
+func removeTag(idSet vangogh_local_data.IdSet, tagName, tagId string, rxa kvas.ReduxAssets) error {
 
 	rta := nod.NewProgress(" removing tag %s from item(s)...", tagName)
 	defer rta.End()
@@ -214,7 +214,7 @@ func removeTag(idSet vangogh_local_data.IdSet, tagName, tagId string, rxa kvas.R
 	for _, id := range idSet.All() {
 		removeTagUrl := gog_integration.RemoveTagUrl(id, tagId)
 		var artResp gog_integration.AddRemoveTagResp
-		if err := postResp(removeTagUrl, &artResp, tempDir); err != nil {
+		if err := postResp(removeTagUrl, &artResp); err != nil {
 			return rta.EndWithError(err)
 		}
 		if !artResp.Success {

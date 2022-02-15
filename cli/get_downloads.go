@@ -108,7 +108,6 @@ func GetDownloads(
 
 type getDownloadsDelegate struct {
 	rxa         kvas.ReduxAssets
-	tempDir     string
 	forceUpdate bool
 }
 
@@ -122,7 +121,7 @@ func (gdd *getDownloadsDelegate) Process(_, slug string, list vangogh_local_data
 	}
 
 	hc, err := coost.NewHttpClientFromFile(
-		filepath.Join(gdd.tempDir, cookiesFilename), gog_integration.GogHost)
+		filepath.Join(dirs.GetTempDir(), cookiesFilename), gog_integration.GogHost)
 	if err != nil {
 		return sda.EndWithError(err)
 	}
