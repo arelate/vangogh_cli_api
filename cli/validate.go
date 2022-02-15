@@ -84,6 +84,7 @@ func Validate(
 	maybeAddTopic(summary, "%d product(s) have unresolved manual-url (not downloaded)", vd.unresolvedManualUrl)
 	maybeAddTopic(summary, "%d product(s) missing downloads", vd.missingDownloads)
 	maybeAddTopic(summary, "%d product(s) without checksum", vd.missingChecksum)
+	maybeAddTopic(summary, "%d product extra(s) without checksum", vd.missingExtraChecksum)
 	maybeAddTopic(summary, "%d product(s) failed validation", vd.failed)
 	if len(vd.slugLastError) > 0 {
 		tp = fmt.Sprintf("%d product(s) validation caused an error", len(vd.slugLastError))
@@ -193,13 +194,14 @@ func validateManualUrl(
 }
 
 type validateDelegate struct {
-	rxa                 kvas.ReduxAssets
-	validated           map[string]bool
-	unresolvedManualUrl map[string]bool
-	missingDownloads    map[string]bool
-	missingChecksum     map[string]bool
-	failed              map[string]bool
-	slugLastError       map[string]string
+	rxa                  kvas.ReduxAssets
+	validated            map[string]bool
+	unresolvedManualUrl  map[string]bool
+	missingDownloads     map[string]bool
+	missingChecksum      map[string]bool
+	missingExtraChecksum map[string]bool
+	failed               map[string]bool
+	slugLastError        map[string]string
 }
 
 func (vd *validateDelegate) Process(_, slug string, list vangogh_local_data.DownloadsList) error {
@@ -219,6 +221,9 @@ func (vd *validateDelegate) Process(_, slug string, list vangogh_local_data.Down
 	if vd.missingChecksum == nil {
 		vd.missingChecksum = make(map[string]bool)
 	}
+	if vd.missingExtraChecksum == nil {
+		vd.missingExtraChecksum = make(map[string]bool)
+	}
 	if vd.failed == nil {
 		vd.failed = make(map[string]bool)
 	}
@@ -232,7 +237,11 @@ func (vd *validateDelegate) Process(_, slug string, list vangogh_local_data.Down
 		if err := validateManualUrl(slug, &dl, vd.rxa); errors.Is(err, ErrValidationNotSupported) {
 			continue
 		} else if errors.Is(err, ErrMissingChecksum) {
-			vd.missingChecksum[slug] = true
+			if dl.Type == vangogh_local_data.Extra {
+				vd.missingExtraChecksum[slug] = true
+			} else {
+				vd.missingChecksum[slug] = true
+			}
 		} else if errors.Is(err, ErrUnresolvedManualUrl) {
 			vd.unresolvedManualUrl[slug] = true
 		} else if errors.Is(err, ErrMissingDownload) {
