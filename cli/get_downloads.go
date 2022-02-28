@@ -169,7 +169,7 @@ func (gdd *getDownloadsDelegate) downloadManualUrl(
 			//and RelToAbs would convert this to downloads/s/slug
 			if _, err := os.Stat(vangogh_local_data.AbsDownloadDirFromRel(localPath)); err == nil {
 				_, localFilename := filepath.Split(localPath)
-				lfa := nod.Begin(" %s", localFilename)
+				lfa := nod.Begin(" - %s", localFilename)
 				lfa.EndWithResult("already exists")
 				return nil
 			}
