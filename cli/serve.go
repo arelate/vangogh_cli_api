@@ -39,11 +39,12 @@ func Serve(port int, stderr bool) error {
 	}
 
 	v1PatternHandlers := map[string]func(w http.ResponseWriter, r *http.Request){
-		"/v1/keys":   v1.GetKeys,
-		"/v1/redux":  v1.GetRedux,
-		"/v1/data":   v1.GetData,
-		"/v1/images": v1.GetImages,
-		"/v1/videos": v1.GetVideos,
+		"/v1/keys":      v1.GetKeys,
+		"/v1/all_redux": v1.GetAllRedux,
+		"/v1/redux":     v1.GetRedux,
+		"/v1/data":      v1.GetData,
+		"/v1/images":    v1.GetImages,
+		"/v1/videos":    v1.GetVideos,
 	}
 
 	for p, h := range v1PatternHandlers {
