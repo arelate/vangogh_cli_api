@@ -47,6 +47,8 @@ func Serve(port int, stderr bool) error {
 		"/v1/videos":    v1.GetVideos,
 	}
 
+	sa.Log("adding handlers: %v", v1PatternHandlers)
+
 	for p, h := range v1PatternHandlers {
 		http.HandleFunc(p, h)
 	}

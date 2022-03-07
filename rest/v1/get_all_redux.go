@@ -3,7 +3,6 @@ package v1
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/arelate/vangogh_local_data"
 	"github.com/boggydigital/nod"
 	"net/http"
 	"strings"
@@ -29,12 +28,15 @@ func GetAllRedux(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	productType := vangogh_local_data.ProductTypeFromUrl(r.URL)
-	media := vangogh_local_data.MediaFromUrl(r.URL)
+	pt, mt, err := getProductTypeMedia(r.URL)
+	if err != nil {
+		http.Error(w, nod.Error(err).Error(), 400)
+		return
+	}
 
 	values := make(map[string]map[string][]string)
 
-	vr, err := getValueReader(productType, media)
+	vr, err := getValueReader(pt, mt)
 	if err != nil {
 		http.Error(w, nod.Error(err).Error(), 500)
 		return
