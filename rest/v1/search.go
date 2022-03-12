@@ -27,6 +27,10 @@ func Search(w http.ResponseWriter, r *http.Request) {
 	found := rxa.Match(query, true)
 	keys := make([]string, 0, len(found))
 
+	for id := range found {
+		keys = append(keys, id)
+	}
+
 	if err := json.NewEncoder(w).Encode(keys); err != nil {
 		http.Error(w, nod.Error(err).Error(), 500)
 	}
