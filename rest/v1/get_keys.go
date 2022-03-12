@@ -33,11 +33,15 @@ func GetKeys(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if sids, err := getSortedIds(pt, mt, sort, desc); err != nil {
+	vr, err := getValueReader(pt, mt)
+	if err != nil {
 		http.Error(w, nod.Error(err).Error(), 500)
-	} else {
-		if err := json.NewEncoder(w).Encode(sids); err != nil {
-			http.Error(w, nod.Error(err).Error(), 500)
-		}
+	}
+
+	idSet := vangogh_local_data.IdSetFromSlice(vr.Keys()...)
+	sortedIds := idSet.Sort(rxa, sort, desc)
+
+	if err := json.NewEncoder(w).Encode(sortedIds); err != nil {
+		http.Error(w, nod.Error(err).Error(), 500)
 	}
 }

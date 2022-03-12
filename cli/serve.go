@@ -38,20 +38,7 @@ func Serve(port int, stderr bool) error {
 		return err
 	}
 
-	v1PatternHandlers := map[string]func(w http.ResponseWriter, r *http.Request){
-		"/v1/keys":      v1.GetKeys,
-		"/v1/all_redux": v1.GetAllRedux,
-		"/v1/redux":     v1.GetRedux,
-		"/v1/data":      v1.GetData,
-		"/v1/images":    v1.GetImages,
-		"/v1/videos":    v1.GetVideos,
-	}
-
-	sa.Log("adding handlers: %v", v1PatternHandlers)
-
-	for p, h := range v1PatternHandlers {
-		http.HandleFunc(p, h)
-	}
+	v1.HandleFuncs()
 
 	return http.ListenAndServe(fmt.Sprintf(":%d", port), nil)
 }
