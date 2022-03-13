@@ -34,10 +34,14 @@ func GetDownloads(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	dl, err := vangogh_local_data.FromDetails(det, mt, rxa)
-	if err != nil {
-		http.Error(w, nod.Error(err).Error(), http.StatusInternalServerError)
-		return
+	dl := make(vangogh_local_data.DownloadsList, 0)
+
+	if det != nil {
+		dl, err = vangogh_local_data.FromDetails(det, mt, rxa)
+		if err != nil {
+			http.Error(w, nod.Error(err).Error(), http.StatusInternalServerError)
+			return
+		}
 	}
 
 	// TODO: Only os, lang
