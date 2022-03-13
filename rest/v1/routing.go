@@ -11,8 +11,6 @@ func HandleFuncs() {
 		"/v1/all_redux": nod.RequestLog(GetAllRedux),
 		"/v1/redux":     nod.RequestLog(GetRedux),
 		"/v1/data":      nod.RequestLog(GetData),
-		"/v1/images":    nod.RequestLog(GetImages),
-		"/v1/videos":    nod.RequestLog(GetVideos),
 		"/v1/search":    nod.RequestLog(Search),
 		"/v1/downloads": nod.RequestLog(GetDownloads),
 	}
