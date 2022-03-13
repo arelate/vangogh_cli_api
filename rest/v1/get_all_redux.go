@@ -12,8 +12,6 @@ func GetAllRedux(w http.ResponseWriter, r *http.Request) {
 
 	// GET /v1/all_redux?property&product-type&media
 
-	nod.Log("GET %v", r.URL)
-
 	if r.Method != http.MethodGet {
 		err := fmt.Errorf("unsupported method")
 		http.Error(w, nod.Error(err).Error(), 405)

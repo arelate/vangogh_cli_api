@@ -11,8 +11,6 @@ func GetImages(w http.ResponseWriter, r *http.Request) {
 
 	// GET /v1/images?id
 
-	nod.Log("GET %v", r.URL)
-
 	if r.Method != http.MethodGet {
 		err := fmt.Errorf("unsupported method")
 		http.Error(w, nod.Error(err).Error(), 405)

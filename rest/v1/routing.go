@@ -1,16 +1,19 @@
 package v1
 
-import "net/http"
+import (
+	"github.com/boggydigital/nod"
+	"net/http"
+)
 
 func HandleFuncs() {
 	v1PatternHandlers := map[string]func(w http.ResponseWriter, r *http.Request){
-		"/v1/keys":      GetKeys,
-		"/v1/all_redux": GetAllRedux,
-		"/v1/redux":     GetRedux,
-		"/v1/data":      GetData,
-		"/v1/images":    GetImages,
-		"/v1/videos":    GetVideos,
-		"/v1/search":    Search,
+		"/v1/keys":      nod.RequestLog(GetKeys),
+		"/v1/all_redux": nod.RequestLog(GetAllRedux),
+		"/v1/redux":     nod.RequestLog(GetRedux),
+		"/v1/data":      nod.RequestLog(GetData),
+		"/v1/images":    nod.RequestLog(GetImages),
+		"/v1/videos":    nod.RequestLog(GetVideos),
+		"/v1/search":    nod.RequestLog(Search),
 	}
 
 	for p, h := range v1PatternHandlers {

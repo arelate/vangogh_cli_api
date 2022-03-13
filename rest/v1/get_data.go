@@ -12,8 +12,6 @@ func GetData(w http.ResponseWriter, r *http.Request) {
 
 	// GET /v1/data?product-type&media&id
 
-	nod.Log("GET %v", r.URL)
-
 	if r.Method != http.MethodGet {
 		err := fmt.Errorf("unsupported method")
 		http.Error(w, nod.Error(err).Error(), 405)
