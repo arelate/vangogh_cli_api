@@ -11,7 +11,7 @@ import (
 
 func GetDownloads(w http.ResponseWriter, r *http.Request) {
 
-	// GET /v1/downloads?id&os&lang
+	// GET /v1/downloads?id&operating-system&language-code
 
 	if r.Method != http.MethodGet {
 		err := fmt.Errorf("unsupported method")
@@ -44,8 +44,8 @@ func GetDownloads(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	os := vangogh_local_data.ParseManyOperatingSystems(vangogh_local_data.ValuesFromUrl(r.URL, "os"))
-	lang := vangogh_local_data.ValuesFromUrl(r.URL, "lang")
+	os := vangogh_local_data.OperatingSystemsFromUrl(r.URL)
+	lang := vangogh_local_data.ValuesFromUrl(r.URL, "language-code")
 
 	dl = dl.Only(os, []vangogh_local_data.DownloadType{vangogh_local_data.AnyDownloadType}, lang)
 
