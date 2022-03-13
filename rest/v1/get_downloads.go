@@ -44,7 +44,10 @@ func GetDownloads(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	// TODO: Only os, lang
+	os := vangogh_local_data.ParseManyOperatingSystems(vangogh_local_data.ValuesFromUrl(r.URL, "os"))
+	lang := vangogh_local_data.ValuesFromUrl(r.URL, "lang")
+
+	dl = dl.Only(os, []vangogh_local_data.DownloadType{vangogh_local_data.AnyDownloadType}, lang)
 
 	if err := json.NewEncoder(w).Encode(dl); err != nil {
 		http.Error(w, nod.Error(err).Error(), 500)
