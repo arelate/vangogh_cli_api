@@ -8,7 +8,6 @@ import (
 	"github.com/arelate/vangogh_cli_api/cli/itemizations"
 	"github.com/arelate/vangogh_local_data"
 	"github.com/boggydigital/coost"
-	"github.com/boggydigital/gost"
 	"github.com/boggydigital/nod"
 	"net/url"
 	"path/filepath"
@@ -99,7 +98,7 @@ func GetData(
 		return gda.EndWithError(err)
 	}
 
-	approvedIds := idSet.Except(gost.NewStrSetWith(skipIds...))
+	approvedIds := idSet.Except(vangogh_local_data.IdSetFromSlice(skipIds...))
 
 	return fetchers.Items(approvedIds, pt, mt, hc)
 }

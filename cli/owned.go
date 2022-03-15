@@ -28,7 +28,7 @@ func Owned(idSet vangogh_local_data.IdSet) error {
 	oa := nod.Begin("checking ownership...")
 	defer oa.End()
 
-	ownedSet := gost.NewStrSet()
+	ownedSet := vangogh_local_data.NewIdSet()
 	propSet := gost.NewStrSetWith(
 		vangogh_local_data.TitleProperty,
 		vangogh_local_data.SlugProperty,
@@ -71,7 +71,7 @@ func Owned(idSet vangogh_local_data.IdSet) error {
 
 	ownSummary := make(map[string][]string)
 	ownSummary[ownedSection] = make([]string, 0, ownedSet.Len())
-	for id := range ownedSet {
+	for _, id := range ownedSet.All() {
 		if title, ok := rxa.GetFirstVal(vangogh_local_data.TitleProperty, id); ok {
 			ownSummary[ownedSection] = append(ownSummary[ownedSection], fmt.Sprintf("%s %s", id, title))
 		}

@@ -86,7 +86,7 @@ func UpdateDownloads(
 				return uda.EndWithError(err)
 			}
 			if !ok {
-				updAccountProductIds.Hide(id)
+				updAccountProductIds.Remove(id)
 			}
 		}
 	}
