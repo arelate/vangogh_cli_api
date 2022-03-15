@@ -21,7 +21,7 @@ func Search(w http.ResponseWriter, r *http.Request) {
 			if val == "" {
 				continue
 			}
-			query[p] = strings.Split(val, " ")
+			query[p] = strings.Split(val, "+")
 		}
 	}
 
