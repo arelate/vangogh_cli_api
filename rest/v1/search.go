@@ -5,6 +5,7 @@ import (
 	"github.com/arelate/vangogh_local_data"
 	"github.com/boggydigital/nod"
 	"net/http"
+	"strings"
 )
 
 func Search(w http.ResponseWriter, r *http.Request) {
@@ -20,7 +21,7 @@ func Search(w http.ResponseWriter, r *http.Request) {
 			if val == "" {
 				continue
 			}
-			query[p] = []string{val}
+			query[p] = strings.Split(val, " ")
 		}
 	}
 
