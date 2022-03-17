@@ -39,7 +39,7 @@ func GetDataHandler(u *url.URL) error {
 
 //GetData gets remote data from GOG.com and stores as local products (splitting as paged data if needed)
 func GetData(
-	idSet vangogh_local_data.IdSet,
+	idSet *vangogh_local_data.IdSet,
 	skipIds []string,
 	pt vangogh_local_data.ProductType,
 	mt gog_integration.Media,

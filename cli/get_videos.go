@@ -25,7 +25,7 @@ func GetVideosHandler(u *url.URL) error {
 		vangogh_local_data.FlagFromUrl(u, "missing"))
 }
 
-func GetVideos(idSet vangogh_local_data.IdSet, missing bool) error {
+func GetVideos(idSet *vangogh_local_data.IdSet, missing bool) error {
 
 	gva := nod.NewProgress("getting videos...")
 	defer gva.End()

@@ -7,7 +7,7 @@ import (
 	"strconv"
 )
 
-func AccountProductsUpdates(mt gog_integration.Media) (vangogh_local_data.IdSet, error) {
+func AccountProductsUpdates(mt gog_integration.Media) (*vangogh_local_data.IdSet, error) {
 
 	apua := nod.Begin(" finding %s updates...", vangogh_local_data.AccountProducts)
 	defer apua.End()

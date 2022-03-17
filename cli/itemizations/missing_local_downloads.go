@@ -15,7 +15,7 @@ func MissingLocalDownloads(
 	rxa kvas.ReduxAssets,
 	operatingSystems []vangogh_local_data.OperatingSystem,
 	downloadTypes []vangogh_local_data.DownloadType,
-	langCodes []string) (vangogh_local_data.IdSet, error) {
+	langCodes []string) (*vangogh_local_data.IdSet, error) {
 	//enumerating missing local downloads is a bit more complicated than images and videos
 	//due to the fact that actual filenames are resolved when downloads are processed, so we can't compare
 	//manualUrls and available files, we need to resolve manualUrls to actual local filenames first.
@@ -66,7 +66,7 @@ func MissingLocalDownloads(
 
 type missingDownloadsDelegate struct {
 	rxa        kvas.ReduxAssets
-	missingIds vangogh_local_data.IdSet
+	missingIds *vangogh_local_data.IdSet
 }
 
 func (mdd *missingDownloadsDelegate) Process(id, slug string, list vangogh_local_data.DownloadsList) error {

@@ -24,7 +24,7 @@ func (vpg *videoPropertiesGetter) IsMissingVideo(videoId string) bool {
 	return vpg.reduxAssets.HasKey(vangogh_local_data.MissingVideoUrlProperty, videoId)
 }
 
-func MissingLocalVideos(rxa kvas.ReduxAssets) (vangogh_local_data.IdSet, error) {
+func MissingLocalVideos(rxa kvas.ReduxAssets) (*vangogh_local_data.IdSet, error) {
 	all := rxa.Keys(vangogh_local_data.VideoIdProperty)
 
 	localVideoSet, err := vangogh_local_data.LocalVideoIds()

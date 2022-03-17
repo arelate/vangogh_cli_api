@@ -23,7 +23,7 @@ func OwnedHandler(u *url.URL) error {
 	return Owned(idSet)
 }
 
-func Owned(idSet vangogh_local_data.IdSet) error {
+func Owned(idSet *vangogh_local_data.IdSet) error {
 
 	oa := nod.Begin("checking ownership...")
 	defer oa.End()

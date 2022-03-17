@@ -27,7 +27,7 @@ func GetImagesHandler(u *url.URL) error {
 //If requested it can check locally present files and download all missing (used in data files,
 //but not present locally) images for a given type.
 func GetImages(
-	idSet vangogh_local_data.IdSet,
+	idSet *vangogh_local_data.IdSet,
 	its []vangogh_local_data.ImageType,
 	missing bool) error {
 

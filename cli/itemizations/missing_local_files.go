@@ -11,7 +11,7 @@ func missingLocalFiles(
 	localSet gost.StrSet,
 	getById func(id string) ([]string, bool),
 	exclude func(id string) bool,
-	tpw nod.TotalProgressWriter) (vangogh_local_data.IdSet, error) {
+	tpw nod.TotalProgressWriter) (*vangogh_local_data.IdSet, error) {
 
 	idSet := vangogh_local_data.NewIdSet()
 	var err error

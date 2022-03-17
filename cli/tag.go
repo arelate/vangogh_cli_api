@@ -33,7 +33,7 @@ func TagHandler(u *url.URL) error {
 		vangogh_local_data.ValueFromUrl(u, "tag-name"))
 }
 
-func Tag(idSet vangogh_local_data.IdSet, operation, tagName string) error {
+func Tag(idSet *vangogh_local_data.IdSet, operation, tagName string) error {
 
 	ta := nod.Begin("performing requested tag operation...")
 	defer ta.End()
@@ -167,7 +167,7 @@ func deleteTag(tagName, tagId string, rxa kvas.ReduxAssets) error {
 	return nil
 }
 
-func addTag(idSet vangogh_local_data.IdSet, tagName, tagId string, rxa kvas.ReduxAssets) error {
+func addTag(idSet *vangogh_local_data.IdSet, tagName, tagId string, rxa kvas.ReduxAssets) error {
 
 	ata := nod.NewProgress(" adding tag %s to item(s)...", tagName)
 	defer ata.End()
@@ -200,7 +200,7 @@ func addTag(idSet vangogh_local_data.IdSet, tagName, tagId string, rxa kvas.Redu
 	return nil
 }
 
-func removeTag(idSet vangogh_local_data.IdSet, tagName, tagId string, rxa kvas.ReduxAssets) error {
+func removeTag(idSet *vangogh_local_data.IdSet, tagName, tagId string, rxa kvas.ReduxAssets) error {
 
 	rta := nod.NewProgress(" removing tag %s from item(s)...", tagName)
 	defer rta.End()

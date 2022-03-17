@@ -10,7 +10,7 @@ import (
 func Modified(
 	since int64,
 	pt vangogh_local_data.ProductType,
-	mt gog_integration.Media) (vangogh_local_data.IdSet, error) {
+	mt gog_integration.Media) (*vangogh_local_data.IdSet, error) {
 
 	ma := nod.Begin(" finding modified %s...", pt)
 	defer ma.End()

@@ -6,11 +6,11 @@ import (
 )
 
 func All(
-	idSet vangogh_local_data.IdSet,
+	idSet *vangogh_local_data.IdSet,
 	missing, updated bool,
 	modifiedAfter int64,
 	pt vangogh_local_data.ProductType,
-	mt gog_integration.Media) (vangogh_local_data.IdSet, error) {
+	mt gog_integration.Media) (*vangogh_local_data.IdSet, error) {
 
 	for _, mainPt := range vangogh_local_data.MainProductTypes(pt) {
 		if missing {

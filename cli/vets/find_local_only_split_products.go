@@ -8,7 +8,7 @@ import (
 	"strconv"
 )
 
-func findLocalOnlySplitProducts(pagedPt vangogh_local_data.ProductType, mt gog_integration.Media) (vangogh_local_data.IdSet, error) {
+func findLocalOnlySplitProducts(pagedPt vangogh_local_data.ProductType, mt gog_integration.Media) (*vangogh_local_data.IdSet, error) {
 	emptyIdSet := vangogh_local_data.NewIdSet()
 
 	if !vangogh_local_data.IsPagedProduct(pagedPt) {

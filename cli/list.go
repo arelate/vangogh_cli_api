@@ -33,7 +33,7 @@ func ListHandler(u *url.URL) error {
 //Can be filtered to products that were created or modified since a certain time.
 //Provided properties will be printed for each product (if supported) in addition to default ID, Title.
 func List(
-	idSet vangogh_local_data.IdSet,
+	idSet *vangogh_local_data.IdSet,
 	modifiedSince int64,
 	pt vangogh_local_data.ProductType,
 	mt gog_integration.Media,

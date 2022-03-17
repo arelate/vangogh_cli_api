@@ -25,7 +25,7 @@ func SizeHandler(u *url.URL) error {
 }
 
 func Size(
-	idSet vangogh_local_data.IdSet,
+	idSet *vangogh_local_data.IdSet,
 	mt gog_integration.Media,
 	operatingSystems []vangogh_local_data.OperatingSystem,
 	downloadTypes []vangogh_local_data.DownloadType,

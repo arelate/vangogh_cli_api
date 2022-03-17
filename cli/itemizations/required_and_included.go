@@ -7,7 +7,7 @@ import (
 )
 
 //RequiredAndIncluded enumerates all base products for a newly acquired DLCs
-func RequiredAndIncluded(createdAfter int64) (vangogh_local_data.IdSet, error) {
+func RequiredAndIncluded(createdAfter int64) (*vangogh_local_data.IdSet, error) {
 
 	raia := nod.Begin(" finding new DLCs missing required base product...")
 	defer raia.End()

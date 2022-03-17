@@ -28,7 +28,7 @@ func (ieg *imageReduxGetter) GetImageIds(id string) ([]string, bool) {
 func MissingLocalImages(
 	it vangogh_local_data.ImageType,
 	rxa kvas.ReduxAssets,
-	localImageIds gost.StrSet) (vangogh_local_data.IdSet, error) {
+	localImageIds gost.StrSet) (*vangogh_local_data.IdSet, error) {
 
 	all := rxa.Keys(vangogh_local_data.PropertyFromImageType(it))
 

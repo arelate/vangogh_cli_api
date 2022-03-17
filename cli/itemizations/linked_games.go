@@ -6,7 +6,7 @@ import (
 	"github.com/boggydigital/nod"
 )
 
-func linkedGames(modifiedAfter int64) (vangogh_local_data.IdSet, error) {
+func linkedGames(modifiedAfter int64) (*vangogh_local_data.IdSet, error) {
 
 	lga := nod.Begin(" finding missing linked %s...", vangogh_local_data.ApiProductsV2)
 	defer lga.End()

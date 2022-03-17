@@ -8,7 +8,7 @@ import (
 	"github.com/boggydigital/nod"
 )
 
-func itemizationResult(idSet vangogh_local_data.IdSet) string {
+func itemizationResult(idSet *vangogh_local_data.IdSet) string {
 	if idSet.Len() == 0 {
 		return "found nothing"
 	} else {
@@ -19,7 +19,7 @@ func itemizationResult(idSet vangogh_local_data.IdSet) string {
 func missingDetail(
 	detailPt, mainPt vangogh_local_data.ProductType,
 	mt gog_integration.Media,
-	since int64) (vangogh_local_data.IdSet, error) {
+	since int64) (*vangogh_local_data.IdSet, error) {
 
 	//api-products-v2 provides
 	//includes-games, is-included-by-games,
