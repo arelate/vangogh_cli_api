@@ -4,6 +4,7 @@ import (
 	"github.com/arelate/vangogh_local_data"
 	"github.com/boggydigital/nod"
 	"golang.org/x/exp/maps"
+	"os"
 )
 
 func LocalOnlyImages(fix bool) error {
@@ -69,12 +70,13 @@ func LocalOnlyImages(fix bool) error {
 
 		for _, imageId := range unexpectedImages {
 			absLocalImagePath := vangogh_local_data.AbsLocalImagePath(imageId)
-			if err := vangogh_local_data.MoveToRecycleBin(absLocalImagePath); err != nil {
+			if err := vangogh_local_data.MoveToRecycleBin(absLocalImagePath); err != nil && !os.IsNotExist(err) {
 				floia.End()
 				return loia.EndWithError(err)
 			}
 			floia.Increment()
 		}
+
 		floia.EndWithResult("done")
 	}
 
