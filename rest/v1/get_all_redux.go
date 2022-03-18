@@ -27,8 +27,6 @@ func GetAllRedux(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	properties = vangogh_local_data.SupportedPropertiesOnly(pt, properties)
-
 	rxa, err := vangogh_local_data.ConnectReduxAssets(properties...)
 	if err != nil {
 		http.Error(w, nod.Error(err).Error(), http.StatusBadRequest)
