@@ -3,7 +3,6 @@ package cli
 import (
 	"fmt"
 	"github.com/arelate/gog_integration"
-	"github.com/arelate/vangogh_cli_api/cli/dirs"
 	"github.com/arelate/vangogh_local_data"
 	"github.com/boggydigital/kvas"
 	"github.com/boggydigital/nod"
@@ -89,22 +88,6 @@ func Cleanup(
 	}
 
 	return nil
-}
-
-func moveToRecycleBin(absPath string) error {
-	relPath, err := filepath.Rel(dirs.GetStateDir(), absPath)
-	if err != nil {
-		return err
-	}
-
-	rbFilepath := filepath.Join(vangogh_local_data.AbsRecycleBinDir(), relPath)
-	rbDir, _ := filepath.Split(rbFilepath)
-	if _, err := os.Stat(rbDir); os.IsNotExist(err) {
-		if err := os.MkdirAll(rbDir, 0755); err != nil {
-			return err
-		}
-	}
-	return os.Rename(absPath, rbFilepath)
 }
 
 type cleanupDelegate struct {
@@ -196,7 +179,7 @@ func (cd *cleanupDelegate) Process(_ string, slug string, list vangogh_local_dat
 
 		dft := nod.Begin(" %s %s", prefix, relDownloadFilename)
 		if !cd.test {
-			if err := moveToRecycleBin(absDownloadFilename); err != nil {
+			if err := vangogh_local_data.MoveToRecycleBin(absDownloadFilename); err != nil {
 				return dft.EndWithError(err)
 			}
 		}
@@ -218,7 +201,7 @@ func (cd *cleanupDelegate) Process(_ string, slug string, list vangogh_local_dat
 
 		cft := nod.Begin(" %s %s", prefix, relChecksumFile)
 		if !cd.test {
-			if err := moveToRecycleBin(absChecksumFile); err != nil {
+			if err := vangogh_local_data.MoveToRecycleBin(absChecksumFile); err != nil {
 				return cft.EndWithError(err)
 			}
 		}
