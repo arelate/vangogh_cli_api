@@ -15,14 +15,14 @@ func GetDownloads(w http.ResponseWriter, r *http.Request) {
 
 	if r.Method != http.MethodGet {
 		err := fmt.Errorf("unsupported method")
-		http.Error(w, nod.Error(err).Error(), 405)
+		http.Error(w, nod.Error(err).Error(), http.StatusMethodNotAllowed)
 		return
 	}
 
 	id := r.URL.Query().Get("id")
 	mt := gog_integration.Game
 
-	vrDetails, err := getValueReader(vangogh_local_data.Details, mt)
+	vrDetails, err := vangogh_local_data.NewReader(vangogh_local_data.Details, mt)
 	if err != nil {
 		http.Error(w, nod.Error(err).Error(), http.StatusInternalServerError)
 		return
@@ -35,6 +35,12 @@ func GetDownloads(w http.ResponseWriter, r *http.Request) {
 	}
 
 	dl := make(vangogh_local_data.DownloadsList, 0)
+
+	rxa, err := vangogh_local_data.ConnectReduxAssets(vangogh_local_data.NativeLanguageNameProperty)
+	if err != nil {
+		http.Error(w, nod.Error(err).Error(), http.StatusInternalServerError)
+		return
+	}
 
 	if det != nil {
 		dl, err = vangogh_local_data.FromDetails(det, mt, rxa)
@@ -50,6 +56,6 @@ func GetDownloads(w http.ResponseWriter, r *http.Request) {
 	dl = dl.Only(os, []vangogh_local_data.DownloadType{vangogh_local_data.AnyDownloadType}, lang)
 
 	if err := json.NewEncoder(w).Encode(dl); err != nil {
-		http.Error(w, nod.Error(err).Error(), 500)
+		http.Error(w, nod.Error(err).Error(), http.StatusInternalServerError)
 	}
 }

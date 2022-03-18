@@ -2,6 +2,7 @@ package v1
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/arelate/vangogh_local_data"
 	"github.com/boggydigital/nod"
 	"net/http"
@@ -11,6 +12,12 @@ import (
 func Search(w http.ResponseWriter, r *http.Request) {
 
 	// GET /v1/search?text&(searchable properties)
+
+	if r.Method != http.MethodGet {
+		err := fmt.Errorf("unsupported method")
+		http.Error(w, nod.Error(err).Error(), http.StatusMethodNotAllowed)
+		return
+	}
 
 	query := make(map[string][]string)
 	q := r.URL.Query()
@@ -25,6 +32,12 @@ func Search(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	rxa, err := vangogh_local_data.ConnectReduxAssets(vangogh_local_data.SearchableProperties()...)
+	if err != nil {
+		http.Error(w, nod.Error(err).Error(), http.StatusInternalServerError)
+		return
+	}
+
 	found := rxa.Match(query, true)
 	keys := make([]string, 0, len(found))
 
@@ -33,6 +46,6 @@ func Search(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := json.NewEncoder(w).Encode(keys); err != nil {
-		http.Error(w, nod.Error(err).Error(), 500)
+		http.Error(w, nod.Error(err).Error(), http.StatusInternalServerError)
 	}
 }

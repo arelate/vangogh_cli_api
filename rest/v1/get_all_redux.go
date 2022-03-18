@@ -3,6 +3,7 @@ package v1
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/arelate/vangogh_local_data"
 	"github.com/boggydigital/nod"
 	"net/http"
 	"strings"
@@ -14,29 +15,31 @@ func GetAllRedux(w http.ResponseWriter, r *http.Request) {
 
 	if r.Method != http.MethodGet {
 		err := fmt.Errorf("unsupported method")
-		http.Error(w, nod.Error(err).Error(), 405)
+		http.Error(w, nod.Error(err).Error(), http.StatusMethodNotAllowed)
 		return
 	}
 
 	properties := strings.Split(r.URL.Query().Get("property"), ",")
-	for _, prop := range properties {
-		if err := rxa.IsSupported(prop); err != nil {
-			http.Error(w, fmt.Sprintf("unsupported property %s", prop), 400)
-			return
-		}
-	}
 
 	pt, mt, err := getProductTypeMedia(r.URL)
 	if err != nil {
-		http.Error(w, nod.Error(err).Error(), 400)
+		http.Error(w, nod.Error(err).Error(), http.StatusBadRequest)
+		return
+	}
+
+	properties = vangogh_local_data.SupportedPropertiesOnly(pt, properties)
+
+	rxa, err := vangogh_local_data.ConnectReduxAssets(properties...)
+	if err != nil {
+		http.Error(w, nod.Error(err).Error(), http.StatusBadRequest)
 		return
 	}
 
 	values := make(map[string]map[string][]string)
 
-	vr, err := getValueReader(pt, mt)
+	vr, err := vangogh_local_data.NewReader(pt, mt)
 	if err != nil {
-		http.Error(w, nod.Error(err).Error(), 500)
+		http.Error(w, nod.Error(err).Error(), http.StatusInternalServerError)
 		return
 	}
 
@@ -48,6 +51,6 @@ func GetAllRedux(w http.ResponseWriter, r *http.Request) {
 		values[id] = propValues
 	}
 	if err := json.NewEncoder(w).Encode(values); err != nil {
-		http.Error(w, nod.Error(err).Error(), 500)
+		http.Error(w, nod.Error(err).Error(), http.StatusInternalServerError)
 	}
 }

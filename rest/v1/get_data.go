@@ -3,6 +3,7 @@ package v1
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/arelate/vangogh_local_data"
 	"github.com/boggydigital/nod"
 	"net/http"
 	"strings"
@@ -14,13 +15,13 @@ func GetData(w http.ResponseWriter, r *http.Request) {
 
 	if r.Method != http.MethodGet {
 		err := fmt.Errorf("unsupported method")
-		http.Error(w, nod.Error(err).Error(), 405)
+		http.Error(w, nod.Error(err).Error(), http.StatusMethodNotAllowed)
 		return
 	}
 
 	pt, mt, err := getProductTypeMedia(r.URL)
 	if err != nil {
-		http.Error(w, nod.Error(err).Error(), 400)
+		http.Error(w, nod.Error(err).Error(), http.StatusBadRequest)
 		return
 	}
 
@@ -28,22 +29,22 @@ func GetData(w http.ResponseWriter, r *http.Request) {
 
 	values := make(map[string]interface{}, len(ids))
 
-	if vr, err := getValueReader(pt, mt); err == nil {
+	if vr, err := vangogh_local_data.NewReader(pt, mt); err == nil {
 
 		//var err error
 		for i := 0; i < len(ids); i++ {
 			if values[ids[i]], err = vr.ReadValue(ids[i]); err != nil {
-				http.Error(w, nod.Error(err).Error(), 500)
+				http.Error(w, nod.Error(err).Error(), http.StatusInternalServerError)
 				return
 			}
 		}
 
 	} else {
-		http.Error(w, nod.Error(err).Error(), 500)
+		http.Error(w, nod.Error(err).Error(), http.StatusInternalServerError)
 		return
 	}
 
 	if err := json.NewEncoder(w).Encode(values); err != nil {
-		http.Error(w, nod.Error(err).Error(), 500)
+		http.Error(w, nod.Error(err).Error(), http.StatusInternalServerError)
 	}
 }
