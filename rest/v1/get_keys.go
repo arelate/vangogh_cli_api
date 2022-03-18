@@ -43,7 +43,11 @@ func GetKeys(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	sortedIds := vangogh_local_data.SortIds(vr.Keys(), rxa, sort, desc)
+	sortedIds, err := vangogh_local_data.SortIds(vr.Keys(), rxa, sort, desc)
+	if err != nil {
+		http.Error(w, nod.Error(err).Error(), http.StatusInternalServerError)
+		return
+	}
 
 	if err := json.NewEncoder(w).Encode(sortedIds); err != nil {
 		http.Error(w, nod.Error(err).Error(), http.StatusInternalServerError)
