@@ -33,7 +33,7 @@ func CleanupHandler(u *url.URL) error {
 }
 
 func Cleanup(
-	idSet *vangogh_local_data.IdSet,
+	idSet map[string]bool,
 	mt gog_integration.Media,
 	operatingSystems []vangogh_local_data.OperatingSystem,
 	downloadTypes []vangogh_local_data.DownloadType,
@@ -56,7 +56,9 @@ func Cleanup(
 		if err != nil {
 			return err
 		}
-		idSet.Add(vrDetails.Keys()...)
+		for _, id := range vrDetails.Keys() {
+			idSet[id] = true
+		}
 	}
 
 	cd := &cleanupDelegate{

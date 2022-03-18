@@ -7,12 +7,12 @@ import (
 )
 
 //RequiredAndIncluded enumerates all base products for a newly acquired DLCs
-func RequiredAndIncluded(createdAfter int64) (*vangogh_local_data.IdSet, error) {
+func RequiredAndIncluded(createdAfter int64) (map[string]bool, error) {
 
 	raia := nod.Begin(" finding new DLCs missing required base product...")
 	defer raia.End()
 
-	newLicSet := vangogh_local_data.NewIdSet()
+	newLicSet := make(map[string]bool)
 
 	vrLicences, err := vangogh_local_data.NewReader(vangogh_local_data.LicenceProducts, gog_integration.Game)
 	if err != nil {
@@ -48,7 +48,7 @@ func RequiredAndIncluded(createdAfter int64) (*vangogh_local_data.IdSet, error) 
 			nod.Log("%s #%s requires-games: %v", vangogh_local_data.ApiProductsV2, id, grg)
 		}
 		for _, reqGame := range grg {
-			newLicSet.Add(reqGame)
+			newLicSet[reqGame] = true
 		}
 
 		gig := apv2.GetIncludesGames()
@@ -57,15 +57,15 @@ func RequiredAndIncluded(createdAfter int64) (*vangogh_local_data.IdSet, error) 
 		}
 
 		for _, inclGame := range gig {
-			newLicSet.Add(inclGame)
+			newLicSet[inclGame] = true
 		}
 	}
 
 	//newLicSet contains all product types at the moment, we need to filter to GAME types only,
 	//since other types won't have account-products / details data available remotely
-	for _, id := range newLicSet.All() {
+	for id := range newLicSet {
 		if !vrApv2.Has(id) {
-			newLicSet.Remove(id)
+			delete(newLicSet, id)
 			continue
 		}
 		apv2, err := vrApv2.ApiProductV2(id)
@@ -73,7 +73,7 @@ func RequiredAndIncluded(createdAfter int64) (*vangogh_local_data.IdSet, error) 
 			return newLicSet, raia.EndWithError(err)
 		}
 		if apv2.Embedded.ProductType != "GAME" {
-			newLicSet.Remove(id)
+			delete(newLicSet, id)
 		}
 	}
 

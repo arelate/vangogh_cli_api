@@ -35,7 +35,7 @@ func GetDownloadsHandler(u *url.URL) error {
 }
 
 func GetDownloads(
-	idSet *vangogh_local_data.IdSet,
+	idSet map[string]bool,
 	mt gog_integration.Media,
 	operatingSystems []vangogh_local_data.OperatingSystem,
 	downloadTypes []vangogh_local_data.DownloadType,
@@ -76,12 +76,14 @@ func GetDownloads(
 			return gda.EndWithError(err)
 		}
 
-		if missingIds.Len() == 0 {
+		if len(missingIds) == 0 {
 			gda.EndWithResult("all downloads are available locally")
 			return nil
 		}
 
-		idSet.AddSet(missingIds)
+		for id := range missingIds {
+			idSet[id] = true
+		}
 	}
 
 	gdd := &getDownloadsDelegate{

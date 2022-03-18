@@ -5,7 +5,6 @@ import (
 	"github.com/arelate/vangogh_cli_api/cli/itemizations"
 	"github.com/arelate/vangogh_local_data"
 	"github.com/boggydigital/dolo"
-	"github.com/boggydigital/gost"
 	"github.com/boggydigital/nod"
 	"net/url"
 	"path/filepath"
@@ -27,7 +26,7 @@ func GetImagesHandler(u *url.URL) error {
 //If requested it can check locally present files and download all missing (used in data files,
 //but not present locally) images for a given type.
 func GetImages(
-	idSet *vangogh_local_data.IdSet,
+	idSet map[string]bool,
 	its []vangogh_local_data.ImageType,
 	missing bool) error {
 
@@ -40,14 +39,19 @@ func GetImages(
 		}
 	}
 
-	propSet := gost.NewStrSetWith(
-		vangogh_local_data.TitleProperty)
+	propSet := make(map[string]bool)
+	propSet[vangogh_local_data.TitleProperty] = true
 
 	for _, it := range its {
-		propSet.Add(vangogh_local_data.PropertyFromImageType(it))
+		propSet[vangogh_local_data.PropertyFromImageType(it)] = true
 	}
 
-	rxa, err := vangogh_local_data.ConnectReduxAssets(propSet.All()...)
+	properties := make([]string, len(propSet))
+	for p := range propSet {
+		properties = append(properties, p)
+	}
+
+	rxa, err := vangogh_local_data.ConnectReduxAssets(properties...)
 	if err != nil {
 		return gia.EndWithError(err)
 	}
@@ -71,7 +75,7 @@ func GetImages(
 			}
 
 			//2
-			for _, id := range missingImageIds.All() {
+			for id := range missingImageIds {
 				if idMissingTypes[id] == nil {
 					idMissingTypes[id] = make([]vangogh_local_data.ImageType, 0)
 				}
@@ -79,7 +83,7 @@ func GetImages(
 			}
 		}
 	} else {
-		for _, id := range idSet.All() {
+		for id := range idSet {
 			idMissingTypes[id] = its
 		}
 	}

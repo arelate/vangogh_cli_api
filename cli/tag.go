@@ -33,7 +33,7 @@ func TagHandler(u *url.URL) error {
 		vangogh_local_data.ValueFromUrl(u, "tag-name"))
 }
 
-func Tag(idSet *vangogh_local_data.IdSet, operation, tagName string) error {
+func Tag(idSet map[string]bool, operation, tagName string) error {
 
 	ta := nod.Begin("performing requested tag operation...")
 	defer ta.End()
@@ -167,7 +167,7 @@ func deleteTag(tagName, tagId string, rxa kvas.ReduxAssets) error {
 	return nil
 }
 
-func addTag(idSet *vangogh_local_data.IdSet, tagName, tagId string, rxa kvas.ReduxAssets) error {
+func addTag(idSet map[string]bool, tagName, tagId string, rxa kvas.ReduxAssets) error {
 
 	ata := nod.NewProgress(" adding tag %s to item(s)...", tagName)
 	defer ata.End()
@@ -176,9 +176,9 @@ func addTag(idSet *vangogh_local_data.IdSet, tagName, tagId string, rxa kvas.Red
 		return ata.EndWithError(err)
 	}
 
-	ata.TotalInt(idSet.Len())
+	ata.TotalInt(len(idSet))
 
-	for _, id := range idSet.All() {
+	for id := range idSet {
 		addTagUrl := gog_integration.AddTagUrl(id, tagId)
 		var artResp gog_integration.AddRemoveTagResp
 		if err := postResp(addTagUrl, &artResp); err != nil {
@@ -200,7 +200,7 @@ func addTag(idSet *vangogh_local_data.IdSet, tagName, tagId string, rxa kvas.Red
 	return nil
 }
 
-func removeTag(idSet *vangogh_local_data.IdSet, tagName, tagId string, rxa kvas.ReduxAssets) error {
+func removeTag(idSet map[string]bool, tagName, tagId string, rxa kvas.ReduxAssets) error {
 
 	rta := nod.NewProgress(" removing tag %s from item(s)...", tagName)
 	defer rta.End()
@@ -209,9 +209,9 @@ func removeTag(idSet *vangogh_local_data.IdSet, tagName, tagId string, rxa kvas.
 		return rta.EndWithError(err)
 	}
 
-	rta.TotalInt(idSet.Len())
+	rta.TotalInt(len(idSet))
 
-	for _, id := range idSet.All() {
+	for id := range idSet {
 		removeTagUrl := gog_integration.RemoveTagUrl(id, tagId)
 		var artResp gog_integration.AddRemoveTagResp
 		if err := postResp(removeTagUrl, &artResp); err != nil {

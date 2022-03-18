@@ -87,7 +87,12 @@ func wishlistRemove(
 	wra := nod.NewProgress(" removing product(s) from local wishlist...")
 	defer wra.End()
 
-	if err := vangogh_local_data.Cut(ids, vangogh_local_data.WishlistProducts, mt); err != nil {
+	idSet := make(map[string]bool)
+	for _, id := range ids {
+		idSet[id] = true
+	}
+
+	if err := vangogh_local_data.Cut(idSet, vangogh_local_data.WishlistProducts, mt); err != nil {
 		return wra.EndWithError(err)
 	}
 

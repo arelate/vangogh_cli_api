@@ -25,7 +25,7 @@ func GetVideosHandler(u *url.URL) error {
 		vangogh_local_data.FlagFromUrl(u, "missing"))
 }
 
-func GetVideos(idSet *vangogh_local_data.IdSet, missing bool) error {
+func GetVideos(idSet map[string]bool, missing bool) error {
 
 	gva := nod.NewProgress("getting videos...")
 	defer gva.End()
@@ -45,10 +45,12 @@ func GetVideos(idSet *vangogh_local_data.IdSet, missing bool) error {
 		if err != nil {
 			return gva.EndWithError(err)
 		}
-		idSet.AddSet(missingIds)
+		for id := range missingIds {
+			idSet[id] = true
+		}
 	}
 
-	if idSet.Len() == 0 {
+	if len(idSet) == 0 {
 		if missing {
 			gva.EndWithResult("all videos are available locally")
 		} else {
@@ -57,9 +59,9 @@ func GetVideos(idSet *vangogh_local_data.IdSet, missing bool) error {
 		return nil
 	}
 
-	gva.TotalInt(idSet.Len())
+	gva.TotalInt(len(idSet))
 
-	for _, id := range idSet.All() {
+	for id := range idSet {
 		videoIds, ok := rxa.GetAllUnchangedValues(vangogh_local_data.VideoIdProperty, id)
 		if !ok || len(videoIds) == 0 {
 			gva.Increment()

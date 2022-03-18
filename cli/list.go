@@ -33,7 +33,7 @@ func ListHandler(u *url.URL) error {
 //Can be filtered to products that were created or modified since a certain time.
 //Provided properties will be printed for each product (if supported) in addition to default ID, Title.
 func List(
-	idSet *vangogh_local_data.IdSet,
+	idSet map[string]bool,
 	modifiedSince int64,
 	pt vangogh_local_data.ProductType,
 	mt gog_integration.Media,
@@ -76,15 +76,19 @@ func List(
 	}
 
 	if modifiedSince > 0 {
-		idSet.Add(vr.ModifiedAfter(modifiedSince, false)...)
-		if idSet.Len() == 0 {
+		for _, mid := range vr.ModifiedAfter(modifiedSince, false) {
+			idSet[mid] = true
+		}
+		if len(idSet) == 0 {
 			la.EndWithResult("no new or updated %s (%s) since %v\n", pt, mt, time.Unix(modifiedSince, 0).Format(time.Kitchen))
 		}
 	}
 
-	if idSet.Len() == 0 &&
+	if len(idSet) == 0 &&
 		modifiedSince == 0 {
-		idSet.Add(vr.Keys()...)
+		for _, id := range vr.Keys() {
+			idSet[id] = true
+		}
 	}
 
 	itp, err := vangogh_local_data.PropertyListsFromIdSet(

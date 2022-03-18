@@ -25,7 +25,7 @@ func SizeHandler(u *url.URL) error {
 }
 
 func Size(
-	idSet *vangogh_local_data.IdSet,
+	idSet map[string]bool,
 	mt gog_integration.Media,
 	operatingSystems []vangogh_local_data.OperatingSystem,
 	downloadTypes []vangogh_local_data.DownloadType,
@@ -51,12 +51,14 @@ func Size(
 			return sa.EndWithError(err)
 		}
 
-		if missingIds.Len() == 0 {
+		if len(missingIds) == 0 {
 			sa.EndWithResult("no missing downloads")
 			return nil
 		}
 
-		idSet.AddSet(missingIds)
+		for id := range missingIds {
+			idSet[id] = true
+		}
 	}
 
 	if all {
@@ -64,17 +66,19 @@ func Size(
 		if err != nil {
 			return sa.EndWithError(err)
 		}
-		idSet.Add(vrDetails.Keys()...)
+		for _, id := range vrDetails.Keys() {
+			idSet[id] = true
+		}
 	}
 
-	if idSet.Len() == 0 {
+	if len(idSet) == 0 {
 		sa.EndWithResult("no ids to estimate size")
 		return nil
 	}
 
 	sd := &sizeDelegate{}
 
-	sa.TotalInt(idSet.Len())
+	sa.TotalInt(len(idSet))
 
 	if err := vangogh_local_data.MapDownloads(
 		idSet,

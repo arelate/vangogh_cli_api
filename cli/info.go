@@ -20,7 +20,7 @@ func InfoHandler(u *url.URL) error {
 		vangogh_local_data.FlagFromUrl(u, "video-id"))
 }
 
-func Info(idSet *vangogh_local_data.IdSet, allText, images, videoId bool) error {
+func Info(idSet map[string]bool, allText, images, videoId bool) error {
 
 	ia := nod.Begin("information:")
 	defer ia.End()

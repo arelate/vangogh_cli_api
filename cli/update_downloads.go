@@ -56,7 +56,9 @@ func UpdateDownloads(
 		return uda.EndWithError(err)
 	}
 
-	updAccountProductIds.AddSet(requiredGamesForNewDLCs)
+	for rg := range requiredGamesForNewDLCs {
+		updAccountProductIds[rg] = true
+	}
 
 	//Additionally add modified details in case the sync was interrupted and
 	//account-products doesn't have .IsNew or .Updates > 0 items
@@ -65,9 +67,11 @@ func UpdateDownloads(
 		return uda.EndWithError(err)
 	}
 
-	updAccountProductIds.AddSet(modifiedDetails)
+	for md := range modifiedDetails {
+		updAccountProductIds[md] = true
+	}
 
-	if updAccountProductIds.Len() == 0 {
+	if len(updAccountProductIds) == 0 {
 		uda.EndWithResult("all downloads are up to date")
 		return nil
 	}
@@ -80,13 +84,13 @@ func UpdateDownloads(
 			return uda.EndWithError(err)
 		}
 
-		for _, id := range updAccountProductIds.All() {
+		for id := range updAccountProductIds {
 			ok, err := vangogh_local_data.IsProductDownloaded(id, rxa)
 			if err != nil {
 				return uda.EndWithError(err)
 			}
 			if !ok {
-				updAccountProductIds.Remove(id)
+				delete(updAccountProductIds, id)
 			}
 		}
 	}

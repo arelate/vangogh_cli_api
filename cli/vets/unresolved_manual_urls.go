@@ -31,7 +31,7 @@ func UnresolvedManualUrls(
 	}
 
 	allDetails := vrDetails.Keys()
-	unresolvedIds := vangogh_local_data.NewIdSet()
+	unresolvedIds := make(map[string]bool)
 
 	cumu.TotalInt(len(allDetails))
 	for _, id := range allDetails {
@@ -54,14 +54,14 @@ func UnresolvedManualUrls(
 
 		for _, dl := range downloadsList {
 			if _, ok := rxa.GetFirstVal(vangogh_local_data.LocalManualUrlProperty, dl.ManualUrl); !ok {
-				unresolvedIds.Add(id)
+				unresolvedIds[id] = true
 			}
 		}
 
 		cumu.Increment()
 	}
 
-	if unresolvedIds.Len() == 0 {
+	if len(unresolvedIds) == 0 {
 		cumu.EndWithResult("all good")
 	} else {
 
@@ -71,7 +71,7 @@ func UnresolvedManualUrls(
 			[]string{vangogh_local_data.TitleProperty},
 			rxa)
 
-		heading := fmt.Sprintf("found %d problems:", unresolvedIds.Len())
+		heading := fmt.Sprintf("found %d problems:", len(unresolvedIds))
 		if fix {
 			heading = "found problems (run get-downloads to fix):"
 		}

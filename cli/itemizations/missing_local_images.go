@@ -2,7 +2,6 @@ package itemizations
 
 import (
 	"github.com/arelate/vangogh_local_data"
-	"github.com/boggydigital/gost"
 	"github.com/boggydigital/kvas"
 	"github.com/boggydigital/nod"
 )
@@ -28,14 +27,14 @@ func (ieg *imageReduxGetter) GetImageIds(id string) ([]string, bool) {
 func MissingLocalImages(
 	it vangogh_local_data.ImageType,
 	rxa kvas.ReduxAssets,
-	localImageIds gost.StrSet) (*vangogh_local_data.IdSet, error) {
+	localImageIds map[string]bool) (map[string]bool, error) {
 
 	all := rxa.Keys(vangogh_local_data.PropertyFromImageType(it))
 
 	if localImageIds == nil {
 		var err error
 		if localImageIds, err = vangogh_local_data.LocalImageIds(); err != nil {
-			return vangogh_local_data.NewIdSet(), err
+			return map[string]bool{}, err
 		}
 	}
 

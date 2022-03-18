@@ -23,12 +23,12 @@ func OwnedHandler(u *url.URL) error {
 	return Owned(idSet)
 }
 
-func Owned(idSet *vangogh_local_data.IdSet) error {
+func Owned(idSet map[string]bool) error {
 
 	oa := nod.Begin("checking ownership...")
 	defer oa.End()
 
-	ownedSet := vangogh_local_data.NewIdSet()
+	ownedSet := make(map[string]bool)
 	propSet := gost.NewStrSetWith(
 		vangogh_local_data.TitleProperty,
 		vangogh_local_data.SlugProperty,
@@ -44,10 +44,10 @@ func Owned(idSet *vangogh_local_data.IdSet) error {
 		return err
 	}
 
-	for _, id := range idSet.All() {
+	for id := range idSet {
 
 		if vrLicenceProducts.Has(id) {
-			ownedSet.Add(id)
+			ownedSet[id] = true
 			continue
 		}
 
@@ -65,22 +65,27 @@ func Owned(idSet *vangogh_local_data.IdSet) error {
 		}
 
 		if ownAllIncludedGames {
-			ownedSet.Add(id)
+			ownedSet[id] = true
 		}
 	}
 
 	ownSummary := make(map[string][]string)
-	ownSummary[ownedSection] = make([]string, 0, ownedSet.Len())
-	for _, id := range ownedSet.All() {
+	ownSummary[ownedSection] = make([]string, 0, len(ownedSet))
+	for id := range ownedSet {
 		if title, ok := rxa.GetFirstVal(vangogh_local_data.TitleProperty, id); ok {
 			ownSummary[ownedSection] = append(ownSummary[ownedSection], fmt.Sprintf("%s %s", id, title))
 		}
 	}
 
-	notOwned := idSet.Except(ownedSet)
+	notOwned := make(map[string]bool)
+	for id := range idSet {
+		if !ownedSet[id] {
+			notOwned[id] = true
+		}
+	}
 
 	ownSummary[notOwnedSection] = make([]string, 0, len(notOwned))
-	for _, id := range notOwned {
+	for id := range notOwned {
 		if title, ok := rxa.GetFirstVal(vangogh_local_data.TitleProperty, id); ok {
 			ownSummary[notOwnedSection] = append(ownSummary[notOwnedSection], fmt.Sprintf("%s %s", id, title))
 		}

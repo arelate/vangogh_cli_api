@@ -1,19 +1,17 @@
 package itemizations
 
 import (
-	"github.com/arelate/vangogh_local_data"
-	"github.com/boggydigital/gost"
 	"github.com/boggydigital/nod"
 )
 
 func missingLocalFiles(
 	all []string,
-	localSet gost.StrSet,
+	localSet map[string]bool,
 	getById func(id string) ([]string, bool),
 	exclude func(id string) bool,
-	tpw nod.TotalProgressWriter) (*vangogh_local_data.IdSet, error) {
+	tpw nod.TotalProgressWriter) (map[string]bool, error) {
 
-	idSet := vangogh_local_data.NewIdSet()
+	idSet := make(map[string]bool)
 	var err error
 
 	if tpw != nil {
@@ -33,8 +31,8 @@ func missingLocalFiles(
 			if exclude != nil && exclude(item) {
 				continue
 			}
-			if !localSet.Has(item) {
-				idSet.Add(id)
+			if !localSet[item] {
+				idSet[id] = true
 				break
 			}
 		}

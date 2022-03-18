@@ -6,11 +6,11 @@ import (
 )
 
 func All(
-	idSet *vangogh_local_data.IdSet,
+	idSet map[string]bool,
 	missing, updated bool,
 	modifiedAfter int64,
 	pt vangogh_local_data.ProductType,
-	mt gog_integration.Media) (*vangogh_local_data.IdSet, error) {
+	mt gog_integration.Media) (map[string]bool, error) {
 
 	for _, mainPt := range vangogh_local_data.MainProductTypes(pt) {
 		if missing {
@@ -18,14 +18,18 @@ func All(
 			if err != nil {
 				return idSet, err
 			}
-			idSet.AddSet(missingIds)
+			for id := range missingIds {
+				idSet[id] = true
+			}
 		}
 		if updated {
 			modifiedIds, err := Modified(modifiedAfter, mainPt, mt)
 			if err != nil {
 				return idSet, err
 			}
-			idSet.AddSet(modifiedIds)
+			for id := range modifiedIds {
+				idSet[id] = true
+			}
 		}
 	}
 

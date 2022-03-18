@@ -8,18 +8,18 @@ import (
 	"github.com/boggydigital/nod"
 )
 
-func itemizationResult(idSet *vangogh_local_data.IdSet) string {
-	if idSet.Len() == 0 {
+func itemizationResult(idSet map[string]bool) string {
+	if len(idSet) == 0 {
 		return "found nothing"
 	} else {
-		return fmt.Sprintf("found %d", idSet.Len())
+		return fmt.Sprintf("found %d", len(idSet))
 	}
 }
 
 func missingDetail(
 	detailPt, mainPt vangogh_local_data.ProductType,
 	mt gog_integration.Media,
-	since int64) (*vangogh_local_data.IdSet, error) {
+	since int64) (map[string]bool, error) {
 
 	//api-products-v2 provides
 	//includes-games, is-included-by-games,
@@ -47,7 +47,7 @@ func missingDetail(
 	mda := nod.Begin(" finding missing %s for %s...", detailPt, mainPt)
 	defer mda.End()
 
-	missingIdSet := vangogh_local_data.NewIdSet()
+	missingIdSet := make(map[string]bool)
 
 	mainDestUrl, err := vangogh_local_data.AbsLocalProductTypeDir(mainPt, mt)
 	if err != nil {
@@ -72,7 +72,7 @@ func missingDetail(
 	for _, id := range kvMain.Keys() {
 		if !kvDetail.Has(id) {
 			nod.Log("adding missing %s: #%s", detailPt, id)
-			missingIdSet.Add(id)
+			missingIdSet[id] = true
 		}
 	}
 
@@ -84,8 +84,8 @@ func missingDetail(
 		if err != nil {
 			return missingIdSet, err
 		}
-		for _, uapId := range updatedAccountProducts.All() {
-			missingIdSet.Add(uapId)
+		for uapId := range updatedAccountProducts {
+			missingIdSet[uapId] = true
 		}
 	}
 

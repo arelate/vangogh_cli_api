@@ -39,7 +39,7 @@ func GetDataHandler(u *url.URL) error {
 
 //GetData gets remote data from GOG.com and stores as local products (splitting as paged data if needed)
 func GetData(
-	idSet *vangogh_local_data.IdSet,
+	idSet map[string]bool,
 	skipIds []string,
 	pt vangogh_local_data.ProductType,
 	mt gog_integration.Media,
@@ -98,7 +98,18 @@ func GetData(
 		return gda.EndWithError(err)
 	}
 
-	approvedIds := idSet.Except(vangogh_local_data.IdSetFromSlice(skipIds...))
+	skipIdSet := make(map[string]bool, len(skipIds))
+	for _, id := range skipIds {
+		skipIdSet[id] = true
+	}
+
+	approvedIds := make([]string, 0, len(idSet))
+
+	for id := range idSet {
+		if !skipIdSet[id] {
+			approvedIds = append(approvedIds, id)
+		}
+	}
 
 	return fetchers.Items(approvedIds, pt, mt, hc)
 }

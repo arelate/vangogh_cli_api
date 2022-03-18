@@ -28,7 +28,7 @@ func LocalOnlySplitProducts(mt gog_integration.Media, fix bool) error {
 			return pa.EndWithError(err)
 		}
 
-		if localOnlyProducts.Len() > 0 {
+		if len(localOnlyProducts) > 0 {
 
 			summary, err := vangogh_local_data.PropertyListsFromIdSet(
 				localOnlyProducts,
@@ -41,11 +41,11 @@ func LocalOnlySplitProducts(mt gog_integration.Media, fix bool) error {
 				continue
 			}
 
-			pa.EndWithSummary(fmt.Sprintf("found %d:", localOnlyProducts.Len()), summary)
+			pa.EndWithSummary(fmt.Sprintf("found %d:", len(localOnlyProducts)), summary)
 
 			if fix {
 				fa := nod.Begin(" removing local only %s...", splitPt)
-				if err := vangogh_local_data.Cut(localOnlyProducts.All(), splitPt, mt); err != nil {
+				if err := vangogh_local_data.Cut(localOnlyProducts, splitPt, mt); err != nil {
 					return fa.EndWithError(err)
 				}
 				fa.EndWithResult("done")

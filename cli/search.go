@@ -71,7 +71,7 @@ func Search(query map[string][]string) error {
 	}
 
 	itp, err := vangogh_local_data.PropertyListsFromIdSet(
-		vangogh_local_data.IdSetFromMap(results),
+		results,
 		propertyFilter,
 		expandedProps,
 		rxa)

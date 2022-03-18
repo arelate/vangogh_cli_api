@@ -10,12 +10,12 @@ import (
 func Modified(
 	since int64,
 	pt vangogh_local_data.ProductType,
-	mt gog_integration.Media) (*vangogh_local_data.IdSet, error) {
+	mt gog_integration.Media) (map[string]bool, error) {
 
 	ma := nod.Begin(" finding modified %s...", pt)
 	defer ma.End()
 
-	modSet := vangogh_local_data.NewIdSet()
+	modSet := make(map[string]bool)
 
 	//licence products can only update through creation, and we've already handled
 	//newly created in itemizeMissing func
@@ -33,7 +33,9 @@ func Modified(
 		return modSet, ma.EndWithError(err)
 	}
 
-	modSet.Add(kv.ModifiedAfter(since, false)...)
+	for _, mid := range kv.ModifiedAfter(since, false) {
+		modSet[mid] = true
+	}
 
 	ma.EndWithResult(itemizationResult(modSet))
 

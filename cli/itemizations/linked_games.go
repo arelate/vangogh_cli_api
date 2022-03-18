@@ -6,12 +6,12 @@ import (
 	"github.com/boggydigital/nod"
 )
 
-func linkedGames(modifiedAfter int64) (*vangogh_local_data.IdSet, error) {
+func linkedGames(modifiedAfter int64) (map[string]bool, error) {
 
 	lga := nod.Begin(" finding missing linked %s...", vangogh_local_data.ApiProductsV2)
 	defer lga.End()
 
-	missingSet := vangogh_local_data.NewIdSet()
+	missingSet := make(map[string]bool)
 
 	//currently, api-products-v2 support only gog_integration.Game, and since this method is exclusively
 	//using api-products-v2 we're fine specifying media directly and not taking as a parameter
@@ -62,7 +62,7 @@ func linkedGames(modifiedAfter int64) (*vangogh_local_data.IdSet, error) {
 
 		for _, lid := range lgs {
 			if !vrApv2.Has(lid) {
-				missingSet.Add(lid)
+				missingSet[lid] = true
 			}
 		}
 	}

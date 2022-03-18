@@ -90,7 +90,7 @@ func Sync(
 		paData := vangogh_local_data.ArrayProducts()
 		paData = append(paData, vangogh_local_data.PagedProducts()...)
 		for _, pt := range paData {
-			if err := GetData(vangogh_local_data.NewIdSet(), nil, pt, mt, since, false, false); err != nil {
+			if err := GetData(map[string]bool{}, nil, pt, mt, since, false, false); err != nil {
 				return sa.EndWithError(err)
 			}
 		}
@@ -121,7 +121,7 @@ func Sync(
 				sa.Log("no skip list for %s", pt)
 			}
 
-			if err := GetData(vangogh_local_data.NewIdSet(), skipIds, pt, mt, since, true, true); err != nil {
+			if err := GetData(map[string]bool{}, skipIds, pt, mt, since, true, true); err != nil {
 				return sa.EndWithError(err)
 			}
 		}
@@ -141,14 +141,14 @@ func Sync(
 			}
 			imageTypes = append(imageTypes, it)
 		}
-		if err := GetImages(vangogh_local_data.NewIdSet(), imageTypes, true); err != nil {
+		if err := GetImages(map[string]bool{}, imageTypes, true); err != nil {
 			return sa.EndWithError(err)
 		}
 	}
 
 	// get videos
 	if syncOpts.videos {
-		if err := GetVideos(vangogh_local_data.NewIdSet(), true); err != nil {
+		if err := GetVideos(map[string]bool{}, true); err != nil {
 			return sa.EndWithError(err)
 		}
 	}
