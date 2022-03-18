@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"github.com/arelate/gog_integration"
 	"github.com/arelate/vangogh_local_data"
-	"github.com/boggydigital/gost"
 	"github.com/boggydigital/nod"
+	"golang.org/x/exp/maps"
 	"net/url"
 )
 
@@ -29,12 +29,13 @@ func Owned(idSet map[string]bool) error {
 	defer oa.End()
 
 	ownedSet := make(map[string]bool)
-	propSet := gost.NewStrSetWith(
-		vangogh_local_data.TitleProperty,
-		vangogh_local_data.SlugProperty,
-		vangogh_local_data.IncludesGamesProperty)
+	propSet := map[string]bool{
+		vangogh_local_data.TitleProperty:         true,
+		vangogh_local_data.SlugProperty:          true,
+		vangogh_local_data.IncludesGamesProperty: true,
+	}
 
-	rxa, err := vangogh_local_data.ConnectReduxAssets(propSet.All()...)
+	rxa, err := vangogh_local_data.ConnectReduxAssets(maps.Keys(propSet)...)
 	if err != nil {
 		return err
 	}

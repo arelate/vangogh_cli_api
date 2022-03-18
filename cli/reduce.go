@@ -4,8 +4,8 @@ import (
 	"github.com/arelate/gog_integration"
 	"github.com/arelate/vangogh_cli_api/cli/reductions"
 	"github.com/arelate/vangogh_local_data"
-	"github.com/boggydigital/gost"
 	"github.com/boggydigital/nod"
+	"golang.org/x/exp/maps"
 	"net/url"
 	"strings"
 )
@@ -27,21 +27,24 @@ func ReduceHandler(u *url.URL) error {
 
 func Reduce(since int64, mt gog_integration.Media, properties []string) error {
 
-	propSet := gost.NewStrSetWith(properties...)
+	propSet := make(map[string]bool)
+	for _, p := range properties {
+		propSet[p] = true
+	}
 
 	if len(properties) == 0 {
-		propSet.Add(vangogh_local_data.ReduxProperties()...)
+		for _, rp := range vangogh_local_data.ReduxProperties() {
+			propSet[rp] = true
+		}
 	}
 
 	//required for language-* properties reduction below
-	if !propSet.Has(vangogh_local_data.LanguageCodeProperty) {
-		propSet.Add(vangogh_local_data.LanguageCodeProperty)
-	}
+	propSet[vangogh_local_data.LanguageCodeProperty] = true
 
 	ra := nod.Begin("reducing properties...")
 	defer ra.End()
 
-	rxa, err := vangogh_local_data.ConnectReduxAssets(propSet.All()...)
+	rxa, err := vangogh_local_data.ConnectReduxAssets(maps.Keys(propSet)...)
 	if err != nil {
 		return ra.EndWithError(err)
 	}
@@ -53,7 +56,7 @@ func Reduce(since int64, mt gog_integration.Media, properties []string) error {
 			return ra.EndWithError(err)
 		}
 
-		missingProps := vangogh_local_data.SupportedPropertiesOnly(pt, propSet.All())
+		missingProps := vangogh_local_data.SupportedPropertiesOnly(pt, maps.Keys(propSet))
 
 		missingPropRedux := make(map[string]map[string][]string, 0)
 

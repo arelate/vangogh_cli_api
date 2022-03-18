@@ -2,7 +2,6 @@ package vets
 
 import (
 	"github.com/arelate/vangogh_local_data"
-	"github.com/boggydigital/gost"
 	"github.com/boggydigital/nod"
 	"os"
 	"path/filepath"
@@ -40,15 +39,13 @@ func FilesInRecycleBin(fix bool) error {
 			rfa.EndWithResult("done")
 
 			//remove empty directories after fixing files
-			sortDirs := gost.NewSortStrSet()
 			dirLens := make(map[string]int)
 
 			for dir := range recycleBinDirs {
-				sortDirs.Add(dir)
 				dirLens[dir] = len(dir)
 			}
 
-			sortedDirs := sortDirs.SortByIntVal(dirLens, true)
+			sortedDirs := vangogh_local_data.SortStrIntMap(dirLens, true)
 
 			rda := nod.NewProgress(" removing leftover directories...")
 			rda.TotalInt(len(sortedDirs))

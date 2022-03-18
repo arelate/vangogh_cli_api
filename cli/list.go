@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"github.com/arelate/gog_integration"
 	"github.com/arelate/vangogh_local_data"
-	"github.com/boggydigital/gost"
 	"github.com/boggydigital/nod"
+	"golang.org/x/exp/maps"
 	"net/url"
 	"time"
 )
@@ -49,19 +49,21 @@ func List(
 		return la.EndWithError(fmt.Errorf("can't list invalid media %s", mt))
 	}
 
-	propSet := gost.NewStrSetWith(properties...)
+	propSet := make(map[string]bool)
+	for _, p := range properties {
+		propSet[p] = true
+	}
 
 	//if no properties have been provided - print ID, Title
-	if propSet.Len() == 0 {
-		propSet.Add(
-			vangogh_local_data.IdProperty,
-			vangogh_local_data.TitleProperty)
+	if len(propSet) == 0 {
+		propSet[vangogh_local_data.IdProperty] = true
+		propSet[vangogh_local_data.TitleProperty] = true
 	}
 
 	//if Title property has not been provided - add it.
 	//we'll always print the title.
 	//same goes for sort-by property
-	propSet.Add(vangogh_local_data.TitleProperty)
+	propSet[vangogh_local_data.TitleProperty] = true
 
 	//rules for collecting IDs to print:
 	//1. start with user provided IDs
@@ -94,7 +96,7 @@ func List(
 	itp, err := vangogh_local_data.PropertyListsFromIdSet(
 		idSet,
 		nil,
-		vangogh_local_data.SupportedPropertiesOnly(pt, properties),
+		vangogh_local_data.SupportedPropertiesOnly(pt, maps.Keys(propSet)),
 		nil)
 
 	if err != nil {

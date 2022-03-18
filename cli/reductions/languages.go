@@ -3,17 +3,17 @@ package reductions
 import (
 	"github.com/arelate/gog_integration"
 	"github.com/arelate/vangogh_local_data"
-	"github.com/boggydigital/gost"
 	"github.com/boggydigital/kvas"
 	"github.com/boggydigital/nod"
+	"golang.org/x/exp/maps"
 )
 
-func GetLanguageCodes(rxa kvas.ReduxAssets) (gost.StrSet, error) {
+func GetLanguageCodes(rxa kvas.ReduxAssets) (map[string]bool, error) {
 
 	lca := nod.Begin(" %s...", vangogh_local_data.LanguageCodeProperty)
 	defer lca.EndWithResult("done")
 
-	langCodeSet := gost.NewStrSet()
+	langCodeSet := make(map[string]bool)
 
 	if err := rxa.IsSupported(vangogh_local_data.LanguageCodeProperty); err != nil {
 		return langCodeSet, lca.EndWithError(err)
@@ -26,7 +26,7 @@ func GetLanguageCodes(rxa kvas.ReduxAssets) (gost.StrSet, error) {
 			continue
 		}
 		for _, code := range idCodes {
-			langCodeSet.Add(code)
+			langCodeSet[code] = true
 		}
 	}
 
@@ -34,32 +34,33 @@ func GetLanguageCodes(rxa kvas.ReduxAssets) (gost.StrSet, error) {
 }
 
 func getMissingLanguageNames(
-	langCodeSet gost.StrSet,
+	langCodeSet map[string]bool,
 	rxa kvas.ReduxAssets,
-	property string) (gost.StrSet, error) {
-	missingLangs := gost.NewStrSetWith(langCodeSet.All()...)
+	property string) (map[string]bool, error) {
+
+	missingLangs := maps.Clone(langCodeSet)
 
 	// TODO: write a comment explaining all or nothing approach
 	//map all language codes to names and hide existing
-	for _, lc := range missingLangs.All() {
+	for lc := range missingLangs {
 		if _, ok := rxa.GetFirstVal(property, lc); ok {
-			missingLangs.Hide(lc)
+			delete(missingLangs, lc)
 		}
 	}
 
 	return missingLangs, nil
 }
 
-func updateLanguageNames(languages map[string]string, missingNames gost.StrSet, names map[string][]string) {
+func updateLanguageNames(languages map[string]string, missingNames map[string]bool, names map[string][]string) {
 	for langCode, langName := range languages {
-		if missingNames.Has(langCode) {
+		if missingNames[langCode] {
 			names[langCode] = []string{langName}
-			missingNames.Hide(langCode)
+			delete(missingNames, langCode)
 		}
 	}
 }
 
-func LanguageNames(langCodeSet gost.StrSet) error {
+func LanguageNames(langCodeSet map[string]bool) error {
 	property := vangogh_local_data.LanguageNameProperty
 
 	lna := nod.Begin(" %s...", property)
@@ -75,11 +76,11 @@ func LanguageNames(langCodeSet gost.StrSet) error {
 		return lna.EndWithError(err)
 	}
 
-	if missingLangs.Len() == 0 {
+	if len(missingLangs) == 0 {
 		return nil
 	}
 
-	missingLangs = gost.NewStrSetWith(langCodeSet.All()...)
+	missingLangs = maps.Clone(langCodeSet)
 	names := make(map[string][]string, 0)
 
 	//iterate through api-products-v1 until we fill all native names
@@ -96,7 +97,7 @@ func LanguageNames(langCodeSet gost.StrSet) error {
 
 		updateLanguageNames(apv2.GetLanguages(), missingLangs, names)
 
-		if missingLangs.Len() == 0 {
+		if len(missingLangs) == 0 {
 			break
 		}
 	}
@@ -108,7 +109,7 @@ func LanguageNames(langCodeSet gost.StrSet) error {
 	return nil
 }
 
-func NativeLanguageNames(langCodeSet gost.StrSet) error {
+func NativeLanguageNames(langCodeSet map[string]bool) error {
 	property := vangogh_local_data.NativeLanguageNameProperty
 
 	nlna := nod.Begin(" %s...", property)
@@ -124,7 +125,7 @@ func NativeLanguageNames(langCodeSet gost.StrSet) error {
 		return nlna.EndWithError(err)
 	}
 
-	if missingNativeLangs.Len() == 0 {
+	if len(missingNativeLangs) == 0 {
 		nlna.EndWithResult("done")
 		return nil
 	}
@@ -134,7 +135,7 @@ func NativeLanguageNames(langCodeSet gost.StrSet) error {
 		return nlna.EndWithError(err)
 	}
 
-	missingNativeLangs = gost.NewStrSetWith(langCodeSet.All()...)
+	missingNativeLangs = maps.Clone(langCodeSet)
 	nativeNames := make(map[string][]string, 0)
 
 	for _, id := range vrApiProductsV1.Keys() {
@@ -145,7 +146,7 @@ func NativeLanguageNames(langCodeSet gost.StrSet) error {
 
 		updateLanguageNames(apv1.GetNativeLanguages(), missingNativeLangs, nativeNames)
 
-		if missingNativeLangs.Len() == 0 {
+		if len(missingNativeLangs) == 0 {
 			break
 		}
 	}

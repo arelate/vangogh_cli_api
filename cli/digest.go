@@ -3,7 +3,6 @@ package cli
 import (
 	"fmt"
 	"github.com/arelate/vangogh_local_data"
-	"github.com/boggydigital/gost"
 	"github.com/boggydigital/nod"
 	"net/url"
 )
@@ -23,7 +22,7 @@ func Digest(property string) error {
 		return err
 	}
 
-	distValues := make(map[string]int, 0)
+	distValues := make(map[string]int)
 
 	for _, id := range rxa.Keys(property) {
 		values, ok := rxa.GetAllValues(property, id)
@@ -44,7 +43,7 @@ func Digest(property string) error {
 		keys = append(keys, key)
 	}
 
-	_, sorted := gost.NewIntSortedStrSetWith(distValues, vangogh_local_data.DefaultDesc)
+	sorted := vangogh_local_data.SortStrIntMap(distValues, vangogh_local_data.DefaultDesc)
 
 	summary := make(map[string][]string)
 	summary[""] = make([]string, 0, len(sorted))

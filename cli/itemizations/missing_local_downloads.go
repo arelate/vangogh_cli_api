@@ -3,7 +3,6 @@ package itemizations
 import (
 	"github.com/arelate/gog_integration"
 	"github.com/arelate/vangogh_local_data"
-	"github.com/boggydigital/gost"
 	"github.com/boggydigital/kvas"
 	"github.com/boggydigital/nod"
 	"os"
@@ -80,7 +79,7 @@ func (mdd *missingDownloadsDelegate) Process(id, slug string, list vangogh_local
 		return err
 	}
 
-	expectedFiles := gost.NewStrSet()
+	expectedFiles := make(map[string]bool)
 
 	for _, dl := range list {
 
@@ -104,10 +103,10 @@ func (mdd *missingDownloadsDelegate) Process(id, slug string, list vangogh_local
 			return err
 		}
 
-		expectedFiles.Add(relFilename)
+		expectedFiles[relFilename] = true
 	}
 
-	if expectedFiles.Len() == 0 {
+	if len(expectedFiles) == 0 {
 		return nil
 	}
 
@@ -127,7 +126,14 @@ func (mdd *missingDownloadsDelegate) Process(id, slug string, list vangogh_local
 	}
 
 	// 4
-	missingFiles := expectedFiles.Except(presentFiles)
+	missingFiles := make([]string, 0, len(expectedFiles))
+
+	for f := range expectedFiles {
+		if !presentFiles[f] {
+			missingFiles = append(missingFiles, f)
+		}
+	}
+
 	if len(missingFiles) > 0 {
 		mdd.missingIds[id] = true
 	}

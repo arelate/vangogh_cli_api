@@ -4,14 +4,14 @@ go 1.18
 
 require (
 	github.com/arelate/gog_integration v0.1.4
-	github.com/arelate/vangogh_local_data v0.1.12
+	github.com/arelate/vangogh_local_data v0.1.14
 	github.com/boggydigital/coost v0.3.7
 	github.com/boggydigital/dolo v0.2.2
-	github.com/boggydigital/gost v0.1.1
 	github.com/boggydigital/kvas v0.3.6
 	github.com/boggydigital/nod v0.1.12
 	github.com/boggydigital/wits v0.2.3
 	github.com/boggydigital/yt_urls v0.1.7
+	golang.org/x/exp v0.0.0-20220318154914-8dddf5d87bd8
 )
 
 require (

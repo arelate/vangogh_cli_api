@@ -5,7 +5,6 @@ import (
 	"github.com/arelate/gog_integration"
 	"github.com/arelate/vangogh_cli_api/cli/dirs"
 	"github.com/arelate/vangogh_local_data"
-	"github.com/boggydigital/gost"
 	"github.com/boggydigital/kvas"
 	"github.com/boggydigital/nod"
 	"math"
@@ -129,7 +128,7 @@ func (cd *cleanupDelegate) Process(_ string, slug string, list vangogh_local_dat
 	//2. enumerate all files present for a slug (files present in a `downloads/slug` folder)
 	//3. delete (present files).Except(expected files) and corresponding xml files
 
-	expectedSet := gost.NewStrSet()
+	expectedSet := make(map[string]bool)
 
 	//pDir = s/slug
 	pDir, err := vangogh_local_data.RelProductDownloadsDir(slug)
@@ -145,7 +144,7 @@ func (cd *cleanupDelegate) Process(_ string, slug string, list vangogh_local_dat
 			if err != nil {
 				return csa.EndWithError(err)
 			}
-			expectedSet.Add(relFilename)
+			expectedSet[relFilename] = true
 		}
 	}
 
@@ -155,13 +154,12 @@ func (cd *cleanupDelegate) Process(_ string, slug string, list vangogh_local_dat
 		return csa.EndWithError(err)
 	}
 
-	//TODO: rework this as part of gost deprecation
-	presentGost := gost.NewStrSet()
-	for file := range presentSet {
-		presentGost.Add(file)
+	unexpectedFiles := make([]string, 0, len(presentSet))
+	for p := range presentSet {
+		if !expectedSet[p] {
+			unexpectedFiles = append(unexpectedFiles, p)
+		}
 	}
-
-	unexpectedFiles := presentGost.Except(expectedSet)
 
 	if len(unexpectedFiles) == 0 {
 		if !cd.all {

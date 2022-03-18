@@ -2,8 +2,8 @@ package cli
 
 import (
 	"github.com/arelate/vangogh_local_data"
-	"github.com/boggydigital/gost"
 	"github.com/boggydigital/nod"
+	"golang.org/x/exp/maps"
 	"net/url"
 	"strings"
 )
@@ -28,12 +28,12 @@ func Search(query map[string][]string) error {
 	//prepare a list of all properties to load redux for and
 	//always start with a `title` property since it is printed for all matched item
 	//(even if the match is for another property)
-	propSet := gost.NewStrSetWith(vangogh_local_data.TitleProperty)
+	propSet := map[string]bool{vangogh_local_data.TitleProperty: true}
 	for qp := range query {
-		propSet.Add(qp)
+		propSet[qp] = true
 	}
 
-	rxa, err := vangogh_local_data.ConnectReduxAssets(propSet.All()...)
+	rxa, err := vangogh_local_data.ConnectReduxAssets(maps.Keys(propSet)...)
 	if err != nil {
 		return sa.EndWithError(err)
 	}
@@ -64,7 +64,7 @@ func Search(query map[string][]string) error {
 	}
 
 	//similarly for propertyFilter (see comment above) - expand all properties to display
-	expandedPropsMap := vangogh_local_data.DetailAllAggregateProperties(propSet.All()...)
+	expandedPropsMap := vangogh_local_data.DetailAllAggregateProperties(maps.Keys(propSet)...)
 	expandedProps := make([]string, 0, len(expandedPropsMap))
 	for p := range expandedPropsMap {
 		expandedProps = append(expandedProps, p)

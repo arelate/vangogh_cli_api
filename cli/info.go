@@ -2,8 +2,8 @@ package cli
 
 import (
 	"github.com/arelate/vangogh_local_data"
-	"github.com/boggydigital/gost"
 	"github.com/boggydigital/nod"
+	"golang.org/x/exp/maps"
 	"net/url"
 )
 
@@ -25,20 +25,28 @@ func Info(idSet map[string]bool, allText, images, videoId bool) error {
 	ia := nod.Begin("information:")
 	defer ia.End()
 
-	propSet := gost.NewStrSetWith(vangogh_local_data.TypesProperty)
+	propSet := map[string]bool{vangogh_local_data.TypesProperty: true}
 
-	propSet.Add(vangogh_local_data.TextProperties()...)
+	for _, p := range vangogh_local_data.TextProperties() {
+		propSet[p] = true
+	}
 	if allText {
-		propSet.Add(vangogh_local_data.AllTextProperties()...)
+		for _, p := range vangogh_local_data.AllTextProperties() {
+			propSet[p] = true
+		}
 	}
 	if images {
-		propSet.Add(vangogh_local_data.ImageIdProperties()...)
+		for _, p := range vangogh_local_data.ImageIdProperties() {
+			propSet[p] = true
+		}
 	}
 	if videoId {
-		propSet.Add(vangogh_local_data.VideoIdProperties()...)
+		for _, p := range vangogh_local_data.VideoIdProperties() {
+			propSet[p] = true
+		}
 	}
 
-	rxa, err := vangogh_local_data.ConnectReduxAssets(propSet.All()...)
+	rxa, err := vangogh_local_data.ConnectReduxAssets(maps.Keys(propSet)...)
 	if err != nil {
 		return ia.EndWithError(err)
 	}
@@ -46,7 +54,7 @@ func Info(idSet map[string]bool, allText, images, videoId bool) error {
 	itp, err := vangogh_local_data.PropertyListsFromIdSet(
 		idSet,
 		nil,
-		propSet.All(),
+		maps.Keys(propSet),
 		rxa)
 
 	if err != nil {
