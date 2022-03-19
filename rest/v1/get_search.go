@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/arelate/vangogh_local_data"
 	"github.com/boggydigital/nod"
+	"golang.org/x/exp/maps"
 	"net/http"
 	"strings"
 )
@@ -39,10 +40,15 @@ func Search(w http.ResponseWriter, r *http.Request) {
 	}
 
 	found := rxa.Match(query, true)
-	keys := make([]string, 0, len(found))
+	keys, err := vangogh_local_data.SortIds(
+		maps.Keys(found),
+		rxa,
+		vangogh_local_data.TitleProperty,
+		false)
 
-	for id := range found {
-		keys = append(keys, id)
+	if err != nil {
+		http.Error(w, nod.Error(err).Error(), http.StatusInternalServerError)
+		return
 	}
 
 	if err := json.NewEncoder(w).Encode(keys); err != nil {
