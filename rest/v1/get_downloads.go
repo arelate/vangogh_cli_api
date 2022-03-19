@@ -1,7 +1,6 @@
 package v1
 
 import (
-	"encoding/json"
 	"fmt"
 	"github.com/arelate/gog_integration"
 	"github.com/arelate/vangogh_local_data"
@@ -11,7 +10,7 @@ import (
 
 func GetDownloads(w http.ResponseWriter, r *http.Request) {
 
-	// GET /v1/downloads?id&operating-system&language-code
+	// GET /v1/downloads?id&operating-system&language-code&format
 
 	if r.Method != http.MethodGet {
 		err := fmt.Errorf("unsupported method")
@@ -55,7 +54,7 @@ func GetDownloads(w http.ResponseWriter, r *http.Request) {
 
 	dl = dl.Only(os, []vangogh_local_data.DownloadType{vangogh_local_data.AnyDownloadType}, lang)
 
-	if err := json.NewEncoder(w).Encode(dl); err != nil {
+	if err := encode(dl, w, r); err != nil {
 		http.Error(w, nod.Error(err).Error(), http.StatusInternalServerError)
 	}
 }

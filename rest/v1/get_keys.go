@@ -1,7 +1,6 @@
 package v1
 
 import (
-	"encoding/json"
 	"fmt"
 	"github.com/arelate/vangogh_local_data"
 	"github.com/boggydigital/nod"
@@ -10,7 +9,7 @@ import (
 
 func GetKeys(w http.ResponseWriter, r *http.Request) {
 
-	// GET /v1/keys?product-type&media&sort&desc
+	// GET /v1/keys?product-type&media&sort&desc&format
 
 	if r.Method != http.MethodGet {
 		err := fmt.Errorf("unsupported method")
@@ -18,13 +17,13 @@ func GetKeys(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	pt, mt, err := getProductTypeMedia(r.URL)
+	pt, mt, err := productTypeMediaFromUrl(r.URL)
 	if err != nil {
 		http.Error(w, nod.Error(err).Error(), http.StatusBadRequest)
 		return
 	}
 
-	sort, desc := getSortDesc(r.URL)
+	sort, desc := sortDescFromUrl(r.URL)
 	if !vangogh_local_data.IsValidProperty(sort) {
 		err := fmt.Errorf("invalid sort property %s", sort)
 		http.Error(w, nod.Error(err).Error(), http.StatusBadRequest)
@@ -49,7 +48,7 @@ func GetKeys(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := json.NewEncoder(w).Encode(sortedIds); err != nil {
+	if err := encode(sortedIds, w, r); err != nil {
 		http.Error(w, nod.Error(err).Error(), http.StatusInternalServerError)
 	}
 }

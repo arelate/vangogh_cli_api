@@ -1,7 +1,6 @@
 package v1
 
 import (
-	"encoding/json"
 	"fmt"
 	"github.com/arelate/vangogh_local_data"
 	"github.com/boggydigital/nod"
@@ -12,7 +11,7 @@ import (
 
 func Search(w http.ResponseWriter, r *http.Request) {
 
-	// GET /v1/search?text&(searchable properties)
+	// GET /v1/search?text&(searchable properties)&format
 
 	if r.Method != http.MethodGet {
 		err := fmt.Errorf("unsupported method")
@@ -51,7 +50,7 @@ func Search(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := json.NewEncoder(w).Encode(keys); err != nil {
+	if err := encode(keys, w, r); err != nil {
 		http.Error(w, nod.Error(err).Error(), http.StatusInternalServerError)
 	}
 }

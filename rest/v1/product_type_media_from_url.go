@@ -7,7 +7,7 @@ import (
 	"net/url"
 )
 
-func getProductTypeMedia(u *url.URL) (vangogh_local_data.ProductType, gog_integration.Media, error) {
+func productTypeMediaFromUrl(u *url.URL) (vangogh_local_data.ProductType, gog_integration.Media, error) {
 	q := u.Query()
 
 	productType := q.Get("product-type")

@@ -1,7 +1,6 @@
 package v1
 
 import (
-	"encoding/json"
 	"fmt"
 	"github.com/arelate/vangogh_local_data"
 	"github.com/boggydigital/nod"
@@ -11,7 +10,7 @@ import (
 
 func GetData(w http.ResponseWriter, r *http.Request) {
 
-	// GET /v1/data?product-type&media&id
+	// GET /v1/data?product-type&media&id&format
 
 	if r.Method != http.MethodGet {
 		err := fmt.Errorf("unsupported method")
@@ -19,7 +18,7 @@ func GetData(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	pt, mt, err := getProductTypeMedia(r.URL)
+	pt, mt, err := productTypeMediaFromUrl(r.URL)
 	if err != nil {
 		http.Error(w, nod.Error(err).Error(), http.StatusBadRequest)
 		return
@@ -44,7 +43,7 @@ func GetData(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := json.NewEncoder(w).Encode(values); err != nil {
+	if err := encode(values, w, r); err != nil {
 		http.Error(w, nod.Error(err).Error(), http.StatusInternalServerError)
 	}
 }

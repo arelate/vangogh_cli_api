@@ -5,7 +5,7 @@ import (
 	"net/url"
 )
 
-func getSortDesc(u *url.URL) (string, bool) {
+func sortDescFromUrl(u *url.URL) (string, bool) {
 	q := u.Query()
 	sort := q.Get("sort")
 	if sort == "" {

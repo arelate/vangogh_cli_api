@@ -1,7 +1,6 @@
 package v1
 
 import (
-	"encoding/json"
 	"fmt"
 	"github.com/arelate/vangogh_local_data"
 	"github.com/boggydigital/nod"
@@ -11,7 +10,7 @@ import (
 
 func GetRedux(w http.ResponseWriter, r *http.Request) {
 
-	// GET /v1/redux?property&id
+	// GET /v1/redux?property&id&format
 
 	if r.Method != http.MethodGet {
 		err := fmt.Errorf("unsupported method")
@@ -36,7 +35,8 @@ func GetRedux(w http.ResponseWriter, r *http.Request) {
 		}
 		values[id] = propValues
 	}
-	if err := json.NewEncoder(w).Encode(values); err != nil {
+
+	if err := encode(values, w, r); err != nil {
 		http.Error(w, nod.Error(err).Error(), http.StatusInternalServerError)
 	}
 }
