@@ -45,7 +45,11 @@ func GetUpdates(w http.ResponseWriter, r *http.Request) {
 	sortedUpdates := make(map[string][]string)
 
 	for section, ids := range updates {
-		sortedIds, err := vangogh_local_data.SortIds(maps.Keys(ids), rxa, vangogh_local_data.TitleProperty, true)
+		sortedIds, err := vangogh_local_data.SortIds(
+			maps.Keys(ids),
+			rxa,
+			vangogh_local_data.DefaultSort,
+			vangogh_local_data.DefaultDesc)
 		if err != nil {
 			http.Error(w, nod.Error(err).Error(), http.StatusMethodNotAllowed)
 			return

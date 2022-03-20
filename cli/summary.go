@@ -46,7 +46,11 @@ func Summary(mt gog_integration.Media, since int64) error {
 
 	for section, ids := range updates {
 		summary[section] = make([]string, 0, len(ids))
-		sortedIds, err := vangogh_local_data.SortIds(maps.Keys(ids), rxa, vangogh_local_data.TitleProperty, true)
+		sortedIds, err := vangogh_local_data.SortIds(
+			maps.Keys(ids),
+			rxa,
+			vangogh_local_data.DefaultSort,
+			vangogh_local_data.DefaultDesc)
 		if err != nil {
 			return sa.EndWithError(err)
 		}
