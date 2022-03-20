@@ -5,7 +5,6 @@ import (
 	"github.com/arelate/vangogh_local_data"
 	"github.com/boggydigital/nod"
 	"net/http"
-	"strings"
 )
 
 func GetData(w http.ResponseWriter, r *http.Request) {
@@ -18,21 +17,20 @@ func GetData(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	pt, mt, err := productTypeMediaFromUrl(r.URL)
+	pt := vangogh_local_data.ProductTypeFromUrl(r.URL)
+	mt := vangogh_local_data.MediaFromUrl(r.URL)
+	ids, err := vangogh_local_data.IdSetFromUrl(r.URL)
 	if err != nil {
-		http.Error(w, nod.Error(err).Error(), http.StatusBadRequest)
+		http.Error(w, nod.Error(err).Error(), http.StatusMethodNotAllowed)
 		return
 	}
-
-	ids := strings.Split(r.URL.Query().Get("id"), ",")
 
 	values := make(map[string]interface{}, len(ids))
 
 	if vr, err := vangogh_local_data.NewReader(pt, mt); err == nil {
 
-		//var err error
-		for i := 0; i < len(ids); i++ {
-			if values[ids[i]], err = vr.ReadValue(ids[i]); err != nil {
+		for id := range ids {
+			if values[id], err = vr.ReadValue(id); err != nil {
 				http.Error(w, nod.Error(err).Error(), http.StatusInternalServerError)
 				return
 			}

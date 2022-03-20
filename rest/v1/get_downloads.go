@@ -10,7 +10,7 @@ import (
 
 func GetDownloads(w http.ResponseWriter, r *http.Request) {
 
-	// GET /v1/downloads?id&operating-system&language-code&format
+	// GET /v1/downloads?id&operating-system&language-code&format&media
 
 	if r.Method != http.MethodGet {
 		err := fmt.Errorf("unsupported method")
@@ -18,8 +18,11 @@ func GetDownloads(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	id := r.URL.Query().Get("id")
-	mt := gog_integration.Game
+	id := vangogh_local_data.ValueFromUrl(r.URL, "id")
+	mt := vangogh_local_data.MediaFromUrl(r.URL)
+	if mt == gog_integration.Unknown {
+		mt = gog_integration.Game
+	}
 
 	vrDetails, err := vangogh_local_data.NewReader(vangogh_local_data.Details, mt)
 	if err != nil {

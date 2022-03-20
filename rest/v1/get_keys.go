@@ -17,11 +17,8 @@ func GetKeys(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	pt, mt, err := productTypeMediaFromUrl(r.URL)
-	if err != nil {
-		http.Error(w, nod.Error(err).Error(), http.StatusBadRequest)
-		return
-	}
+	pt := vangogh_local_data.ProductTypeFromUrl(r.URL)
+	mt := vangogh_local_data.MediaFromUrl(r.URL)
 
 	sort, desc := sortDescFromUrl(r.URL)
 	if !vangogh_local_data.IsValidProperty(sort) {

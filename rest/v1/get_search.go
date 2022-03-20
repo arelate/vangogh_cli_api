@@ -6,7 +6,6 @@ import (
 	"github.com/boggydigital/nod"
 	"golang.org/x/exp/maps"
 	"net/http"
-	"strings"
 )
 
 func Search(w http.ResponseWriter, r *http.Request) {
@@ -28,7 +27,6 @@ func Search(w http.ResponseWriter, r *http.Request) {
 			if val == "" {
 				continue
 			}
-			query[p] = strings.Split(val, "+")
 		}
 	}
 

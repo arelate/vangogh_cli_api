@@ -5,7 +5,6 @@ import (
 	"github.com/arelate/vangogh_local_data"
 	"github.com/boggydigital/nod"
 	"net/http"
-	"strings"
 )
 
 func GetRedux(w http.ResponseWriter, r *http.Request) {
@@ -18,17 +17,21 @@ func GetRedux(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	properties := strings.Split(r.URL.Query().Get("property"), ",")
+	properties := vangogh_local_data.PropertiesFromUrl(r.URL)
 	rxa, err := vangogh_local_data.ConnectReduxAssets(properties...)
 	if err != nil {
 		http.Error(w, nod.Error(err).Error(), http.StatusInternalServerError)
 		return
 	}
 
-	ids := strings.Split(r.URL.Query().Get("id"), ",")
+	ids, err := vangogh_local_data.IdSetFromUrl(r.URL)
+	if err != nil {
+		http.Error(w, nod.Error(err).Error(), http.StatusInternalServerError)
+		return
+	}
 
 	values := make(map[string]map[string][]string, len(ids))
-	for _, id := range ids {
+	for id := range ids {
 		propValues := make(map[string][]string)
 		for _, prop := range properties {
 			propValues[prop], _ = rxa.GetAllValues(prop, id)

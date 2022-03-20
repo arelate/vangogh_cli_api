@@ -5,7 +5,6 @@ import (
 	"github.com/arelate/vangogh_local_data"
 	"github.com/boggydigital/nod"
 	"net/http"
-	"strings"
 )
 
 func GetAllRedux(w http.ResponseWriter, r *http.Request) {
@@ -18,13 +17,9 @@ func GetAllRedux(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	properties := strings.Split(r.URL.Query().Get("property"), ",")
-
-	pt, mt, err := productTypeMediaFromUrl(r.URL)
-	if err != nil {
-		http.Error(w, nod.Error(err).Error(), http.StatusBadRequest)
-		return
-	}
+	properties := vangogh_local_data.PropertiesFromUrl(r.URL)
+	pt := vangogh_local_data.ProductTypeFromUrl(r.URL)
+	mt := vangogh_local_data.MediaFromUrl(r.URL)
 
 	rxa, err := vangogh_local_data.ConnectReduxAssets(properties...)
 	if err != nil {
