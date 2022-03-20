@@ -3,7 +3,6 @@ package cli
 import (
 	"fmt"
 	"github.com/arelate/gog_integration"
-	v1 "github.com/arelate/vangogh_cli_api/rest/v1"
 	"github.com/arelate/vangogh_local_data"
 	"github.com/boggydigital/nod"
 	"net/url"
@@ -27,7 +26,7 @@ func Summary(mt gog_integration.Media, since int64) error {
 	sa := nod.Begin("key changes since %s:", time.Unix(since, 0).Format("01/02 03:04PM"))
 	defer sa.End()
 
-	updates, err := v1.Updates(mt, since)
+	updates, err := vangogh_local_data.Updates(mt, since)
 	if err != nil {
 		return sa.EndWithError(err)
 	}
