@@ -15,7 +15,7 @@ const (
 	SyncOptionImages           = "images"
 	SyncOptionScreenshots      = "screenshots"
 	SyncOptionVideos           = "videos"
-	SyncOptionDownloadsUpdates = "downloads-updates"
+	SyncOptionDownloadsUpdates = "downloads-Updates"
 	negativePrefix             = "no-"
 )
 
@@ -70,7 +70,7 @@ func SyncHandler(u *url.URL) error {
 		vangogh_local_data.OperatingSystemsFromUrl(u),
 		vangogh_local_data.DownloadTypesFromUrl(u),
 		vangogh_local_data.ValuesFromUrl(u, "language-code"),
-		vangogh_local_data.FlagFromUrl(u, "updates-only"))
+		vangogh_local_data.FlagFromUrl(u, "Updates-only"))
 }
 
 func Sync(
@@ -153,7 +153,7 @@ func Sync(
 		}
 	}
 
-	// get downloads updates
+	// get downloads Updates
 	if syncOpts.downloadsUpdates {
 		if err := UpdateDownloads(
 			mt,

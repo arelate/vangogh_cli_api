@@ -13,6 +13,7 @@ func HandleFuncs() {
 		"/v1/data":      nod.RequestLog(GetData),
 		"/v1/search":    nod.RequestLog(Search),
 		"/v1/downloads": nod.RequestLog(GetDownloads),
+		"/v1/updates":   nod.RequestLog(GetUpdates),
 	}
 
 	for p, h := range v1PatternHandlers {

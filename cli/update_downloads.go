@@ -21,7 +21,7 @@ func UpdateDownloadsHandler(u *url.URL) error {
 		vangogh_local_data.DownloadTypesFromUrl(u),
 		vangogh_local_data.ValuesFromUrl(u, "language-code"),
 		since,
-		vangogh_local_data.FlagFromUrl(u, "updates-only"))
+		vangogh_local_data.FlagFromUrl(u, "Updates-only"))
 }
 
 func UpdateDownloads(
@@ -36,13 +36,13 @@ func UpdateDownloads(
 	defer uda.End()
 
 	//Here is a set of items we'll consider as updated for updating downloads:
-	//1) account-products updates, all products that have .IsNew or .Updates > 0 -
+	//1) account-products Updates, all products that have .IsNew or .Updates > 0 -
 	// basically items that GOG.com marked as new/updated
 	//2) required games for newly acquired license-products -
 	// making sure we update downloads for base product, when purchasing a DLC separately
 	//3) modified details (since certain time) -
 	// this accounts for interrupted sync, when we already processed account-products
-	// updates (so .IsNew or .Updates > 0 won't be true anymore) and have updated
+	// Updates (so .IsNew or .Updates > 0 won't be true anymore) and have updated
 	// details as a result. This is somewhat excessive for general case, however would
 	// allow us to capture all updated account-products at a price of some extra checks
 	updAccountProductIds, err := itemizations.AccountProductsUpdates(mt)
