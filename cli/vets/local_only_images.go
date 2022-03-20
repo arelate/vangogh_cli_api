@@ -47,6 +47,9 @@ func LocalOnlyImages(fix bool) error {
 				continue
 			}
 			for _, imageId := range imageIds {
+				if imageId == "" {
+					continue
+				}
 				expectedImages[imageId] = true
 			}
 			ieia.Increment()
@@ -57,6 +60,9 @@ func LocalOnlyImages(fix bool) error {
 
 	unexpectedImages := make([]string, 0, len(expectedImages))
 	for imageId := range localImages {
+		if imageId == "" {
+			continue
+		}
 		if !expectedImages[imageId] {
 			unexpectedImages = append(unexpectedImages, imageId)
 		}
@@ -64,7 +70,7 @@ func LocalOnlyImages(fix bool) error {
 
 	loia.EndWithResult("found %d unexpected images", len(unexpectedImages))
 
-	if fix {
+	if fix && len(unexpectedImages) > 0 {
 		floia := nod.NewProgress(" removing %d local only image(s)...", len(unexpectedImages))
 		floia.TotalInt(len(unexpectedImages))
 
