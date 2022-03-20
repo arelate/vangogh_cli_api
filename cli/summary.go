@@ -5,6 +5,7 @@ import (
 	"github.com/arelate/gog_integration"
 	"github.com/arelate/vangogh_local_data"
 	"github.com/boggydigital/nod"
+	"golang.org/x/exp/maps"
 	"net/url"
 	"sort"
 	"time"
@@ -43,11 +44,15 @@ func Summary(mt gog_integration.Media, since int64) error {
 
 	summary := make(map[string][]string)
 
-	for cat, items := range updates {
-		summary[cat] = make([]string, 0, len(items))
-		for id := range items {
+	for section, ids := range updates {
+		summary[section] = make([]string, 0, len(ids))
+		sortedIds, err := vangogh_local_data.SortIds(maps.Keys(ids), rxa, vangogh_local_data.TitleProperty, true)
+		if err != nil {
+			return sa.EndWithError(err)
+		}
+		for _, id := range sortedIds {
 			if title, ok := rxa.GetFirstVal(vangogh_local_data.TitleProperty, id); ok {
-				summary[cat] = append(summary[cat], fmt.Sprintf("%s %s", id, title))
+				summary[section] = append(summary[section], fmt.Sprintf("%s %s", id, title))
 			}
 		}
 	}

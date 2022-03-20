@@ -5,6 +5,7 @@ import (
 	"github.com/arelate/gog_integration"
 	"github.com/arelate/vangogh_local_data"
 	"github.com/boggydigital/nod"
+	"golang.org/x/exp/maps"
 	"net/http"
 )
 
@@ -35,7 +36,24 @@ func GetUpdates(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := encode(updates, w, r); err != nil {
+	rxa, err := vangogh_local_data.ConnectReduxAssets(vangogh_local_data.TitleProperty)
+	if err != nil {
+		http.Error(w, nod.Error(err).Error(), http.StatusMethodNotAllowed)
+		return
+	}
+
+	sortedUpdates := make(map[string][]string)
+
+	for section, ids := range updates {
+		sortedIds, err := vangogh_local_data.SortIds(maps.Keys(ids), rxa, vangogh_local_data.TitleProperty, true)
+		if err != nil {
+			http.Error(w, nod.Error(err).Error(), http.StatusMethodNotAllowed)
+			return
+		}
+		sortedUpdates[section] = sortedIds
+	}
+
+	if err := encode(sortedUpdates, w, r); err != nil {
 		http.Error(w, nod.Error(err).Error(), http.StatusMethodNotAllowed)
 		return
 	}
