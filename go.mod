@@ -8,7 +8,7 @@ require (
 	github.com/boggydigital/coost v0.3.7
 	github.com/boggydigital/dolo v0.2.2
 	github.com/boggydigital/kvas v0.3.6
-	github.com/boggydigital/nod v0.1.16
+	github.com/boggydigital/nod v0.1.17
 	github.com/boggydigital/wits v0.2.3
 	github.com/boggydigital/yt_urls v0.1.7
 	golang.org/x/exp v0.0.0-20220318154914-8dddf5d87bd8
