@@ -152,7 +152,11 @@ func Reduce(since int64, mt gog_integration.Media, properties []string) error {
 		return ra.EndWithError(err)
 	}
 
-	return reductions.Cascade()
+	if err := reductions.Cascade(); err != nil {
+		return ra.EndWithError(err)
+	}
+
+	return reductions.Wishlisted(mt)
 }
 
 func stringsTrimSpace(stringsWithSpace []string) []string {
