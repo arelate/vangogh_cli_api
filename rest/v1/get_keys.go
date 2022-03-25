@@ -50,7 +50,7 @@ func GetKeys(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if count > 0 {
+	if count > 0 && len(sortedIds) >= count {
 		sortedIds = sortedIds[:count]
 	}
 
