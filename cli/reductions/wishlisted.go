@@ -8,7 +8,7 @@ import (
 
 func Wishlisted(mt gog_integration.Media) error {
 
-	wa := nod.Begin(" %s...", vangogh_local_data.Wishlisted)
+	wa := nod.Begin(" %s...", vangogh_local_data.WishlistedProperty)
 	defer wa.End()
 
 	vrStoreProducts, err := vangogh_local_data.NewReader(vangogh_local_data.StoreProducts, mt)
@@ -31,12 +31,12 @@ func Wishlisted(mt gog_integration.Media) error {
 		wishlisted[id] = []string{"true"}
 	}
 
-	wishlistedRdx, err := vangogh_local_data.ConnectReduxAssets(vangogh_local_data.Wishlisted)
+	wishlistedRdx, err := vangogh_local_data.ConnectReduxAssets(vangogh_local_data.WishlistedProperty)
 	if err != nil {
 		return wa.EndWithError(err)
 	}
 
-	if err := wishlistedRdx.BatchReplaceValues(vangogh_local_data.Wishlisted, wishlisted); err != nil {
+	if err := wishlistedRdx.BatchReplaceValues(vangogh_local_data.WishlistedProperty, wishlisted); err != nil {
 		return wa.EndWithError(err)
 	}
 
