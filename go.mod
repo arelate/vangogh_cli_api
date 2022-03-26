@@ -3,8 +3,8 @@ module github.com/arelate/vangogh_cli_api
 go 1.18
 
 require (
-	github.com/arelate/gog_integration v0.1.7
-	github.com/arelate/vangogh_local_data v0.1.24
+	github.com/arelate/gog_integration v0.1.8
+	github.com/arelate/vangogh_local_data v0.1.25
 	github.com/boggydigital/coost v0.3.7
 	github.com/boggydigital/dolo v0.2.2
 	github.com/boggydigital/kvas v0.3.6
