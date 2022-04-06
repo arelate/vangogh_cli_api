@@ -87,7 +87,7 @@ func GetVideos(idSet map[string]bool, missing bool) error {
 
 			vfa := nod.NewProgress(" %s", vp.Title())
 
-			vidUrls := vp.StreamingFormats()
+			vidUrls := vp.Formats()
 
 			if len(vidUrls) == 0 {
 				if err := rxa.AddVal(vangogh_local_data.MissingVideoUrlProperty, videoId, missingStr); err != nil {
