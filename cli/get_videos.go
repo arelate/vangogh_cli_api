@@ -8,6 +8,7 @@ import (
 	"github.com/boggydigital/yt_urls"
 	"net/http"
 	"net/url"
+	"os"
 	"os/exec"
 	"path/filepath"
 )
@@ -28,12 +29,22 @@ func GetVideosHandler(u *url.URL) error {
 		vangogh_local_data.FlagFromUrl(u, "missing"))
 }
 
+const dockerFfmpegPath = "/usr/local/sbin/ffmpeg"
+
+func locateFfmpeg() string {
+	if path, err := exec.LookPath("ffmpeg"); err == nil {
+		return path
+	} else if _, err = os.Stat(dockerFfmpegPath); err == nil {
+		return dockerFfmpegPath
+	} else {
+		return ""
+	}
+}
+
 func GetVideos(idSet map[string]bool, ffmpegCmd string, missing bool) error {
 
 	if ffmpegCmd == "" {
-		if path, err := exec.LookPath("ffmpeg"); err == nil {
-			ffmpegCmd = path
-		}
+		ffmpegCmd = locateFfmpeg()
 	}
 
 	gva := nod.NewProgress("getting videos...")
@@ -98,7 +109,7 @@ func GetVideos(idSet map[string]bool, ffmpegCmd string, missing bool) error {
 	return nil
 }
 
-func vgFnDelegate(videoId string, videoPage *yt_urls.InitialPlayerResponse) string {
+func vgFnDelegate(videoId string, _ *yt_urls.InitialPlayerResponse) string {
 	return filepath.Join(
 		vangogh_local_data.AbsDirByVideoId(videoId),
 		videoId+yt_urls.DefaultExt)
