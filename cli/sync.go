@@ -70,7 +70,7 @@ func SyncHandler(u *url.URL) error {
 		vangogh_local_data.OperatingSystemsFromUrl(u),
 		vangogh_local_data.DownloadTypesFromUrl(u),
 		vangogh_local_data.ValuesFromUrl(u, "language-code"),
-		vangogh_local_data.FlagFromUrl(u, "updates-only"))
+		vangogh_local_data.FlagFromUrl(u, "Updates-only"))
 }
 
 func Sync(

@@ -3,13 +3,11 @@ package cli
 import (
 	"github.com/arelate/vangogh_cli_api/cli/itemizations"
 	"github.com/arelate/vangogh_local_data"
+	"github.com/boggydigital/dolo"
 	"github.com/boggydigital/nod"
-	"github.com/boggydigital/yet/yet"
 	"github.com/boggydigital/yt_urls"
 	"net/http"
 	"net/url"
-	"os/exec"
-	"path/filepath"
 )
 
 const (
@@ -22,21 +20,12 @@ func GetVideosHandler(u *url.URL) error {
 		return err
 	}
 
-	ffmpegCmd := vangogh_local_data.ValueFromUrl(u, "ffmpeg-cmd")
-
-	if ffmpegCmd == "" {
-		if path, err := exec.LookPath("ffmpeg"); err == nil {
-			ffmpegCmd = path
-		}
-	}
-
 	return GetVideos(
 		idSet,
-		ffmpegCmd,
 		vangogh_local_data.FlagFromUrl(u, "missing"))
 }
 
-func GetVideos(idSet map[string]bool, ffmpegCmd string, missing bool) error {
+func GetVideos(idSet map[string]bool, missing bool) error {
 
 	gva := nod.NewProgress("getting videos...")
 	defer gva.End()
@@ -83,13 +72,60 @@ func GetVideos(idSet map[string]bool, ffmpegCmd string, missing bool) error {
 
 		va := nod.Begin("%s %s", id, title)
 
+		dl := dolo.DefaultClient
+
 		for _, videoId := range videoIds {
-			if err := yet.DownloadVideos(http.DefaultClient, vgFnDelegate, ffmpegCmd, videoId); err != nil {
-				if vErr := rxa.AddVal(vangogh_local_data.MissingVideoUrlProperty, videoId, err.Error()); vErr != nil {
-					return err
-				}
+
+			vp, err := yt_urls.GetVideoPage(http.DefaultClient, videoId)
+			if err != nil {
 				va.Error(err)
+				if addErr := rxa.AddVal(vangogh_local_data.MissingVideoUrlProperty, videoId, err.Error()); addErr != nil {
+					return addErr
+				}
 				continue
+			}
+
+			vfa := nod.NewProgress(" %s", vp.Title())
+
+			vidUrls := vp.StreamingFormats()
+
+			if len(vidUrls) == 0 {
+				if err := rxa.AddVal(vangogh_local_data.MissingVideoUrlProperty, videoId, missingStr); err != nil {
+					return vfa.EndWithError(err)
+				}
+			}
+
+			for _, vidUrl := range vidUrls {
+
+				if vidUrl.Url == "" {
+					if err := rxa.AddVal(vangogh_local_data.MissingVideoUrlProperty, videoId, missingStr); err != nil {
+						return vfa.EndWithError(err)
+					}
+					continue
+				}
+
+				dir := vangogh_local_data.AbsDirByVideoId(videoId)
+
+				u, err := url.Parse(vidUrl.Url)
+				if err != nil {
+					return vfa.EndWithError(err)
+				}
+
+				//get-videos is not using dolo.GetSetMany unlike get-images, and is downloading
+				//videos sequentially for two main reasons:
+				//1) each video has a list of bitrate-sorted URLs, and we're attempting to download "the best" quality
+				//moving to the next available on failure
+				//2) currently dolo.GetSetMany doesn't support nod progress reporting on each individual concurrent
+				//download (ok, well, StdOutPresenter doesn't, nod likely does) and for video files this would mean
+				//long pauses as we download individual files
+				if err = dl.Download(u, vfa, dir, videoId+yt_urls.DefaultExt); err != nil {
+					vfa.Error(err)
+					continue
+				}
+
+				//yt_urls.StreamingUrls returns bitrate-sorted video urls,
+				//so we can stop, if we've successfully got the best available one
+				break
 			}
 		}
 
@@ -97,11 +133,7 @@ func GetVideos(idSet map[string]bool, ffmpegCmd string, missing bool) error {
 		gva.Increment()
 	}
 
-	return nil
-}
+	//gva.EndWithResult("done")
 
-func vgFnDelegate(videoId string, videoPage *yt_urls.InitialPlayerResponse) string {
-	return filepath.Join(
-		vangogh_local_data.AbsDirByVideoId(videoId),
-		videoId+yt_urls.DefaultExt)
+	return nil
 }
