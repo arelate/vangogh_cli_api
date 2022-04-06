@@ -22,19 +22,21 @@ func GetVideosHandler(u *url.URL) error {
 		return err
 	}
 
-	return GetVideos(
-		idSet,
-		vangogh_local_data.ValueFromUrl(u, "ffmpeg-cmd"),
-		vangogh_local_data.FlagFromUrl(u, "missing"))
-}
-
-func GetVideos(idSet map[string]bool, ffmpegCmd string, missing bool) error {
+	ffmpegCmd := vangogh_local_data.ValueFromUrl(u, "ffmpeg-cmd")
 
 	if ffmpegCmd == "" {
 		if path, err := exec.LookPath("ffmpeg"); err == nil {
 			ffmpegCmd = path
 		}
 	}
+
+	return GetVideos(
+		idSet,
+		ffmpegCmd,
+		vangogh_local_data.FlagFromUrl(u, "missing"))
+}
+
+func GetVideos(idSet map[string]bool, ffmpegCmd string, missing bool) error {
 
 	gva := nod.NewProgress("getting videos...")
 	defer gva.End()

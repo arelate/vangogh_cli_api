@@ -70,7 +70,6 @@ func SyncHandler(u *url.URL) error {
 		vangogh_local_data.OperatingSystemsFromUrl(u),
 		vangogh_local_data.DownloadTypesFromUrl(u),
 		vangogh_local_data.ValuesFromUrl(u, "language-code"),
-		vangogh_local_data.ValueFromUrl(u, "ffmpeg-cmd"),
 		vangogh_local_data.FlagFromUrl(u, "updates-only"))
 }
 
@@ -81,7 +80,6 @@ func Sync(
 	operatingSystems []vangogh_local_data.OperatingSystem,
 	downloadTypes []vangogh_local_data.DownloadType,
 	langCodes []string,
-	ffmpegCmd string,
 	updatesOnly bool) error {
 
 	sa := nod.Begin("syncing source data...")
@@ -150,7 +148,7 @@ func Sync(
 
 	// get videos
 	if syncOpts.videos {
-		if err := GetVideos(map[string]bool{}, ffmpegCmd, true); err != nil {
+		if err := GetVideos(map[string]bool{}, true); err != nil {
 			return sa.EndWithError(err)
 		}
 	}
