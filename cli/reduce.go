@@ -20,12 +20,12 @@ func ReduceHandler(u *url.URL) error {
 		}
 	}
 	return Reduce(
-		since,
 		vangogh_local_data.MediaFromUrl(u),
+		since,
 		vangogh_local_data.PropertiesFromUrl(u))
 }
 
-func Reduce(since int64, mt gog_integration.Media, properties []string) error {
+func Reduce(mt gog_integration.Media, since int64, properties []string) error {
 
 	propSet := make(map[string]bool)
 	for _, p := range properties {

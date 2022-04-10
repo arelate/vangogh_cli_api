@@ -12,6 +12,7 @@ import (
 
 const (
 	SyncOptionData             = "data"
+	SyncOptionItems            = "items"
 	SyncOptionImages           = "images"
 	SyncOptionScreenshots      = "screenshots"
 	SyncOptionVideos           = "videos"
@@ -21,6 +22,7 @@ const (
 
 type syncOptions struct {
 	data             bool
+	items            bool
 	images           bool
 	screenshots      bool
 	videos           bool
@@ -38,6 +40,7 @@ func initSyncOptions(u *url.URL) *syncOptions {
 
 	so := &syncOptions{
 		data:             vangogh_local_data.FlagFromUrl(u, SyncOptionData),
+		items:            vangogh_local_data.FlagFromUrl(u, SyncOptionItems),
 		images:           vangogh_local_data.FlagFromUrl(u, SyncOptionImages),
 		screenshots:      vangogh_local_data.FlagFromUrl(u, SyncOptionScreenshots),
 		videos:           vangogh_local_data.FlagFromUrl(u, SyncOptionVideos),
@@ -46,6 +49,7 @@ func initSyncOptions(u *url.URL) *syncOptions {
 
 	if vangogh_local_data.FlagFromUrl(u, "all") {
 		so.data = !vangogh_local_data.FlagFromUrl(u, NegOpt(SyncOptionData))
+		so.items = !vangogh_local_data.FlagFromUrl(u, NegOpt(SyncOptionItems))
 		so.images = !vangogh_local_data.FlagFromUrl(u, NegOpt(SyncOptionImages))
 		so.screenshots = !vangogh_local_data.FlagFromUrl(u, NegOpt(SyncOptionScreenshots))
 		so.videos = !vangogh_local_data.FlagFromUrl(u, NegOpt(SyncOptionVideos))
@@ -70,7 +74,7 @@ func SyncHandler(u *url.URL) error {
 		vangogh_local_data.OperatingSystemsFromUrl(u),
 		vangogh_local_data.DownloadTypesFromUrl(u),
 		vangogh_local_data.ValuesFromUrl(u, "language-code"),
-		vangogh_local_data.FlagFromUrl(u, "Updates-only"))
+		vangogh_local_data.FlagFromUrl(u, "fast"))
 }
 
 func Sync(
@@ -80,15 +84,21 @@ func Sync(
 	operatingSystems []vangogh_local_data.OperatingSystem,
 	downloadTypes []vangogh_local_data.DownloadType,
 	langCodes []string,
-	updatesOnly bool) error {
+	fast bool) error {
 
 	sa := nod.Begin("syncing source data...")
 	defer sa.End()
 
 	if syncOpts.data {
 		//get array and paged data
-		paData := vangogh_local_data.ArrayProducts()
-		paData = append(paData, vangogh_local_data.PagedProducts()...)
+		var paData []vangogh_local_data.ProductType
+		if fast {
+			paData = vangogh_local_data.FastSyncProducts()
+		} else {
+			paData = append(
+				vangogh_local_data.ArrayProducts(),
+				vangogh_local_data.PagedProducts()...)
+		}
 		for _, pt := range paData {
 			if err := GetData(map[string]bool{}, nil, pt, mt, since, false, false); err != nil {
 				return sa.EndWithError(err)
@@ -127,10 +137,17 @@ func Sync(
 		}
 
 		//reduce data
-		if err := Reduce(since, mt, vangogh_local_data.ReduxProperties()); err != nil {
+		if err := Reduce(mt, since, vangogh_local_data.ReduxProperties()); err != nil {
 			return sa.EndWithError(err)
 		}
 	}
+
+	//// get items (embedded into descriptions)
+	//if syncOpts.items {
+	//	if err := GetItems(mt, since); err != nil {
+	//		return sa.EndWithError(err)
+	//	}
+	//}
 
 	// get images
 	if syncOpts.images {
@@ -161,7 +178,7 @@ func Sync(
 			downloadTypes,
 			langCodes,
 			since,
-			updatesOnly); err != nil {
+			fast); err != nil {
 			return sa.EndWithError(err)
 		}
 	}
