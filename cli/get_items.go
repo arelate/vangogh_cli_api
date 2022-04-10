@@ -3,8 +3,10 @@ package cli
 import (
 	"github.com/arelate/gog_integration"
 	"github.com/arelate/vangogh_local_data"
+	"github.com/boggydigital/dolo"
 	"github.com/boggydigital/nod"
 	"net/url"
+	"path/filepath"
 )
 
 func GetItemsHandler(u *url.URL) error {
@@ -23,18 +25,19 @@ func GetItems(mt gog_integration.Media, since int64) error {
 	gia := nod.NewProgress("getting description items...")
 	defer gia.End()
 
+	rxa, err := vangogh_local_data.ConnectReduxAssets(
+		vangogh_local_data.TitleProperty,
+		vangogh_local_data.DescriptionProperty)
+	if err != nil {
+		return err
+	}
+
 	vrStoreProducts, err := vangogh_local_data.NewReader(vangogh_local_data.StoreProducts, mt)
 	if err != nil {
 		return gia.EndWithError(err)
 	}
-	vrApiProductsV2, err := vangogh_local_data.NewReader(vangogh_local_data.ApiProductsV2, mt)
-	if err != nil {
-		return gia.EndWithError(err)
-	}
-	vrApiProductsV1, err := vangogh_local_data.NewReader(vangogh_local_data.ApiProductsV1, mt)
-	if err != nil {
-		return gia.EndWithError(err)
-	}
+
+	dl := dolo.DefaultClient
 
 	all := vrStoreProducts.ModifiedAfter(since, false)
 
@@ -42,45 +45,40 @@ func GetItems(mt gog_integration.Media, since int64) error {
 
 	for _, id := range all {
 
-		var items []string
-		var title string
-
-		if apv2, err := vrApiProductsV2.ApiProductV2(id); err != nil {
-			gia.Error(err)
-			gia.Increment()
+		title, ok := rxa.GetFirstVal(vangogh_local_data.TitleProperty, id)
+		if !ok {
+			gia.Log("%s has no title", id)
 			continue
-		} else if apv2 != nil {
-			items = apv2.GetDescriptionItems()
-			title = apv2.GetTitle()
-		} else {
-			if apv1, err := vrApiProductsV1.ApiProductV1(id); err != nil {
-				gia.Error(err)
-				gia.Increment()
-				continue
-			} else {
-				items = apv1.GetDescriptionItems()
-				title = apv1.GetTitle()
-			}
 		}
+		description, ok := rxa.GetFirstVal(vangogh_local_data.DescriptionProperty, id)
+		if !ok {
+			continue
+		}
+
+		items := vangogh_local_data.ExtractDescItems(description)
 
 		if len(items) < 1 {
 			gia.Increment()
 			continue
 		}
 
-		dia := nod.NewProgress("%s %s", id, title)
+		dia := nod.NewProgress(" %s %s", id, title)
 		dia.TotalInt(len(items))
 
-		//for _, itemUrl := range items {
-		//	u, err := url.Parse(itemUrl)
-		//	if err != nil {
-		//		dia.Error(err)
-		//		dia.Increment()
-		//		continue
-		//	}
-		//
-		//	dia.Increment()
-		//}
+		urls := make([]*url.URL, 0, len(items))
+		filenames := make([]string, 0, len(items))
+
+		for _, itemUrl := range items {
+			if u, err := url.Parse(itemUrl); err == nil {
+				urls = append(urls, u)
+				filenames = append(filenames, filepath.Join(vangogh_local_data.AbsItemsDir(), u.Path))
+			}
+		}
+
+		if err := dl.GetSet(urls, dolo.NewFileIndexSetter(filenames), dia); err != nil {
+			gia.Error(err)
+			continue
+		}
 
 		dia.EndWithResult("done")
 		gia.Increment()
