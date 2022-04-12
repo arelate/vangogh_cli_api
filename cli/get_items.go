@@ -6,7 +6,6 @@ import (
 	"github.com/boggydigital/dolo"
 	"github.com/boggydigital/nod"
 	"net/url"
-	"path/filepath"
 )
 
 func GetItemsHandler(u *url.URL) error {
@@ -71,7 +70,7 @@ func GetItems(mt gog_integration.Media, since int64) error {
 		for _, itemUrl := range items {
 			if u, err := url.Parse(itemUrl); err == nil {
 				urls = append(urls, u)
-				filenames = append(filenames, filepath.Join(vangogh_local_data.AbsItemsDir(), u.Path))
+				filenames = append(filenames, vangogh_local_data.AbsItemPath(u.Path))
 			}
 		}
 
