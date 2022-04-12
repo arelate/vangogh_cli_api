@@ -2,6 +2,7 @@ package cli
 
 import (
 	"github.com/arelate/gog_integration"
+	"github.com/arelate/vangogh_cli_api/cli/itemizations"
 	"github.com/arelate/vangogh_local_data"
 	"github.com/boggydigital/dolo"
 	"github.com/boggydigital/nod"
@@ -14,12 +15,21 @@ func GetItemsHandler(u *url.URL) error {
 		return nil
 	}
 
+	idSet, err := vangogh_local_data.IdSetFromUrl(u)
+	if err != nil {
+		return err
+	}
+
 	return GetItems(
+		idSet,
 		vangogh_local_data.MediaFromUrl(u),
 		since)
 }
 
-func GetItems(mt gog_integration.Media, since int64) error {
+func GetItems(
+	idSet map[string]bool,
+	mt gog_integration.Media,
+	since int64) error {
 
 	gia := nod.NewProgress("getting description items...")
 	defer gia.End()
@@ -31,18 +41,16 @@ func GetItems(mt gog_integration.Media, since int64) error {
 		return err
 	}
 
-	vrStoreProducts, err := vangogh_local_data.NewReader(vangogh_local_data.StoreProducts, mt)
+	dl := dolo.DefaultClient
+
+	all, err := itemizations.All(idSet, false, true, since, vangogh_local_data.ApiProductsV2, mt)
 	if err != nil {
 		return gia.EndWithError(err)
 	}
 
-	dl := dolo.DefaultClient
-
-	all := vrStoreProducts.ModifiedAfter(since, false)
-
 	gia.TotalInt(len(all))
 
-	for _, id := range all {
+	for id := range all {
 
 		title, ok := rxa.GetFirstVal(vangogh_local_data.TitleProperty, id)
 		if !ok {
