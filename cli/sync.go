@@ -144,7 +144,7 @@ func Sync(
 
 	// get items (embedded into descriptions)
 	if syncOpts.items {
-		if err := GetItems(mt, since); err != nil {
+		if err := GetItems(map[string]bool{}, mt, since); err != nil {
 			return sa.EndWithError(err)
 		}
 	}
