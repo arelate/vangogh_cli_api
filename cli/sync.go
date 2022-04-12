@@ -163,8 +163,8 @@ func Sync(
 		}
 	}
 
-	// get videos
-	if syncOpts.videos {
+	// get videos, unless fast sync was requested
+	if syncOpts.videos && !fast {
 		if err := GetVideos(map[string]bool{}, true); err != nil {
 			return sa.EndWithError(err)
 		}
