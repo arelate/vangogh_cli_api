@@ -178,7 +178,7 @@ func Sync(
 			downloadTypes,
 			langCodes,
 			since,
-			fast); err != nil {
+			false); err != nil {
 			return sa.EndWithError(err)
 		}
 	}
