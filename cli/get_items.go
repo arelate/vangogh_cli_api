@@ -58,19 +58,18 @@ func GetItems(
 			gia.Log("%s has no title", id)
 			continue
 		}
-		descOverview, ok := rxa.GetFirstVal(vangogh_local_data.DescriptionOverviewProperty, id)
-		if !ok {
-			continue
-		}
 
-		items := vangogh_local_data.ExtractDescItems(descOverview)
+		var items []string
+
+		descOverview, ok := rxa.GetFirstVal(vangogh_local_data.DescriptionOverviewProperty, id)
+		if ok {
+			items = vangogh_local_data.ExtractDescItems(descOverview)
+		}
 
 		descFeatures, ok := rxa.GetFirstVal(vangogh_local_data.DescriptionFeaturesProperty, id)
-		if !ok {
-			continue
+		if ok {
+			items = append(items, vangogh_local_data.ExtractDescItems(descFeatures)...)
 		}
-
-		items = append(items, vangogh_local_data.ExtractDescItems(descFeatures)...)
 
 		if len(items) < 1 {
 			gia.Increment()
