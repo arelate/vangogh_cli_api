@@ -36,7 +36,8 @@ func GetItems(
 
 	rxa, err := vangogh_local_data.ConnectReduxAssets(
 		vangogh_local_data.TitleProperty,
-		vangogh_local_data.DescriptionProperty)
+		vangogh_local_data.DescriptionOverviewProperty,
+		vangogh_local_data.DescriptionFeaturesProperty)
 	if err != nil {
 		return err
 	}
@@ -57,12 +58,19 @@ func GetItems(
 			gia.Log("%s has no title", id)
 			continue
 		}
-		description, ok := rxa.GetFirstVal(vangogh_local_data.DescriptionProperty, id)
+		descOverview, ok := rxa.GetFirstVal(vangogh_local_data.DescriptionOverviewProperty, id)
 		if !ok {
 			continue
 		}
 
-		items := vangogh_local_data.ExtractDescItems(description)
+		items := vangogh_local_data.ExtractDescItems(descOverview)
+
+		descFeatures, ok := rxa.GetFirstVal(vangogh_local_data.DescriptionFeaturesProperty, id)
+		if !ok {
+			continue
+		}
+
+		items = append(items, vangogh_local_data.ExtractDescItems(descFeatures)...)
 
 		if len(items) < 1 {
 			gia.Increment()
