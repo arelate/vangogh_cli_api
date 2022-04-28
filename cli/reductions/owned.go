@@ -54,6 +54,7 @@ func Owned(mt gog_integration.Media) error {
 	defer oa.End()
 
 	rxa, err := vangogh_local_data.ConnectReduxAssets(
+		vangogh_local_data.TitleProperty,
 		vangogh_local_data.OwnedProperty,
 		vangogh_local_data.SlugProperty,
 		vangogh_local_data.IncludesGamesProperty)
@@ -61,13 +62,13 @@ func Owned(mt gog_integration.Media) error {
 		return oa.EndWithError(err)
 	}
 
-	vrStoreProducts, err := vangogh_local_data.NewReader(vangogh_local_data.StoreProducts, mt)
-	if err != nil {
-		return oa.EndWithError(err)
-	}
+	//vrStoreProducts, err := vangogh_local_data.NewReader(vangogh_local_data.StoreProducts, mt)
+	//if err != nil {
+	//	return oa.EndWithError(err)
+	//}
 
 	idSet := make(map[string]bool)
-	for _, id := range vrStoreProducts.Keys() {
+	for _, id := range rxa.Keys(vangogh_local_data.TitleProperty) {
 		idSet[id] = true
 	}
 
@@ -78,7 +79,7 @@ func Owned(mt gog_integration.Media) error {
 
 	ownedRdx := make(map[string][]string)
 
-	for _, id := range vrStoreProducts.Keys() {
+	for _, id := range rxa.Keys(vangogh_local_data.TitleProperty) {
 		if _, ok := owned[id]; ok {
 			ownedRdx[id] = []string{"true"}
 		} else {
