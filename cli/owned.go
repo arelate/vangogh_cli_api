@@ -2,7 +2,7 @@ package cli
 
 import (
 	"fmt"
-	"github.com/arelate/gog_integration"
+	"github.com/arelate/vangogh_cli_api/cli/reductions"
 	"github.com/arelate/vangogh_local_data"
 	"github.com/boggydigital/nod"
 	"golang.org/x/exp/maps"
@@ -28,7 +28,6 @@ func Owned(idSet map[string]bool) error {
 	oa := nod.Begin("checking ownership...")
 	defer oa.End()
 
-	ownedSet := make(map[string]bool)
 	propSet := map[string]bool{
 		vangogh_local_data.TitleProperty:         true,
 		vangogh_local_data.SlugProperty:          true,
@@ -37,37 +36,12 @@ func Owned(idSet map[string]bool) error {
 
 	rxa, err := vangogh_local_data.ConnectReduxAssets(maps.Keys(propSet)...)
 	if err != nil {
-		return err
+		return oa.EndWithError(err)
 	}
 
-	vrLicenceProducts, err := vangogh_local_data.NewReader(vangogh_local_data.LicenceProducts, gog_integration.Game)
+	ownedSet, err := reductions.CheckOwnership(idSet, rxa)
 	if err != nil {
-		return err
-	}
-
-	for id := range idSet {
-
-		if vrLicenceProducts.Has(id) {
-			ownedSet[id] = true
-			continue
-		}
-
-		includesGames, ok := rxa.GetAllUnchangedValues(vangogh_local_data.IncludesGamesProperty, id)
-		if !ok || len(includesGames) == 0 {
-			continue
-		}
-
-		ownAllIncludedGames := true
-		for _, igId := range includesGames {
-			ownAllIncludedGames = ownAllIncludedGames && vrLicenceProducts.Has(igId)
-			if !ownAllIncludedGames {
-				break
-			}
-		}
-
-		if ownAllIncludedGames {
-			ownedSet[id] = true
-		}
+		return oa.EndWithError(err)
 	}
 
 	ownSummary := make(map[string][]string)

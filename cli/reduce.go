@@ -156,6 +156,10 @@ func Reduce(mt gog_integration.Media, since int64, properties []string) error {
 		return ra.EndWithError(err)
 	}
 
+	if err := reductions.Owned(mt); err != nil {
+		return ra.EndWithError(err)
+	}
+
 	return reductions.Cascade()
 }
 
