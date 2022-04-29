@@ -11,7 +11,7 @@ import (
 
 func Search(w http.ResponseWriter, r *http.Request) {
 
-	// GET /v1/search?text&(searchable properties)&format
+	// GET /v1/search?text&(searchable properties)&sort&desc&format
 
 	if r.Method != http.MethodGet {
 		err := fmt.Errorf("unsupported method")
@@ -32,6 +32,15 @@ func Search(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	sort := q.Get("sort")
+	if sort == "" {
+		sort = vangogh_local_data.TitleProperty
+	}
+	desc := q.Get("desc") == "true"
+
+	properties := vangogh_local_data.SearchableProperties()
+	properties = append(properties, sort)
+
 	rxa, err := vangogh_local_data.ConnectReduxAssets(vangogh_local_data.SearchableProperties()...)
 	if err != nil {
 		http.Error(w, nod.Error(err).Error(), http.StatusInternalServerError)
@@ -42,8 +51,8 @@ func Search(w http.ResponseWriter, r *http.Request) {
 	keys, err := vangogh_local_data.SortIds(
 		maps.Keys(found),
 		rxa,
-		vangogh_local_data.TitleProperty,
-		false)
+		sort,
+		desc)
 
 	if err != nil {
 		http.Error(w, nod.Error(err).Error(), http.StatusInternalServerError)
