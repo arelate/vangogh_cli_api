@@ -2,6 +2,7 @@ package cli
 
 import (
 	"fmt"
+	v1 "github.com/arelate/vangogh_cli_api/rest/v1"
 	"github.com/arelate/vangogh_local_data"
 	"github.com/boggydigital/nod"
 	"net/url"
@@ -22,21 +23,7 @@ func Digest(property string) error {
 		return err
 	}
 
-	distValues := make(map[string]int)
-
-	for _, id := range rxa.Keys(property) {
-		values, ok := rxa.GetAllValues(property, id)
-		if !ok || len(values) == 0 {
-			continue
-		}
-
-		for _, val := range values {
-			if val == "" {
-				continue
-			}
-			distValues[val] = distValues[val] + 1
-		}
-	}
+	distValues := v1.PropertyValuesCounts(rxa, property)
 
 	keys := make([]string, 0, len(distValues))
 	for key := range distValues {
