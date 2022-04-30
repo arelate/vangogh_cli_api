@@ -7,6 +7,7 @@ import (
 	"golang.org/x/exp/maps"
 	"net/http"
 	"strings"
+	"time"
 )
 
 func Search(w http.ResponseWriter, r *http.Request) {
@@ -17,6 +18,21 @@ func Search(w http.ResponseWriter, r *http.Request) {
 		err := fmt.Errorf("unsupported method")
 		http.Error(w, nod.Error(err).Error(), http.StatusMethodNotAllowed)
 		return
+	}
+
+	// redux assets mod time is used to:
+	// 1) set Last-Modified header
+	// 2) check if content was modified since client cache
+	if ramt, err := rxa.ReduxAssetsModTime(); err == nil {
+		w.Header().Set("Last-Modified", time.Unix(ramt, 0).Format(time.RFC1123))
+		if imsh := r.Header.Get("If-Modified-Since"); imsh != "" {
+			if ims, err := time.Parse(time.RFC1123, imsh); err == nil {
+				if ramt <= ims.Unix() {
+					w.WriteHeader(http.StatusNotModified)
+					return
+				}
+			}
+		}
 	}
 
 	query := make(map[string][]string)
