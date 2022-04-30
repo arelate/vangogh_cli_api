@@ -12,9 +12,9 @@ import (
 	"net/http"
 	"net/url"
 	"strconv"
+	"time"
 )
 
-//TODO: move this to kvas
 type kvasIndexSetter struct {
 	keyValues kvas.KeyValues
 	ids       []string
@@ -68,14 +68,20 @@ func NewKvasIndexSetter(pt vangogh_local_data.ProductType, mt gog_integration.Me
 	}, nil
 }
 
+func (kis *kvasIndexSetter) IsModifiedAfter(index string, since int64) bool {
+	return kis.keyValues.IsModifiedAfter(index, since)
+}
+
 //Pages fetches all paged product type pages concurrently (using dolo.GetSet).
 //To do that it downloads the first page, decodes that to get TotalPages,
 //then constructs a slice of URLs and page ids to download all the remaining
 //pages from 2nd to TotalPages using kvas index setter.
-func Pages(pt vangogh_local_data.ProductType, mt gog_integration.Media, httpClient *http.Client, tpw nod.TotalProgressWriter) error {
+func Pages(pt vangogh_local_data.ProductType, mt gog_integration.Media, httpClient *http.Client, tpw nod.TotalProgressWriter, fast bool) error {
 
 	gfp := nod.Begin(" getting the first %s (%s)...", pt, mt)
 	defer gfp.End()
+
+	start := time.Now().Unix()
 
 	remoteUrl, err := vangogh_local_data.RemoteProductsUrl(pt)
 	if err != nil {
@@ -107,6 +113,13 @@ func Pages(pt vangogh_local_data.ProductType, mt gog_integration.Media, httpClie
 	//get the first page payload and set it in kvas
 	if err := dc.GetSet(urls, kis, tpw); err != nil {
 		return err
+	}
+
+	// certain data types increase monotonically and don't need to be downloaded completely (e.g. orders, wishlist)
+	// if the first page has not been modified
+	if fast && !kis.IsModifiedAfter(firstPage, start) {
+		gfp.EndWithResult("first page unchanged, skipping the rest")
+		return nil
 	}
 
 	//get downloaded first page from kvas...

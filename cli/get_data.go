@@ -78,7 +78,7 @@ func GetData(
 	}
 
 	if vangogh_local_data.IsPagedProduct(pt) {
-		if err := fetchers.Pages(pt, mt, hc, gda); err != nil {
+		if err := fetchers.Pages(pt, mt, hc, gda, vangogh_local_data.IsFastPageFetchProduct(pt)); err != nil {
 			return gda.EndWithError(err)
 		}
 		return split(pt, mt, since)
