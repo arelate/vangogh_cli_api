@@ -24,10 +24,11 @@ func Search(w http.ResponseWriter, r *http.Request) {
 	// 1) set Last-Modified header
 	// 2) check if content was modified since client cache
 	if ramt, err := rxa.ReduxAssetsModTime(); err == nil {
-		w.Header().Set("Last-Modified", time.Unix(ramt, 0).Format(time.RFC1123))
+		utcRamt := time.Unix(ramt, 0).UTC()
+		w.Header().Set("Last-Modified", utcRamt.Format(time.RFC1123))
 		if imsh := r.Header.Get("If-Modified-Since"); imsh != "" {
 			if ims, err := time.Parse(time.RFC1123, imsh); err == nil {
-				if ramt <= ims.Unix() {
+				if utcRamt.Unix() <= ims.UTC().Unix() {
 					w.WriteHeader(http.StatusNotModified)
 					return
 				}
