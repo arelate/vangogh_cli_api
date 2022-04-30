@@ -38,8 +38,10 @@ func Search(w http.ResponseWriter, r *http.Request) {
 	}
 	desc := q.Get("desc") == "true"
 
-	properties := vangogh_local_data.SearchableProperties()
-	properties = append(properties, sort)
+	properties := []string{sort}
+	for p := range query {
+		properties = append(properties, p)
+	}
 
 	detailedProperties := vangogh_local_data.DetailAllAggregateProperties(properties...)
 
