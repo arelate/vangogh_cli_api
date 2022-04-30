@@ -41,13 +41,15 @@ func Search(w http.ResponseWriter, r *http.Request) {
 	properties := vangogh_local_data.SearchableProperties()
 	properties = append(properties, sort)
 
+	detailedProperties := vangogh_local_data.DetailAllAggregateProperties(properties...)
+
 	var err error
 	if rxa, err = rxa.RefreshReduxAssets(); err != nil {
 		http.Error(w, nod.Error(err).Error(), http.StatusInternalServerError)
 		return
 	}
 
-	if err := rxa.IsSupported(vangogh_local_data.SearchableProperties()...); err != nil {
+	if err := rxa.IsSupported(maps.Keys(detailedProperties)...); err != nil {
 		http.Error(w, nod.Error(err).Error(), http.StatusInternalServerError)
 		return
 	}
