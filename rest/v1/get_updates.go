@@ -36,9 +36,13 @@ func GetUpdates(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	rxa, err := vangogh_local_data.ConnectReduxAssets(vangogh_local_data.TitleProperty)
-	if err != nil {
-		http.Error(w, nod.Error(err).Error(), http.StatusMethodNotAllowed)
+	if rxa, err = rxa.RefreshReduxAssets(); err != nil {
+		http.Error(w, nod.Error(err).Error(), http.StatusInternalServerError)
+		return
+	}
+
+	if err := rxa.IsSupported(vangogh_local_data.TitleProperty); err != nil {
+		http.Error(w, nod.Error(err).Error(), http.StatusInternalServerError)
 		return
 	}
 

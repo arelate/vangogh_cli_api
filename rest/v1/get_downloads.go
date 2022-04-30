@@ -38,8 +38,12 @@ func GetDownloads(w http.ResponseWriter, r *http.Request) {
 
 	dl := make(vangogh_local_data.DownloadsList, 0)
 
-	rxa, err := vangogh_local_data.ConnectReduxAssets(vangogh_local_data.NativeLanguageNameProperty)
-	if err != nil {
+	if rxa, err = rxa.RefreshReduxAssets(); err != nil {
+		http.Error(w, nod.Error(err).Error(), http.StatusInternalServerError)
+		return
+	}
+
+	if err := rxa.IsSupported(vangogh_local_data.NativeLanguageNameProperty); err != nil {
 		http.Error(w, nod.Error(err).Error(), http.StatusInternalServerError)
 		return
 	}

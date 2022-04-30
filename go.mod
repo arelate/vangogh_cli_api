@@ -7,7 +7,7 @@ require (
 	github.com/arelate/vangogh_local_data v0.1.43
 	github.com/boggydigital/coost v0.3.7
 	github.com/boggydigital/dolo v0.2.2
-	github.com/boggydigital/kvas v0.3.6
+	github.com/boggydigital/kvas v0.3.7
 	github.com/boggydigital/nod v0.1.17
 	github.com/boggydigital/wits v0.2.3
 	github.com/boggydigital/yt_urls v0.1.13

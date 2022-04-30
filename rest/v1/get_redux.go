@@ -18,8 +18,14 @@ func GetRedux(w http.ResponseWriter, r *http.Request) {
 	}
 
 	properties := vangogh_local_data.PropertiesFromUrl(r.URL)
-	rxa, err := vangogh_local_data.ConnectReduxAssets(properties...)
-	if err != nil {
+
+	var err error
+	if rxa, err = rxa.RefreshReduxAssets(); err != nil {
+		http.Error(w, nod.Error(err).Error(), http.StatusInternalServerError)
+		return
+	}
+
+	if err := rxa.IsSupported(properties...); err != nil {
 		http.Error(w, nod.Error(err).Error(), http.StatusInternalServerError)
 		return
 	}

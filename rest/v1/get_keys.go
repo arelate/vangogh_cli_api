@@ -38,8 +38,12 @@ func GetKeys(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	rxa, err := vangogh_local_data.ConnectReduxAssets(sort, vangogh_local_data.TitleProperty)
-	if err != nil {
+	if rxa, err = rxa.RefreshReduxAssets(); err != nil {
+		http.Error(w, nod.Error(err).Error(), http.StatusInternalServerError)
+		return
+	}
+
+	if err := rxa.IsSupported(sort, vangogh_local_data.TitleProperty); err != nil {
 		http.Error(w, nod.Error(err).Error(), http.StatusInternalServerError)
 		return
 	}
