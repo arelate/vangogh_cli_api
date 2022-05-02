@@ -7,7 +7,6 @@ import (
 	"golang.org/x/exp/maps"
 	"net/http"
 	"strings"
-	"time"
 )
 
 func Search(w http.ResponseWriter, r *http.Request) {
@@ -18,22 +17,6 @@ func Search(w http.ResponseWriter, r *http.Request) {
 		err := fmt.Errorf("unsupported method")
 		http.Error(w, nod.Error(err).Error(), http.StatusMethodNotAllowed)
 		return
-	}
-
-	// redux assets mod time is used to:
-	// 1) set Last-Modified header
-	// 2) check if content was modified since client cache
-	if ramt, err := rxa.ReduxAssetsModTime(); err == nil {
-		utcRamt := time.Unix(ramt, 0).UTC()
-		w.Header().Set("Last-Modified", utcRamt.Format(time.RFC1123))
-		if imsh := r.Header.Get("If-Modified-Since"); imsh != "" {
-			if ims, err := time.Parse(time.RFC1123, imsh); err == nil {
-				if utcRamt.Unix() <= ims.UTC().Unix() {
-					w.WriteHeader(http.StatusNotModified)
-					return
-				}
-			}
-		}
 	}
 
 	query := make(map[string][]string)
@@ -62,13 +45,7 @@ func Search(w http.ResponseWriter, r *http.Request) {
 
 	detailedProperties := vangogh_local_data.DetailAllAggregateProperties(properties...)
 
-	var err error
-	if rxa, err = rxa.RefreshReduxAssets(); err != nil {
-		http.Error(w, nod.Error(err).Error(), http.StatusInternalServerError)
-		return
-	}
-
-	if err := rxa.IsSupported(maps.Keys(detailedProperties)...); err != nil {
+	if err := RefreshReduxAssets(maps.Keys(detailedProperties)...); err != nil {
 		http.Error(w, nod.Error(err).Error(), http.StatusInternalServerError)
 		return
 	}

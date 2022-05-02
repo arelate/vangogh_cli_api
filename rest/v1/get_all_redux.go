@@ -21,9 +21,8 @@ func GetAllRedux(w http.ResponseWriter, r *http.Request) {
 	pt := vangogh_local_data.ProductTypeFromUrl(r.URL)
 	mt := vangogh_local_data.MediaFromUrl(r.URL)
 
-	rxa, err := vangogh_local_data.ConnectReduxAssets(properties...)
-	if err != nil {
-		http.Error(w, nod.Error(err).Error(), http.StatusBadRequest)
+	if err := RefreshReduxAssets(properties...); err != nil {
+		http.Error(w, nod.Error(err).Error(), http.StatusInternalServerError)
 		return
 	}
 

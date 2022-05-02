@@ -37,3 +37,7 @@ https://items.gog.com/deep_sky_derelicts_-_new_prospects/dsd-locations-condition
 
 ## 1186796445 Talisman - Base Game: Legendary Deck 
 https://items.gog.com/talisman_-_base_game_legendary_deck/Base-Game-Banner.png returns 404 on gaugin and GOG.com and the image is missing for both.
+
+## 1159265992 Sandwalkers
+
+Missing items in Safari are in .webm format (work find in Chrome). The middle item is missing on gaugin, but displayed as https://items.gog.com/sandwalkers/Gif_Mainfeatures.gif on GOG.com and is coming from data-fallbackurl: <video autoplay loop muted playsinline data-fallbackurl="https://items.gog.com/sandwalkers/Gif_Mainfeatures.gif" > <source src="https://items.gog.com/sandwalkers/mainfeatures.gif" type="video/webm"> </video>. Note: vangogh downloads both .gif files and currently has no support for fallback content on invalid video sources.
