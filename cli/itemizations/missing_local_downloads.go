@@ -73,6 +73,10 @@ type missingDownloadsDelegate struct {
 
 func (mdd *missingDownloadsDelegate) Process(id, slug string, list vangogh_local_data.DownloadsList) error {
 
+	if mdd.missingIds == nil {
+		mdd.missingIds = make(map[string]bool)
+	}
+
 	//pDir = s/slug
 	relDir, err := vangogh_local_data.RelProductDownloadsDir(slug)
 	if err != nil {
