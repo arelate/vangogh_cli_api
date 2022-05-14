@@ -9,29 +9,32 @@ import (
 )
 
 const (
-	VetOptionLocalOnlyData        = "local-only-data"
-	VetOptionLocalOnlyImages      = "local-only-images"
-	VetOptionRecycleBin           = "recycle-bin"
-	VetOptionInvalidData          = "invalid-data"
-	VetOptionUnresolvedManualUrls = "unresolved-manual-urls"
+	VetOptionLocalOnlyData             = "local-only-data"
+	VetOptionLocalOnlyImages           = "local-only-images"
+	VetOptionRecycleBin                = "recycle-bin"
+	VetOptionInvalidData               = "invalid-data"
+	VetOptionUnresolvedManualUrls      = "unresolved-manual-urls"
+	VetOptionInvalidResolvedManualUrls = "invalid-resolved-manual-urls"
 )
 
 type vetOptions struct {
-	localOnlyData        bool
-	localOnlyImages      bool
-	recycleBin           bool
-	invalidData          bool
-	unresolvedManualUrls bool
+	localOnlyData               bool
+	localOnlyImages             bool
+	recycleBin                  bool
+	invalidData                 bool
+	unresolvedManualUrls        bool
+	invalidUnresolvedManualUrls bool
 }
 
 func initVetOptions(u *url.URL) *vetOptions {
 
 	vo := &vetOptions{
-		localOnlyData:        vangogh_local_data.FlagFromUrl(u, VetOptionLocalOnlyData),
-		localOnlyImages:      vangogh_local_data.FlagFromUrl(u, VetOptionLocalOnlyImages),
-		recycleBin:           vangogh_local_data.FlagFromUrl(u, VetOptionRecycleBin),
-		invalidData:          vangogh_local_data.FlagFromUrl(u, VetOptionInvalidData),
-		unresolvedManualUrls: vangogh_local_data.FlagFromUrl(u, VetOptionUnresolvedManualUrls),
+		localOnlyData:               vangogh_local_data.FlagFromUrl(u, VetOptionLocalOnlyData),
+		localOnlyImages:             vangogh_local_data.FlagFromUrl(u, VetOptionLocalOnlyImages),
+		recycleBin:                  vangogh_local_data.FlagFromUrl(u, VetOptionRecycleBin),
+		invalidData:                 vangogh_local_data.FlagFromUrl(u, VetOptionInvalidData),
+		unresolvedManualUrls:        vangogh_local_data.FlagFromUrl(u, VetOptionUnresolvedManualUrls),
+		invalidUnresolvedManualUrls: vangogh_local_data.FlagFromUrl(u, VetOptionInvalidResolvedManualUrls),
 	}
 
 	if vangogh_local_data.FlagFromUrl(u, "all") {
@@ -40,6 +43,7 @@ func initVetOptions(u *url.URL) *vetOptions {
 		vo.recycleBin = !vangogh_local_data.FlagFromUrl(u, NegOpt(VetOptionRecycleBin))
 		vo.invalidData = !vangogh_local_data.FlagFromUrl(u, NegOpt(VetOptionInvalidData))
 		vo.unresolvedManualUrls = !vangogh_local_data.FlagFromUrl(u, NegOpt(VetOptionUnresolvedManualUrls))
+		vo.invalidUnresolvedManualUrls = !vangogh_local_data.FlagFromUrl(u, NegOpt(VetOptionInvalidResolvedManualUrls))
 	}
 
 	return vo
@@ -95,6 +99,12 @@ func Vet(
 
 	if vetOpts.unresolvedManualUrls {
 		if err := vets.UnresolvedManualUrls(mt, operatingSystems, downloadTypes, langCodes, fix); err != nil {
+			return sda.EndWithError(err)
+		}
+	}
+
+	if vetOpts.invalidUnresolvedManualUrls {
+		if err := vets.InvalidResolvedManualUrls(fix); err != nil {
 			return sda.EndWithError(err)
 		}
 	}
