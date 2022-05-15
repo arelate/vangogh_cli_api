@@ -73,8 +73,7 @@ func SyncHandler(u *url.URL) error {
 		syncOpts,
 		vangogh_local_data.OperatingSystemsFromUrl(u),
 		vangogh_local_data.DownloadTypesFromUrl(u),
-		vangogh_local_data.ValuesFromUrl(u, "language-code"),
-		vangogh_local_data.FlagFromUrl(u, "fast"))
+		vangogh_local_data.ValuesFromUrl(u, "language-code"))
 }
 
 func Sync(
@@ -83,22 +82,16 @@ func Sync(
 	syncOpts *syncOptions,
 	operatingSystems []vangogh_local_data.OperatingSystem,
 	downloadTypes []vangogh_local_data.DownloadType,
-	langCodes []string,
-	fast bool) error {
+	langCodes []string) error {
 
 	sa := nod.Begin("syncing source data...")
 	defer sa.End()
 
 	if syncOpts.data {
 		//get array and paged data
-		var paData []vangogh_local_data.ProductType
-		if fast {
-			paData = vangogh_local_data.FastSyncProducts()
-		} else {
-			paData = append(
-				vangogh_local_data.ArrayProducts(),
-				vangogh_local_data.PagedProducts()...)
-		}
+		paData := append(vangogh_local_data.ArrayProducts(),
+			vangogh_local_data.PagedProducts()...)
+
 		for _, pt := range paData {
 			if err := GetData(map[string]bool{}, nil, pt, mt, since, false, false); err != nil {
 				return sa.EndWithError(err)
@@ -163,8 +156,8 @@ func Sync(
 		}
 	}
 
-	// get videos, unless fast sync was requested
-	if syncOpts.videos && !fast {
+	// get videos
+	if syncOpts.videos {
 		if err := GetVideos(map[string]bool{}, true); err != nil {
 			return sa.EndWithError(err)
 		}
