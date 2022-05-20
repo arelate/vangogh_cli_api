@@ -85,8 +85,7 @@ func GetData(
 	}
 
 	if vangogh_local_data.IsArrayProduct(pt) {
-		// using "licences" as id, since that's how we store that data in kvas
-		ids := []string{vangogh_local_data.Licences.String()}
+		ids := []string{pt.String()}
 		if err := fetchers.Items(ids, pt, mt, hc); err != nil {
 			return gda.EndWithError(err)
 		}

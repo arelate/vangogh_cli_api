@@ -13,6 +13,11 @@ import (
 
 func split(sourcePt vangogh_local_data.ProductType, mt gog_integration.Media, timestamp int64) error {
 
+	splitPt := vangogh_local_data.SplitProductType(sourcePt)
+	if splitPt == vangogh_local_data.UnknownProductType {
+		return nil
+	}
+
 	spa := nod.NewProgress(" splitting %s (%s)...", sourcePt, mt)
 	defer spa.End()
 
@@ -48,8 +53,6 @@ func split(sourcePt vangogh_local_data.ProductType, mt gog_integration.Media, ti
 	spa.TotalInt(len(modifiedIds))
 
 	for _, id := range modifiedIds {
-
-		splitPt := vangogh_local_data.SplitProductType(sourcePt)
 
 		productsGetter, err := vrPaged.ProductsGetter(id)
 
