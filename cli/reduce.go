@@ -160,7 +160,7 @@ func Reduce(mt gog_integration.Media, since int64, properties []string) error {
 		return ra.EndWithError(err)
 	}
 
-	if err := reductions.SteamAppId(since); err != nil {
+	if err := reductions.SteamAppId(mt, since); err != nil {
 		return ra.EndWithError(err)
 	}
 
