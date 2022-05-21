@@ -8,7 +8,7 @@ import (
 	"strconv"
 )
 
-func SteamAppId(since int64) error {
+func SteamAppId(mt gog_integration.Media, since int64) error {
 
 	saia := nod.Begin(" %s...", vangogh_local_data.SteamAppId)
 	defer saia.End()
@@ -25,9 +25,9 @@ func SteamAppId(since int64) error {
 		return saia.EndWithError(err)
 	}
 
-	if vrSteamAppList.IsModifiedAfter(vangogh_local_data.SteamAppList.String(), since) {
-		saia.EndWithResult("unchanged")
-		return nil
+	vrStoreProducts, err := vangogh_local_data.NewReader(vangogh_local_data.StoreProducts, mt)
+	if err != nil {
+		return saia.EndWithError(err)
 	}
 
 	galr, err := vrSteamAppList.SteamGetAppListResponse()
@@ -38,7 +38,7 @@ func SteamAppId(since int64) error {
 	appMap := GetAppListResponseToMap(galr)
 	gogSteamAppId := make(map[string][]string)
 
-	for _, id := range rxa.Keys(vangogh_local_data.TitleProperty) {
+	for _, id := range vrStoreProducts.ModifiedAfter(since, false) {
 		title, ok := rxa.GetFirstVal(vangogh_local_data.TitleProperty, id)
 		if !ok {
 			continue
