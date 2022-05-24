@@ -10,12 +10,12 @@ import (
 
 func SteamAppId(mt gog_integration.Media, since int64) error {
 
-	saia := nod.Begin(" %s...", vangogh_local_data.SteamAppId)
+	saia := nod.Begin(" %s...", vangogh_local_data.SteamAppIdProperty)
 	defer saia.End()
 
 	rxa, err := vangogh_local_data.ConnectReduxAssets(
 		vangogh_local_data.TitleProperty,
-		vangogh_local_data.SteamAppId)
+		vangogh_local_data.SteamAppIdProperty)
 	if err != nil {
 		return saia.EndWithError(err)
 	}
@@ -50,7 +50,7 @@ func SteamAppId(mt gog_integration.Media, since int64) error {
 
 	}
 
-	if err := rxa.BatchReplaceValues(vangogh_local_data.SteamAppId, gogSteamAppId); err != nil {
+	if err := rxa.BatchReplaceValues(vangogh_local_data.SteamAppIdProperty, gogSteamAppId); err != nil {
 		return saia.EndWithError(err)
 	}
 
