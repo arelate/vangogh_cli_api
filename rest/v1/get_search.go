@@ -1,7 +1,6 @@
 package v1
 
 import (
-	"fmt"
 	"github.com/arelate/vangogh_local_data"
 	"github.com/boggydigital/nod"
 	"golang.org/x/exp/maps"
@@ -12,12 +11,6 @@ import (
 func Search(w http.ResponseWriter, r *http.Request) {
 
 	// GET /v1/search?text&(searchable properties)&sort&desc&format
-
-	if r.Method != http.MethodGet {
-		err := fmt.Errorf("unsupported method")
-		http.Error(w, nod.Error(err).Error(), http.StatusMethodNotAllowed)
-		return
-	}
 
 	query := make(map[string][]string)
 	q := r.URL.Query()

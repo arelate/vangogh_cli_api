@@ -1,7 +1,6 @@
 package v1
 
 import (
-	"fmt"
 	"github.com/arelate/gog_integration"
 	"github.com/arelate/vangogh_local_data"
 	"github.com/boggydigital/nod"
@@ -11,12 +10,6 @@ import (
 func GetDownloads(w http.ResponseWriter, r *http.Request) {
 
 	// GET /v1/downloads?id&operating-system&language-code&format&media
-
-	if r.Method != http.MethodGet {
-		err := fmt.Errorf("unsupported method")
-		http.Error(w, nod.Error(err).Error(), http.StatusMethodNotAllowed)
-		return
-	}
 
 	id := vangogh_local_data.ValueFromUrl(r.URL, "id")
 	mt := vangogh_local_data.MediaFromUrl(r.URL)

@@ -12,12 +12,6 @@ func GetKeys(w http.ResponseWriter, r *http.Request) {
 
 	// GET /v1/keys?product-type&media&sort&desc&format
 
-	if r.Method != http.MethodGet {
-		err := fmt.Errorf("unsupported method")
-		http.Error(w, nod.Error(err).Error(), http.StatusMethodNotAllowed)
-		return
-	}
-
 	pt := vangogh_local_data.ProductTypeFromUrl(r.URL)
 	mt := vangogh_local_data.MediaFromUrl(r.URL)
 	count, err := strconv.Atoi(vangogh_local_data.ValueFromUrl(r.URL, "count"))

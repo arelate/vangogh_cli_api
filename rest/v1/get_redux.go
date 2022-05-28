@@ -1,7 +1,6 @@
 package v1
 
 import (
-	"fmt"
 	"github.com/arelate/vangogh_local_data"
 	"github.com/boggydigital/nod"
 	"net/http"
@@ -10,12 +9,6 @@ import (
 func GetRedux(w http.ResponseWriter, r *http.Request) {
 
 	// GET /v1/redux?property&id&format
-
-	if r.Method != http.MethodGet {
-		err := fmt.Errorf("unsupported method")
-		http.Error(w, nod.Error(err).Error(), http.StatusMethodNotAllowed)
-		return
-	}
 
 	properties := vangogh_local_data.PropertiesFromUrl(r.URL)
 

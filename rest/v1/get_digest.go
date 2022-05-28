@@ -1,7 +1,6 @@
 package v1
 
 import (
-	"fmt"
 	"github.com/arelate/vangogh_local_data"
 	"github.com/boggydigital/kvas"
 	"github.com/boggydigital/nod"
@@ -33,12 +32,6 @@ func PropertyValuesCounts(rxa kvas.ReduxAssets, property string) map[string]int 
 func GetDigest(w http.ResponseWriter, r *http.Request) {
 
 	// GET /v1/digest?property&format
-
-	if r.Method != http.MethodGet {
-		err := fmt.Errorf("unsupported method")
-		http.Error(w, nod.Error(err).Error(), http.StatusMethodNotAllowed)
-		return
-	}
 
 	properties := vangogh_local_data.PropertiesFromUrl(r.URL)
 
