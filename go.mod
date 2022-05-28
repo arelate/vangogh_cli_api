@@ -4,7 +4,7 @@ go 1.18
 
 require (
 	github.com/arelate/gog_integration v0.1.19
-	github.com/arelate/vangogh_local_data v0.1.52
+	github.com/arelate/vangogh_local_data v0.1.53
 	github.com/boggydigital/coost v0.3.7
 	github.com/boggydigital/dolo v0.2.2
 	github.com/boggydigital/kvas v0.3.9
@@ -15,7 +15,7 @@ require (
 )
 
 require (
-	github.com/arelate/steam_integration v0.1.1 // indirect
+	github.com/arelate/steam_integration v0.1.3 // indirect
 	github.com/boggydigital/match_node v0.1.5 // indirect
 	github.com/boggydigital/middleware v0.1.0 // indirect
 	golang.org/x/net v0.0.0-20220127200216-cd36cc0744dd // indirect
