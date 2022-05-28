@@ -14,24 +14,24 @@ func GetData(w http.ResponseWriter, r *http.Request) {
 	mt := vangogh_local_data.MediaFromUrl(r.URL)
 	ids, err := vangogh_local_data.IdSetFromUrl(r.URL)
 	if err != nil {
-		http.Error(w, nod.Error(err).Error(), http.StatusMethodNotAllowed)
+		http.Error(w, nod.Error(err).Error(), http.StatusBadRequest)
 		return
 	}
 
 	values := make(map[string]interface{}, len(ids))
 
-	if vr, err := vangogh_local_data.NewReader(pt, mt); err == nil {
+	vr, err := vangogh_local_data.NewReader(pt, mt)
 
-		for id := range ids {
-			if values[id], err = vr.ReadValue(id); err != nil {
-				http.Error(w, nod.Error(err).Error(), http.StatusInternalServerError)
-				return
-			}
-		}
-
-	} else {
+	if err != nil {
 		http.Error(w, nod.Error(err).Error(), http.StatusInternalServerError)
 		return
+	}
+
+	for id := range ids {
+		if values[id], err = vr.ReadValue(id); err != nil {
+			http.Error(w, nod.Error(err).Error(), http.StatusInternalServerError)
+			return
+		}
 	}
 
 	if err := encode(values, w, r); err != nil {
