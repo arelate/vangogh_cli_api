@@ -31,6 +31,18 @@ func Items(
 		return ia.EndWithError(err)
 	}
 
+	// intercept steam-app-news sourceUrl and set to an id-transforming provider
+	if sourceUrl == nil && pt == vangogh_local_data.SteamAppNews {
+
+		rxa, err := vangogh_local_data.ConnectReduxAssets(vangogh_local_data.SteamAppIdProperty)
+		if err != nil {
+			return err
+		}
+
+		sanup := &SteamAppNewsUrlProvider{rxa: rxa}
+		sourceUrl = sanup.DefaultSourceUrl
+	}
+
 	//since we know how many ids need to be fetched, allocate URLs and idStrs to that number
 	urls, idStr := make([]*url.URL, len(ids)), make([]string, len(ids))
 
