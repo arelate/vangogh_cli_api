@@ -6,6 +6,7 @@ import (
 	"github.com/arelate/vangogh_local_data"
 	"github.com/boggydigital/nod"
 	"strconv"
+	"strings"
 )
 
 func SteamAppId(mt gog_integration.Media, since int64) error {
@@ -44,6 +45,8 @@ func SteamAppId(mt gog_integration.Media, since int64) error {
 			continue
 		}
 
+		title = normalizeTitle(title)
+
 		if appId, ok := appMap[title]; ok {
 			gogSteamAppId[id] = []string{strconv.Itoa(int(appId))}
 		}
@@ -59,15 +62,32 @@ func SteamAppId(mt gog_integration.Media, since int64) error {
 	return nil
 }
 
+var filterCharacters = []string{"®", "™"}
+
 func GetAppListResponseToMap(galr *steam_integration.GetAppListResponse) map[string]uint32 {
+
 	appsMap := make(map[string]uint32, len(galr.AppList.Apps))
 
 	for _, app := range galr.AppList.Apps {
-		if app.Name == "" {
+
+		an := app.Name
+
+		if an == "" {
 			continue
 		}
-		appsMap[app.Name] = app.AppId
+
+		an = normalizeTitle(an)
+
+		appsMap[an] = app.AppId
 	}
 
 	return appsMap
+}
+
+func normalizeTitle(s string) string {
+	// normalize the app name by removing superfluous characters
+	for _, fc := range filterCharacters {
+		s = strings.Replace(s, fc, "", -1)
+	}
+	return s
 }
