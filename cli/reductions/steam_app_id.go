@@ -89,5 +89,7 @@ func normalizeTitle(s string) string {
 	for _, fc := range filterCharacters {
 		s = strings.Replace(s, fc, "", -1)
 	}
+	// lower the case to normalize case differences
+	s = strings.ToLower(s)
 	return s
 }
