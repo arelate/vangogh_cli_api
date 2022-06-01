@@ -88,7 +88,8 @@ func Owned(mt gog_integration.Media) error {
 		vangogh_local_data.TitleProperty,
 		vangogh_local_data.OwnedProperty,
 		vangogh_local_data.SlugProperty,
-		vangogh_local_data.IncludesGamesProperty)
+		vangogh_local_data.IncludesGamesProperty,
+		vangogh_local_data.IsIncludedByGamesProperty)
 	if err != nil {
 		return oa.EndWithError(err)
 	}
