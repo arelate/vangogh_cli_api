@@ -11,7 +11,11 @@ func CheckOwnership(idSet map[string]bool, rxa kvas.ReduxAssets) (map[string]boo
 
 	ownedSet := make(map[string]bool)
 
-	if err := rxa.IsSupported(vangogh_local_data.SlugProperty, vangogh_local_data.IncludesGamesProperty); err != nil {
+	if err := rxa.IsSupported(
+		vangogh_local_data.SlugProperty,
+		vangogh_local_data.IncludesGamesProperty,
+		vangogh_local_data.IsIncludedByGamesProperty,
+		vangogh_local_data.OwnedProperty); err != nil {
 		return ownedSet, err
 	}
 
@@ -22,16 +26,19 @@ func CheckOwnership(idSet map[string]bool, rxa kvas.ReduxAssets) (map[string]boo
 
 	for id := range idSet {
 
+		if val, ok := rxa.GetFirstVal(vangogh_local_data.OwnedProperty, id); ok && val == "true" {
+			ownedSet[id] = true
+			continue
+		}
+
 		if vrLicenceProducts.Has(id) {
 			ownedSet[id] = true
 			continue
 		}
 
-		includesGames, ok := rxa.GetAllUnchangedValues(vangogh_local_data.IncludesGamesProperty, id)
-		if !ok || len(includesGames) == 0 {
-			continue
-		}
+		includesGames, _ := rxa.GetAllUnchangedValues(vangogh_local_data.IncludesGamesProperty, id)
 
+		// check if _all_ included games are owned
 		ownAllIncludedGames := true
 		for _, igId := range includesGames {
 			ownAllIncludedGames = ownAllIncludedGames && vrLicenceProducts.Has(igId)
@@ -42,10 +49,34 @@ func CheckOwnership(idSet map[string]bool, rxa kvas.ReduxAssets) (map[string]boo
 
 		if ownAllIncludedGames {
 			ownedSet[id] = true
+			continue
 		}
+
+		// check if _any_ is-included-by product is owned
+		if isIncludedByIsOwned(id, rxa, vrLicenceProducts) {
+			ownedSet[id] = true
+			continue
+		}
+
 	}
 
 	return ownedSet, nil
+}
+
+func isIncludedByIsOwned(id string, rxa kvas.ReduxAssets, vrLicenceProducts *vangogh_local_data.ValueReader) bool {
+	if iibg, ok := rxa.GetAllUnchangedValues(vangogh_local_data.IsIncludedByGamesProperty, id); !ok {
+		return false
+	} else {
+		for _, aid := range iibg {
+			if vrLicenceProducts.Has(aid) {
+				return true
+			}
+			if isIncludedByIsOwned(aid, rxa, vrLicenceProducts) {
+				return true
+			}
+		}
+	}
+	return false
 }
 
 func Owned(mt gog_integration.Media) error {
@@ -61,11 +92,6 @@ func Owned(mt gog_integration.Media) error {
 	if err != nil {
 		return oa.EndWithError(err)
 	}
-
-	//vrStoreProducts, err := vangogh_local_data.NewReader(vangogh_local_data.StoreProducts, mt)
-	//if err != nil {
-	//	return oa.EndWithError(err)
-	//}
 
 	idSet := make(map[string]bool)
 	for _, id := range rxa.Keys(vangogh_local_data.TitleProperty) {

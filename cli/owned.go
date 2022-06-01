@@ -29,9 +29,11 @@ func Owned(idSet map[string]bool) error {
 	defer oa.End()
 
 	propSet := map[string]bool{
-		vangogh_local_data.TitleProperty:         true,
-		vangogh_local_data.SlugProperty:          true,
-		vangogh_local_data.IncludesGamesProperty: true,
+		vangogh_local_data.TitleProperty:             true,
+		vangogh_local_data.SlugProperty:              true,
+		vangogh_local_data.IncludesGamesProperty:     true,
+		vangogh_local_data.IsIncludedByGamesProperty: true,
+		vangogh_local_data.OwnedProperty:             true,
 	}
 
 	rxa, err := vangogh_local_data.ConnectReduxAssets(maps.Keys(propSet)...)
