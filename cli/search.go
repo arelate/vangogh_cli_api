@@ -20,6 +20,7 @@ func SearchHandler(u *url.URL) error {
 	return Search(query)
 }
 
+//Search using provided property: values query
 func Search(query map[string][]string) error {
 
 	sa := nod.Begin("searching...")
