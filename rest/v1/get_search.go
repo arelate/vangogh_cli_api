@@ -17,7 +17,8 @@ func Search(w http.ResponseWriter, r *http.Request) {
 	for _, p := range vangogh_local_data.SearchableProperties() {
 		if q.Has(p) {
 			vals := q[p]
-			if len(vals) == 0 {
+			if len(vals) == 0 ||
+				(len(vals) == 1 && vals[0] == "") {
 				continue
 			}
 			query[p] = vals
