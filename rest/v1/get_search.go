@@ -5,7 +5,6 @@ import (
 	"github.com/boggydigital/nod"
 	"golang.org/x/exp/maps"
 	"net/http"
-	"strings"
 )
 
 func Search(w http.ResponseWriter, r *http.Request) {
@@ -17,11 +16,11 @@ func Search(w http.ResponseWriter, r *http.Request) {
 
 	for _, p := range vangogh_local_data.SearchableProperties() {
 		if q.Has(p) {
-			val := q.Get(p)
-			if val == "" {
+			vals := q[p]
+			if len(vals) == 0 {
 				continue
 			}
-			query[p] = strings.Split(val, "+")
+			query[p] = vals
 		}
 	}
 
