@@ -24,11 +24,11 @@ func Search(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	sort := q.Get("sort")
+	sort := q.Get(vangogh_local_data.SortProperty)
 	if sort == "" {
 		sort = vangogh_local_data.TitleProperty
 	}
-	desc := q.Get("desc") == "true"
+	desc := q.Get(vangogh_local_data.DescendingProperty) == "true"
 
 	properties := []string{sort}
 	for p := range query {
