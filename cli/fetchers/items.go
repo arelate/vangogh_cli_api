@@ -3,6 +3,7 @@ package fetchers
 import (
 	"fmt"
 	"github.com/arelate/gog_integration"
+	"github.com/arelate/steam_integration"
 	"github.com/arelate/vangogh_local_data"
 	"github.com/boggydigital/dolo"
 	"github.com/boggydigital/nod"
@@ -31,16 +32,27 @@ func Items(
 		return ia.EndWithError(err)
 	}
 
-	// intercept steam-app-news sourceUrl and set to an id-transforming provider
-	if sourceUrl == nil && pt == vangogh_local_data.SteamAppNews {
+	// intercept steam-app-news, steam-reviews sourceUrl and set to URL provider
+	// that can transform GOG product id to Steam AppId
+	if sourceUrl == nil {
 
 		rxa, err := vangogh_local_data.ConnectReduxAssets(vangogh_local_data.SteamAppIdProperty)
 		if err != nil {
 			return err
 		}
 
-		sanup := &SteamAppNewsUrlProvider{rxa: rxa}
-		sourceUrl = sanup.DefaultSourceUrl
+		var sup *SteamUrlProvider
+
+		switch pt {
+		case vangogh_local_data.SteamAppNews:
+			sup = &SteamUrlProvider{rxa: rxa, urlFunc: steam_integration.NewsForAppUrl}
+		case vangogh_local_data.SteamReviews:
+			sup = &SteamUrlProvider{rxa: rxa, urlFunc: steam_integration.AppReviewsUrl}
+		}
+
+		if sup != nil {
+			sourceUrl = sup.DefaultSourceUrl
+		}
 	}
 
 	//since we know how many ids need to be fetched, allocate URLs and idStrs to that number
