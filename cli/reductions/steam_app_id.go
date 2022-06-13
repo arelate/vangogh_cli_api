@@ -62,7 +62,7 @@ func SteamAppId(mt gog_integration.Media, since int64) error {
 	return nil
 }
 
-var filterCharacters = []string{"®", "™", "!", "?"}
+var filterCharacters = []string{"®", "™", "!", "?", "'", "’"}
 
 func GetAppListResponseToMap(galr *steam_integration.GetAppListResponse) map[string]uint32 {
 
