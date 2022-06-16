@@ -8,6 +8,7 @@ import (
 var cascadingProperties = []string{
 	vangogh_local_data.GOGOrderDateProperty,
 	vangogh_local_data.GOGReleaseDateProperty,
+	vangogh_local_data.SteamAppIdProperty,
 }
 
 //Cascade is a method to assign reductions to products that don't have them,
