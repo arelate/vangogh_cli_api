@@ -23,14 +23,14 @@ func GetHasRedux(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	values := make(map[string]map[string]string, len(ids))
+	values := make(map[string]map[string][]string, len(ids))
 	for id := range ids {
-		propValues := make(map[string]string)
+		propValues := make(map[string][]string)
 		for _, prop := range properties {
 			if _, ok := rxa.GetAllValues(prop, id); ok {
-				propValues[prop] = "true"
+				propValues[prop] = []string{"true"}
 			} else {
-				propValues[prop] = "false"
+				propValues[prop] = []string{"false"}
 			}
 		}
 		values[id] = propValues
