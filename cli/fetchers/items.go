@@ -48,6 +48,8 @@ func Items(
 			sup = &SteamUrlProvider{rxa: rxa, urlFunc: steam_integration.NewsForAppUrl}
 		case vangogh_local_data.SteamReviews:
 			sup = &SteamUrlProvider{rxa: rxa, urlFunc: steam_integration.AppReviewsUrl}
+		case vangogh_local_data.SteamStorePage:
+			sup = &SteamUrlProvider{rxa: rxa, urlFunc: steam_integration.StorePageUrl}
 		}
 
 		if sup != nil {

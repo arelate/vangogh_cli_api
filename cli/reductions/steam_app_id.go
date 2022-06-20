@@ -9,9 +9,9 @@ import (
 	"strings"
 )
 
-func SteamAppId(mt gog_integration.Media, since int64) error {
+func SteamAppId(since int64) error {
 
-	saia := nod.Begin(" %s...", vangogh_local_data.SteamAppIdProperty)
+	saia := nod.NewProgress(" %s...", vangogh_local_data.SteamAppIdProperty)
 	defer saia.End()
 
 	rxa, err := vangogh_local_data.ConnectReduxAssets(
@@ -26,7 +26,7 @@ func SteamAppId(mt gog_integration.Media, since int64) error {
 		return saia.EndWithError(err)
 	}
 
-	vrStoreProducts, err := vangogh_local_data.NewReader(vangogh_local_data.StoreProducts, mt)
+	vrStoreProducts, err := vangogh_local_data.NewReader(vangogh_local_data.StoreProducts, gog_integration.Game)
 	if err != nil {
 		return saia.EndWithError(err)
 	}
@@ -39,9 +39,14 @@ func SteamAppId(mt gog_integration.Media, since int64) error {
 	appMap := GetAppListResponseToMap(galr)
 	gogSteamAppId := make(map[string][]string)
 
-	for _, id := range vrStoreProducts.ModifiedAfter(since, false) {
+	modified := vrStoreProducts.ModifiedAfter(since, false)
+
+	saia.TotalInt(len(modified))
+
+	for _, id := range modified {
 		title, ok := rxa.GetFirstVal(vangogh_local_data.TitleProperty, id)
 		if !ok {
+			saia.Increment()
 			continue
 		}
 
@@ -51,6 +56,7 @@ func SteamAppId(mt gog_integration.Media, since int64) error {
 			gogSteamAppId[id] = []string{strconv.Itoa(int(appId))}
 		}
 
+		saia.Increment()
 	}
 
 	if err := rxa.BatchReplaceValues(vangogh_local_data.SteamAppIdProperty, gogSteamAppId); err != nil {
