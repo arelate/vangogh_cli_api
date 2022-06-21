@@ -24,18 +24,29 @@ func (vpg *videoPropertiesGetter) IsMissingVideo(videoId string) bool {
 	return vpg.reduxAssets.HasKey(vangogh_local_data.MissingVideoUrlProperty, videoId)
 }
 
-func MissingLocalVideos(rxa kvas.ReduxAssets) (map[string]bool, error) {
+func missingLocalVideoRelatedFiles(
+	rxa kvas.ReduxAssets,
+	localVideoIdsDelegate func() (map[string]bool, error),
+	media string) (map[string]bool, error) {
 	all := rxa.Keys(vangogh_local_data.VideoIdProperty)
 
-	localVideoSet, err := vangogh_local_data.LocalVideoIds()
+	localSet, err := localVideoIdsDelegate()
 	if err != nil {
 		return map[string]bool{}, err
 	}
 
 	vpg := NewVideoPropertiesGetter(rxa)
 
-	mlva := nod.NewProgress(" itemizing local videos...")
-	defer mlva.EndWithResult("done")
+	mlma := nod.NewProgress(" itemizing local %s...", media)
+	defer mlma.EndWithResult("done")
 
-	return missingLocalFiles(all, localVideoSet, vpg.GetVideoIds, vpg.IsMissingVideo, mlva)
+	return missingLocalFiles(all, localSet, vpg.GetVideoIds, vpg.IsMissingVideo, mlma)
+}
+
+func MissingLocalVideos(rxa kvas.ReduxAssets) (map[string]bool, error) {
+	return missingLocalVideoRelatedFiles(rxa, vangogh_local_data.LocalVideoIds, "videos")
+}
+
+func MissingLocalThumbnails(rxa kvas.ReduxAssets) (map[string]bool, error) {
+	return missingLocalVideoRelatedFiles(rxa, vangogh_local_data.LocalThumbnailIds, "thumbnails")
 }

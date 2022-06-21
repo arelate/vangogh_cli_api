@@ -104,7 +104,7 @@ func GetVideos(idSet map[string]bool, missing bool) error {
 					continue
 				}
 
-				dir := vangogh_local_data.AbsDirByVideoId(videoId)
+				dir := vangogh_local_data.AbsVideoDirByVideoId(videoId)
 
 				u, err := url.Parse(vidUrl.Url)
 				if err != nil {
@@ -118,7 +118,7 @@ func GetVideos(idSet map[string]bool, missing bool) error {
 				//2) currently dolo.GetSetMany doesn't support nod progress reporting on each individual concurrent
 				//download (ok, well, StdOutPresenter doesn't, nod likely does) and for video files this would mean
 				//long pauses as we download individual files
-				if err = dl.Download(u, vfa, dir, videoId+yt_urls.DefaultExt); err != nil {
+				if err = dl.Download(u, vfa, dir, videoId+yt_urls.DefaultVideoExt); err != nil {
 					vfa.Error(err)
 					continue
 				}
@@ -133,7 +133,7 @@ func GetVideos(idSet map[string]bool, missing bool) error {
 		gva.Increment()
 	}
 
-	//gva.EndWithResult("done")
+	gva.EndWithResult("done")
 
 	return nil
 }
