@@ -7,7 +7,7 @@ require (
 	github.com/arelate/steam_integration v0.1.14
 	github.com/arelate/vangogh_local_data v0.1.79
 	github.com/boggydigital/coost v0.3.7
-	github.com/boggydigital/dolo v0.2.3
+	github.com/boggydigital/dolo v0.2.4
 	github.com/boggydigital/kvas v0.3.13
 	github.com/boggydigital/middleware v0.1.0
 	github.com/boggydigital/nod v0.1.19
