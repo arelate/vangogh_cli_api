@@ -160,9 +160,15 @@ func Sync(
 		}
 	}
 
-	// get videos
-	if syncOpts.videos {
-		if err := GetVideos(map[string]bool{}, true); err != nil {
+	// get downloads Updates
+	if syncOpts.downloadsUpdates {
+		if err := UpdateDownloads(
+			mt,
+			operatingSystems,
+			downloadTypes,
+			langCodes,
+			since,
+			false); err != nil {
 			return sa.EndWithError(err)
 		}
 	}
@@ -174,15 +180,9 @@ func Sync(
 		}
 	}
 
-	// get downloads Updates
-	if syncOpts.downloadsUpdates {
-		if err := UpdateDownloads(
-			mt,
-			operatingSystems,
-			downloadTypes,
-			langCodes,
-			since,
-			false); err != nil {
+	// get videos
+	if syncOpts.videos {
+		if err := GetVideos(map[string]bool{}, true); err != nil {
 			return sa.EndWithError(err)
 		}
 	}
