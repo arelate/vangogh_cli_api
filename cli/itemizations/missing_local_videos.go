@@ -48,5 +48,5 @@ func MissingLocalVideos(rxa kvas.ReduxAssets) (map[string]bool, error) {
 }
 
 func MissingLocalThumbnails(rxa kvas.ReduxAssets) (map[string]bool, error) {
-	return missingLocalVideoRelatedFiles(rxa, vangogh_local_data.LocalThumbnailIds, "thumbnails")
+	return missingLocalVideoRelatedFiles(rxa, vangogh_local_data.LocalVideoThumbnailIds, "thumbnails")
 }

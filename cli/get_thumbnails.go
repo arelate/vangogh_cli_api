@@ -77,7 +77,7 @@ func GetThumbnails(idSet map[string]bool, missing bool) error {
 
 				vta := nod.NewProgress(" %s %s", videoId, file)
 
-				dir := vangogh_local_data.AbsThumbnailDirByVideoId(videoId)
+				dir := vangogh_local_data.AbsVideoThumbnailsDirByVideoId(videoId)
 
 				//get-thumbnails is not using dolo.GetSetMany unlike get-images, and is downloading
 				//thumbnails sequentially for two main reasons:
