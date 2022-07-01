@@ -39,7 +39,7 @@ func GetItems(
 		vangogh_local_data.DescriptionOverviewProperty,
 		vangogh_local_data.DescriptionFeaturesProperty)
 	if err != nil {
-		return err
+		return gia.EndWithError(err)
 	}
 
 	dl := dolo.DefaultClient
