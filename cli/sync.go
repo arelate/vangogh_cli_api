@@ -158,6 +158,11 @@ func Sync(
 		if err := GetImages(map[string]bool{}, imageTypes, true); err != nil {
 			return sa.EndWithError(err)
 		}
+
+		// dehydrate images
+		if err := DehydrateImages(mt); err != nil {
+			return sa.EndWithError(err)
+		}
 	}
 
 	// get downloads Updates

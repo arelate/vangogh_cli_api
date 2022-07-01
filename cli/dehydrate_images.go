@@ -35,16 +35,10 @@ func DehydrateImages(mt gog_integration.Media) error {
 	missingImages := make(map[string]interface{})
 
 	for _, id := range rxa.Keys(vangogh_local_data.ImageProperty) {
-
-		imageIds, ok := rxa.GetAllUnchangedValues(vangogh_local_data.ImageProperty, id)
-		if !ok {
-			continue
-		}
-		for _, imageId := range imageIds {
-			if vrDehydratedImages.Has(imageId) {
-				continue
+		if imageId, ok := rxa.GetFirstVal(vangogh_local_data.ImageProperty, id); ok {
+			if !vrDehydratedImages.Has(imageId) {
+				missingImages[imageId] = nil
 			}
-			missingImages[imageId] = nil
 		}
 	}
 
