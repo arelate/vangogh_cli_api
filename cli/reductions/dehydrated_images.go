@@ -12,7 +12,7 @@ import (
 
 func DehydratedImages() error {
 
-	dia := nod.NewProgress("dehydrating images...")
+	dia := nod.NewProgress(" %s...", vangogh_local_data.DehydratedImageProperty)
 	defer dia.End()
 
 	rxa, err := vangogh_local_data.ConnectReduxAssets(
