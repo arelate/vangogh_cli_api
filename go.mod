@@ -9,7 +9,7 @@ require (
 	github.com/boggydigital/coost v0.3.7
 	github.com/boggydigital/dolo v0.2.4
 	github.com/boggydigital/issa v0.1.2
-	github.com/boggydigital/kvas v0.3.13
+	github.com/boggydigital/kvas v0.3.14
 	github.com/boggydigital/match_node v0.1.5
 	github.com/boggydigital/middleware v0.1.0
 	github.com/boggydigital/nod v0.1.19
