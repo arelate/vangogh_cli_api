@@ -22,10 +22,11 @@ func ReduceHandler(u *url.URL) error {
 	return Reduce(
 		vangogh_local_data.MediaFromUrl(u),
 		since,
-		vangogh_local_data.PropertiesFromUrl(u))
+		vangogh_local_data.PropertiesFromUrl(u),
+		vangogh_local_data.FlagFromUrl(u, "dehydrate-images"))
 }
 
-func Reduce(mt gog_integration.Media, since int64, properties []string) error {
+func Reduce(mt gog_integration.Media, since int64, properties []string, dehydrateImages bool) error {
 
 	propSet := make(map[string]bool)
 	for _, p := range properties {
@@ -168,8 +169,10 @@ func Reduce(mt gog_integration.Media, since int64, properties []string) error {
 		return ra.EndWithError(err)
 	}
 
-	if err := reductions.DehydratedImages(); err != nil {
-		ra.EndWithError(err)
+	if dehydrateImages {
+		if err := reductions.DehydratedImages(); err != nil {
+			ra.EndWithError(err)
+		}
 	}
 
 	return reductions.Cascade()

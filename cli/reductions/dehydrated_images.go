@@ -25,7 +25,7 @@ func DehydratedImages() error {
 	dehydratedImages := make(map[string][]string)
 
 	for _, id := range rxa.Keys(vangogh_local_data.ImageProperty) {
-		if !rxa.HasKey(vangogh_local_data.DehydratedImageProperty, id) {
+		if dip, ok := rxa.GetFirstVal(vangogh_local_data.DehydratedImageProperty, id); !ok || dip == "" {
 			dehydratedImages[id] = nil
 		}
 	}

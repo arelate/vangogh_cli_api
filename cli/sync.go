@@ -2,6 +2,7 @@ package cli
 
 import (
 	"github.com/arelate/gog_integration"
+	"github.com/arelate/vangogh_cli_api/cli/reductions"
 	"github.com/arelate/vangogh_local_data"
 	"github.com/boggydigital/nod"
 	"github.com/boggydigital/wits"
@@ -133,8 +134,8 @@ func Sync(
 			}
 		}
 
-		//reduce data
-		if err := Reduce(mt, since, vangogh_local_data.ReduxProperties()); err != nil {
+		//reduce data, but don't dehydrate images yet. New images won't be downloaded at this point yet
+		if err := Reduce(mt, since, vangogh_local_data.ReduxProperties(), false); err != nil {
 			return sa.EndWithError(err)
 		}
 	}
@@ -158,6 +159,12 @@ func Sync(
 		if err := GetImages(map[string]bool{}, imageTypes, true); err != nil {
 			return sa.EndWithError(err)
 		}
+
+		pr := nod.Begin("reducing post image download...")
+		if err := reductions.DehydratedImages(); err != nil {
+			return pr.EndWithError(err)
+		}
+		pr.EndWithResult("done")
 	}
 
 	// get downloads Updates
@@ -173,16 +180,16 @@ func Sync(
 		}
 	}
 
-	// get thumbnails
-	if syncOpts.thumbnails {
-		if err := GetThumbnails(map[string]bool{}, true); err != nil {
+	// get videos
+	if syncOpts.videos {
+		if err := GetVideos(map[string]bool{}, true); err != nil {
 			return sa.EndWithError(err)
 		}
 	}
 
-	// get videos
-	if syncOpts.videos {
-		if err := GetVideos(map[string]bool{}, true); err != nil {
+	// get thumbnails
+	if syncOpts.thumbnails {
+		if err := GetThumbnails(map[string]bool{}, true); err != nil {
 			return sa.EndWithError(err)
 		}
 	}
