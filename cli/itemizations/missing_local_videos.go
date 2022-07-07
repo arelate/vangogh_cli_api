@@ -27,7 +27,9 @@ func (vpg *videoPropertiesGetter) IsMissingVideo(videoId string) bool {
 func missingLocalVideoRelatedFiles(
 	rxa kvas.ReduxAssets,
 	localVideoIdsDelegate func() (map[string]bool, error),
-	media string) (map[string]bool, error) {
+	excludeKnownMissingVideos bool,
+	videoFilesDesc string) (map[string]bool, error) {
+
 	all := rxa.Keys(vangogh_local_data.VideoIdProperty)
 
 	localSet, err := localVideoIdsDelegate()
@@ -37,16 +39,34 @@ func missingLocalVideoRelatedFiles(
 
 	vpg := NewVideoPropertiesGetter(rxa)
 
-	mlma := nod.NewProgress(" itemizing local %s...", media)
+	mlma := nod.NewProgress(" itemizing local %s...", videoFilesDesc)
 	defer mlma.EndWithResult("done")
 
-	return missingLocalFiles(all, localSet, vpg.GetVideoIds, vpg.IsMissingVideo, mlma)
+	//some video related files would benefit from skipping known missing (local) videos,
+	//for example actual local video files - we don't won't attempting again and again.
+	//some video related files actually don't need to skip
+	//for example video thumbnails, where we want to show a YouTube link with a thumbnail
+	//even if the file is not present locally
+	var excludeDelegate func(videoId string) bool
+	if excludeKnownMissingVideos {
+		excludeDelegate = vpg.IsMissingVideo
+	}
+
+	return missingLocalFiles(all, localSet, vpg.GetVideoIds, excludeDelegate, mlma)
 }
 
 func MissingLocalVideos(rxa kvas.ReduxAssets) (map[string]bool, error) {
-	return missingLocalVideoRelatedFiles(rxa, vangogh_local_data.LocalVideoIds, "videos")
+	return missingLocalVideoRelatedFiles(
+		rxa,
+		vangogh_local_data.LocalVideoIds,
+		true,
+		"videos")
 }
 
 func MissingLocalThumbnails(rxa kvas.ReduxAssets) (map[string]bool, error) {
-	return missingLocalVideoRelatedFiles(rxa, vangogh_local_data.LocalVideoThumbnailIds, "thumbnails")
+	return missingLocalVideoRelatedFiles(
+		rxa,
+		vangogh_local_data.LocalVideoThumbnailIds,
+		false,
+		"thumbnails")
 }
