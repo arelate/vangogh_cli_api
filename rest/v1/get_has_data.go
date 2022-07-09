@@ -10,29 +10,38 @@ func GetHasData(w http.ResponseWriter, r *http.Request) {
 
 	// GET /v1/has_data?product-type&media&id&format
 
-	pt := vangogh_local_data.ProductTypeFromUrl(r.URL)
+	pts := vangogh_local_data.ValuesFromUrl(r.URL, "product-type")
 	mt := vangogh_local_data.MediaFromUrl(r.URL)
 	ids, err := vangogh_local_data.IdSetFromUrl(r.URL)
+
 	if err != nil {
 		http.Error(w, nod.Error(err).Error(), http.StatusBadRequest)
 		return
 	}
 
-	values := make(map[string]string, len(ids))
+	values := make(map[string]map[string]string, len(pts))
 
-	vr, err := vangogh_local_data.NewReader(pt, mt)
+	for _, pt := range pts {
 
-	if err != nil {
-		http.Error(w, nod.Error(err).Error(), http.StatusInternalServerError)
-		return
-	}
+		values[pt] = make(map[string]string, len(ids))
 
-	for id := range ids {
-		if ok := vr.Has(id); ok {
-			values[id] = "true"
-		} else {
-			values[id] = "false"
+		productType := vangogh_local_data.ParseProductType(pt)
+
+		vr, err := vangogh_local_data.NewReader(productType, mt)
+
+		if err != nil {
+			http.Error(w, nod.Error(err).Error(), http.StatusInternalServerError)
+			return
 		}
+
+		for id := range ids {
+			if ok := vr.Has(id); ok {
+				values[pt][id] = "true"
+			} else {
+				values[pt][id] = "false"
+			}
+		}
+
 	}
 
 	if err := encode(values, w, r); err != nil {
