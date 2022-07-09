@@ -1,7 +1,6 @@
 package v1
 
 import (
-	"fmt"
 	"github.com/arelate/vangogh_local_data"
 	"github.com/boggydigital/nod"
 	"net/http"
@@ -36,7 +35,6 @@ func GetData(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := encode(values, w, r); err != nil {
-		fmt.Println(err)
 		http.Error(w, nod.Error(err).Error(), http.StatusInternalServerError)
 	}
 }
