@@ -4,9 +4,7 @@ import (
 	"github.com/arelate/gog_integration"
 	"github.com/arelate/vangogh_local_data"
 	"github.com/boggydigital/coost"
-	"github.com/boggydigital/kvas"
 	"github.com/boggydigital/nod"
-	"net/http"
 	"net/url"
 )
 
@@ -27,24 +25,23 @@ func Wishlist(mt gog_integration.Media, addProductIds, removeProductIds []string
 		return wa.EndWithError(err)
 	}
 
-	vrStoreProducts, err := vangogh_local_data.NewReader(vangogh_local_data.StoreProducts, mt)
-	if err != nil {
-		return wa.EndWithError(err)
-	}
-
-	rxa, err := vangogh_local_data.ConnectReduxAssets(vangogh_local_data.WishlistedProperty)
-	if err != nil {
-		return wa.EndWithError(err)
-	}
-
 	if len(addProductIds) > 0 {
-		if err := wishlistAdd(addProductIds, hc, vrStoreProducts, rxa, mt); err != nil {
+		if processedIds, err := wishlistAdd(addProductIds, mt); err == nil {
+			if err := gog_integration.AddToWishlist(hc, processedIds...); err != nil {
+				return wa.EndWithError(err)
+			}
+		} else {
 			return wa.EndWithError(err)
+
 		}
 	}
 
 	if len(removeProductIds) > 0 {
-		if err := wishlistRemove(removeProductIds, hc, rxa, mt); err != nil {
+		if processedIds, err := wishlistRemove(removeProductIds, mt); err == nil {
+			if err := gog_integration.RemoveFromWishlist(hc, processedIds...); err != nil {
+				return wa.EndWithError(err)
+			}
+		} else {
 			return wa.EndWithError(err)
 		}
 	}
@@ -56,59 +53,34 @@ func Wishlist(mt gog_integration.Media, addProductIds, removeProductIds []string
 
 func wishlistAdd(
 	ids []string,
-	httpClient *http.Client,
-	vrStoreProducts *vangogh_local_data.ValueReader,
-	rxa kvas.ReduxAssets,
-	mt gog_integration.Media) error {
+	mt gog_integration.Media) ([]string, error) {
 
-	waa := nod.NewProgress(" adding product(s) to local wishlist...")
+	waa := nod.Begin(" adding product(s) to local wishlist...")
 	defer waa.End()
 
-	waa.TotalInt(len(ids))
-
-	for _, id := range ids {
-
-		if err := vrStoreProducts.CopyToType(id, vangogh_local_data.WishlistProducts, mt); err != nil {
-			return waa.EndWithError(err)
-		}
-
-		if !rxa.HasVal(vangogh_local_data.WishlistedProperty, id, "true") {
-			if err := rxa.AddVal(vangogh_local_data.WishlistedProperty, id, "true"); err != nil {
-				return waa.EndWithError(err)
-			}
-		}
-
-		waa.Increment()
+	pids, err := vangogh_local_data.AddToLocalWishlist(ids, mt)
+	if err != nil {
+		waa.EndWithError(err)
+	} else {
+		waa.EndWithResult("done")
 	}
 
-	waa.EndWithResult("done")
-
-	return gog_integration.AddToWishlist(httpClient, ids...)
+	return pids, err
 }
 
 func wishlistRemove(
 	ids []string,
-	httpClient *http.Client,
-	rxa kvas.ReduxAssets,
-	mt gog_integration.Media) error {
+	mt gog_integration.Media) ([]string, error) {
 
-	wra := nod.NewProgress(" removing product(s) from local wishlist...")
+	wra := nod.Begin(" removing product(s) from local wishlist...")
 	defer wra.End()
 
-	idSet := make(map[string]bool)
-	for _, id := range ids {
-		idSet[id] = true
-
-		if err := rxa.CutVal(vangogh_local_data.WishlistedProperty, id, "true"); err != nil {
-			return wra.EndWithError(err)
-		}
+	pids, err := vangogh_local_data.RemoveFromLocalWishlist(ids, mt)
+	if err != nil {
+		wra.EndWithError(err)
+	} else {
+		wra.EndWithResult("done")
 	}
 
-	if err := vangogh_local_data.Cut(idSet, vangogh_local_data.WishlistProducts, mt); err != nil {
-		return wra.EndWithError(err)
-	}
-
-	wra.EndWithResult("done")
-
-	return gog_integration.RemoveFromWishlist(httpClient, ids...)
+	return pids, err
 }
