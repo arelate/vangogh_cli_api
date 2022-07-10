@@ -1,4 +1,4 @@
-package v1
+package rest
 
 import (
 	"github.com/arelate/gog_integration"
@@ -10,7 +10,7 @@ import (
 
 func GetUpdates(w http.ResponseWriter, r *http.Request) {
 
-	// GET /v1/updates?media&since-hours-ago&format
+	// GET /updates?media&since-hours-ago&format
 
 	mt := vangogh_local_data.MediaFromUrl(r.URL)
 	if mt == gog_integration.Unknown {

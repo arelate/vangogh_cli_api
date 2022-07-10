@@ -1,4 +1,4 @@
-package v1
+package rest
 
 import (
 	"fmt"
@@ -10,7 +10,7 @@ import (
 
 func GetKeys(w http.ResponseWriter, r *http.Request) {
 
-	// GET /v1/keys?product-type&media&sort&desc&format
+	// GET /keys?product-type&media&sort&desc&format
 
 	pt := vangogh_local_data.ProductTypeFromUrl(r.URL)
 	mt := vangogh_local_data.MediaFromUrl(r.URL)

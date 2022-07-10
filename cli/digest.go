@@ -2,7 +2,7 @@ package cli
 
 import (
 	"fmt"
-	v1 "github.com/arelate/vangogh_cli_api/rest/v1"
+	v1 "github.com/arelate/vangogh_cli_api/rest"
 	"github.com/arelate/vangogh_local_data"
 	"github.com/boggydigital/nod"
 	"net/url"

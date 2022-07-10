@@ -2,7 +2,7 @@ package cli
 
 import (
 	"fmt"
-	"github.com/arelate/vangogh_cli_api/rest/v1"
+	"github.com/arelate/vangogh_cli_api/rest"
 	"github.com/arelate/vangogh_local_data"
 	"github.com/boggydigital/nod"
 	"net/http"
@@ -34,11 +34,11 @@ func Serve(port int, stderr bool) error {
 
 	// API Version 1
 
-	if err := v1.Init(); err != nil {
+	if err := rest.Init(); err != nil {
 		return err
 	}
 
-	v1.HandleFuncs()
+	rest.HandleFuncs()
 
 	return http.ListenAndServe(fmt.Sprintf(":%d", port), nil)
 }

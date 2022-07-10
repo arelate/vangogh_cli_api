@@ -1,4 +1,4 @@
-package v1
+package rest
 
 import (
 	"github.com/arelate/vangogh_local_data"

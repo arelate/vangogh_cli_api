@@ -1,4 +1,4 @@
-package v1
+package rest
 
 import (
 	"github.com/arelate/vangogh_local_data"
@@ -8,7 +8,7 @@ import (
 
 func GetHasRedux(w http.ResponseWriter, r *http.Request) {
 
-	// GET /v1/has_redux?property&id&format
+	// GET /has_redux?property&id&format
 
 	properties := vangogh_local_data.PropertiesFromUrl(r.URL)
 

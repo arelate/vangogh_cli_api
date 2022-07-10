@@ -1,4 +1,4 @@
-package v1
+package rest
 
 import (
 	"github.com/arelate/gog_integration"
@@ -9,7 +9,7 @@ import (
 
 func GetDownloads(w http.ResponseWriter, r *http.Request) {
 
-	// GET /v1/downloads?id&operating-system&language-code&format&media
+	// GET /downloads?id&operating-system&language-code&format&media
 
 	id := vangogh_local_data.ValueFromUrl(r.URL, "id")
 	mt := vangogh_local_data.MediaFromUrl(r.URL)

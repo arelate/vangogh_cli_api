@@ -1,4 +1,4 @@
-package v1
+package rest
 
 import (
 	"github.com/arelate/vangogh_local_data"
@@ -8,7 +8,7 @@ import (
 
 func GetHasData(w http.ResponseWriter, r *http.Request) {
 
-	// GET /v1/has_data?product-type&media&id&format
+	// GET /has_data?product-type&media&id&format
 
 	pts := vangogh_local_data.ValuesFromUrl(r.URL, "product-type")
 	mt := vangogh_local_data.MediaFromUrl(r.URL)

@@ -1,4 +1,4 @@
-package v1
+package rest
 
 import (
 	"github.com/arelate/vangogh_local_data"
@@ -9,7 +9,7 @@ import (
 
 func Search(w http.ResponseWriter, r *http.Request) {
 
-	// GET /v1/search?text&(searchable properties)&sort&desc&format
+	// GET /search?text&(searchable properties)&sort&desc&format
 
 	query := make(map[string][]string)
 	q := r.URL.Query()

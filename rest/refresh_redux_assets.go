@@ -1,4 +1,4 @@
-package v1
+package rest
 
 func RefreshReduxAssets(properties ...string) (err error) {
 	if rxa, err = rxa.RefreshReduxAssets(); err != nil {

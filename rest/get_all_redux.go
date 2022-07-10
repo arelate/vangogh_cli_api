@@ -1,4 +1,4 @@
-package v1
+package rest
 
 import (
 	"github.com/arelate/vangogh_local_data"
@@ -6,25 +6,28 @@ import (
 	"net/http"
 )
 
-func GetRedux(w http.ResponseWriter, r *http.Request) {
+func GetAllRedux(w http.ResponseWriter, r *http.Request) {
 
-	// GET /v1/redux?property&id&format
+	// GET /all_redux?property&product-type&media&format
 
 	properties := vangogh_local_data.PropertiesFromUrl(r.URL)
+	pt := vangogh_local_data.ProductTypeFromUrl(r.URL)
+	mt := vangogh_local_data.MediaFromUrl(r.URL)
 
 	if err := RefreshReduxAssets(properties...); err != nil {
 		http.Error(w, nod.Error(err).Error(), http.StatusInternalServerError)
 		return
 	}
 
-	ids, err := vangogh_local_data.IdSetFromUrl(r.URL)
+	values := make(map[string]map[string][]string)
+
+	vr, err := vangogh_local_data.NewReader(pt, mt)
 	if err != nil {
 		http.Error(w, nod.Error(err).Error(), http.StatusInternalServerError)
 		return
 	}
 
-	values := make(map[string]map[string][]string, len(ids))
-	for id := range ids {
+	for _, id := range vr.Keys() {
 		propValues := make(map[string][]string)
 		for _, prop := range properties {
 			propValues[prop], _ = rxa.GetAllValues(prop, id)
@@ -34,5 +37,6 @@ func GetRedux(w http.ResponseWriter, r *http.Request) {
 
 	if err := encode(values, w, r); err != nil {
 		http.Error(w, nod.Error(err).Error(), http.StatusInternalServerError)
+		return
 	}
 }

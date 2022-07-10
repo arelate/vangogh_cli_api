@@ -1,4 +1,4 @@
-package v1
+package rest
 
 import (
 	"github.com/arelate/vangogh_local_data"
@@ -31,7 +31,7 @@ func PropertyValuesCounts(rxa kvas.ReduxAssets, property string) map[string]int 
 
 func GetDigest(w http.ResponseWriter, r *http.Request) {
 
-	// GET /v1/digest?property&format
+	// GET /digest?property&format
 
 	properties := vangogh_local_data.PropertiesFromUrl(r.URL)
 
