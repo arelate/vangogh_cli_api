@@ -2,14 +2,12 @@ package cli
 
 import (
 	"github.com/arelate/gog_integration"
-	"github.com/arelate/vangogh_cli_api/cli/dirs"
 	"github.com/arelate/vangogh_local_data"
 	"github.com/boggydigital/coost"
 	"github.com/boggydigital/kvas"
 	"github.com/boggydigital/nod"
 	"net/http"
 	"net/url"
-	"path/filepath"
 )
 
 func WishlistHandler(u *url.URL) error {
@@ -24,8 +22,7 @@ func Wishlist(mt gog_integration.Media, addProductIds, removeProductIds []string
 	wa := nod.Begin("performing requested wishlist operations...")
 	defer wa.End()
 
-	hc, err := coost.NewHttpClientFromFile(
-		filepath.Join(dirs.GetTempDir(), cookiesFilename), gog_integration.GogHost)
+	hc, err := coost.NewHttpClientFromFile(vangogh_local_data.AbsCookiePath(), gog_integration.GogHost)
 	if err != nil {
 		return wa.EndWithError(err)
 	}
@@ -47,7 +44,7 @@ func Wishlist(mt gog_integration.Media, addProductIds, removeProductIds []string
 	}
 
 	if len(removeProductIds) > 0 {
-		if err := wishlistRemove(removeProductIds, hc, vrStoreProducts, rxa, mt); err != nil {
+		if err := wishlistRemove(removeProductIds, hc, rxa, mt); err != nil {
 			return wa.EndWithError(err)
 		}
 	}
@@ -86,17 +83,12 @@ func wishlistAdd(
 
 	waa.EndWithResult("done")
 
-	return remoteWishlistCommand(
-		ids,
-		gog_integration.AddToWishlistUrl,
-		httpClient,
-		vrStoreProducts)
+	return gog_integration.AddToWishlist(httpClient, ids...)
 }
 
 func wishlistRemove(
 	ids []string,
 	httpClient *http.Client,
-	vrStoreProducts *vangogh_local_data.ValueReader,
 	rxa kvas.ReduxAssets,
 	mt gog_integration.Media) error {
 
@@ -118,42 +110,5 @@ func wishlistRemove(
 
 	wra.EndWithResult("done")
 
-	return remoteWishlistCommand(
-		ids,
-		gog_integration.RemoveFromWishlistUrl,
-		httpClient,
-		vrStoreProducts)
-}
-
-func remoteWishlistCommand(
-	ids []string,
-	wishlistUrl func(string) *url.URL,
-	httpClient *http.Client,
-	vrStoreProducts *vangogh_local_data.ValueReader) error {
-
-	rwca := nod.NewProgress(" syncing to remote wishlist...")
-	defer rwca.End()
-
-	rwca.TotalInt(len(ids))
-
-	for _, id := range ids {
-		if !vrStoreProducts.Has(id) {
-			continue
-		}
-		wUrl := wishlistUrl(id)
-		resp, err := httpClient.Get(wUrl.String())
-		if err != nil {
-			return rwca.EndWithError(err)
-		}
-
-		if err := resp.Body.Close(); err != nil {
-			return rwca.EndWithError(err)
-		}
-
-		rwca.Increment()
-	}
-
-	rwca.EndWithResult("done")
-
-	return nil
+	return gog_integration.RemoveFromWishlist(httpClient, ids...)
 }

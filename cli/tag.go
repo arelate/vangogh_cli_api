@@ -4,13 +4,11 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/arelate/gog_integration"
-	"github.com/arelate/vangogh_cli_api/cli/dirs"
 	"github.com/arelate/vangogh_local_data"
 	"github.com/boggydigital/coost"
 	"github.com/boggydigital/kvas"
 	"github.com/boggydigital/nod"
 	"net/url"
-	"path/filepath"
 	"strings"
 )
 
@@ -73,8 +71,7 @@ func Tag(idSet map[string]bool, operation, tagName string) error {
 }
 
 func postResp(url *url.URL, respVal interface{}) error {
-	hc, err := coost.NewHttpClientFromFile(
-		filepath.Join(dirs.GetTempDir(), cookiesFilename), gog_integration.GogHost)
+	hc, err := coost.NewHttpClientFromFile(vangogh_local_data.AbsCookiePath(), gog_integration.GogHost)
 	if err != nil {
 		return err
 	}

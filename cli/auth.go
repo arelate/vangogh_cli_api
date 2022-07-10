@@ -4,14 +4,11 @@ import (
 	"bufio"
 	"fmt"
 	"github.com/arelate/gog_integration"
-	"github.com/arelate/vangogh_cli_api/cli/dirs"
+	"github.com/arelate/vangogh_local_data"
 	"github.com/boggydigital/coost"
 	"net/url"
 	"os"
-	"path/filepath"
 )
-
-const cookiesFilename = "cookies.txt"
 
 func AuthHandler(u *url.URL) error {
 	q := u.Query()
@@ -23,7 +20,7 @@ func AuthHandler(u *url.URL) error {
 
 func Auth(username, password string) error {
 
-	cookieFile, err := os.Open(filepath.Join(dirs.GetTempDir(), cookiesFilename))
+	cookieFile, err := os.Open(vangogh_local_data.AbsCookiePath())
 	defer cookieFile.Close()
 	if err != nil && !os.IsNotExist(err) {
 		return err

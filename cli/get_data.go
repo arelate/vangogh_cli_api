@@ -3,14 +3,12 @@ package cli
 import (
 	"fmt"
 	"github.com/arelate/gog_integration"
-	"github.com/arelate/vangogh_cli_api/cli/dirs"
 	"github.com/arelate/vangogh_cli_api/cli/fetchers"
 	"github.com/arelate/vangogh_cli_api/cli/itemizations"
 	"github.com/arelate/vangogh_local_data"
 	"github.com/boggydigital/coost"
 	"github.com/boggydigital/nod"
 	"net/url"
-	"path/filepath"
 )
 
 func GetDataHandler(u *url.URL) error {
@@ -61,7 +59,8 @@ func GetData(
 	}
 
 	hc, err := coost.NewHttpClientFromFile(
-		filepath.Join(dirs.GetTempDir(), cookiesFilename), gog_integration.GogHost)
+		vangogh_local_data.AbsCookiePath(),
+		gog_integration.GogHost)
 	if err != nil {
 		return gda.EndWithError(err)
 	}

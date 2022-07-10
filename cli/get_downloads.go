@@ -3,7 +3,6 @@ package cli
 import (
 	"fmt"
 	"github.com/arelate/gog_integration"
-	"github.com/arelate/vangogh_cli_api/cli/dirs"
 	"github.com/arelate/vangogh_cli_api/cli/itemizations"
 	"github.com/arelate/vangogh_local_data"
 	"github.com/boggydigital/coost"
@@ -46,8 +45,7 @@ func GetDownloads(
 	gda := nod.NewProgress("downloading product files...")
 	defer gda.End()
 
-	hc, err := coost.NewHttpClientFromFile(
-		filepath.Join(dirs.GetTempDir(), cookiesFilename), gog_integration.GogHost)
+	hc, err := coost.NewHttpClientFromFile(vangogh_local_data.AbsCookiePath(), gog_integration.GogHost)
 	if err != nil {
 		return gda.EndWithError(err)
 	}
@@ -122,8 +120,7 @@ func (gdd *getDownloadsDelegate) Process(_, slug string, list vangogh_local_data
 		return nil
 	}
 
-	hc, err := coost.NewHttpClientFromFile(
-		filepath.Join(dirs.GetTempDir(), cookiesFilename), gog_integration.GogHost)
+	hc, err := coost.NewHttpClientFromFile(vangogh_local_data.AbsCookiePath(), gog_integration.GogHost)
 	if err != nil {
 		return sda.EndWithError(err)
 	}
