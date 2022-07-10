@@ -18,6 +18,7 @@ func HandleFuncs() {
 		"/has_redux": IfReduxModifiedSince(middleware.GetMethodOnly(nod.RequestLog(http.HandlerFunc(GetHasRedux)))),
 		"/search":    IfReduxModifiedSince(middleware.GetMethodOnly(nod.RequestLog(http.HandlerFunc(Search)))),
 		"/updates":   middleware.GetMethodOnly(nod.RequestLog(http.HandlerFunc(GetUpdates))),
+		"/wishlist":  nod.RequestLog(http.HandlerFunc(RouteWishlist)),
 	}
 
 	for p, h := range patternHandlers {

@@ -5,6 +5,7 @@ import (
 	"github.com/arelate/vangogh_cli_api/cli/dirs"
 	"github.com/arelate/vangogh_local_data"
 	"github.com/boggydigital/coost"
+	"github.com/boggydigital/kvas"
 	"github.com/boggydigital/nod"
 	"net/http"
 	"net/url"
@@ -34,14 +35,19 @@ func Wishlist(mt gog_integration.Media, addProductIds, removeProductIds []string
 		return wa.EndWithError(err)
 	}
 
+	rxa, err := vangogh_local_data.ConnectReduxAssets(vangogh_local_data.WishlistedProperty)
+	if err != nil {
+		return wa.EndWithError(err)
+	}
+
 	if len(addProductIds) > 0 {
-		if err := wishlistAdd(addProductIds, hc, vrStoreProducts, mt); err != nil {
+		if err := wishlistAdd(addProductIds, hc, vrStoreProducts, rxa, mt); err != nil {
 			return wa.EndWithError(err)
 		}
 	}
 
 	if len(removeProductIds) > 0 {
-		if err := wishlistRemove(removeProductIds, hc, vrStoreProducts, mt); err != nil {
+		if err := wishlistRemove(removeProductIds, hc, vrStoreProducts, rxa, mt); err != nil {
 			return wa.EndWithError(err)
 		}
 	}
@@ -55,6 +61,7 @@ func wishlistAdd(
 	ids []string,
 	httpClient *http.Client,
 	vrStoreProducts *vangogh_local_data.ValueReader,
+	rxa kvas.ReduxAssets,
 	mt gog_integration.Media) error {
 
 	waa := nod.NewProgress(" adding product(s) to local wishlist...")
@@ -63,9 +70,17 @@ func wishlistAdd(
 	waa.TotalInt(len(ids))
 
 	for _, id := range ids {
+
 		if err := vrStoreProducts.CopyToType(id, vangogh_local_data.WishlistProducts, mt); err != nil {
 			return waa.EndWithError(err)
 		}
+
+		if !rxa.HasVal(vangogh_local_data.WishlistedProperty, id, "true") {
+			if err := rxa.AddVal(vangogh_local_data.WishlistedProperty, id, "true"); err != nil {
+				return waa.EndWithError(err)
+			}
+		}
+
 		waa.Increment()
 	}
 
@@ -82,6 +97,7 @@ func wishlistRemove(
 	ids []string,
 	httpClient *http.Client,
 	vrStoreProducts *vangogh_local_data.ValueReader,
+	rxa kvas.ReduxAssets,
 	mt gog_integration.Media) error {
 
 	wra := nod.NewProgress(" removing product(s) from local wishlist...")
@@ -90,6 +106,10 @@ func wishlistRemove(
 	idSet := make(map[string]bool)
 	for _, id := range ids {
 		idSet[id] = true
+
+		if err := rxa.CutVal(vangogh_local_data.WishlistedProperty, id, "true"); err != nil {
+			return wra.EndWithError(err)
+		}
 	}
 
 	if err := vangogh_local_data.Cut(idSet, vangogh_local_data.WishlistProducts, mt); err != nil {
