@@ -5,6 +5,7 @@ import (
 	"github.com/arelate/gog_integration"
 	"github.com/arelate/vangogh_local_data"
 	"github.com/boggydigital/nod"
+	"golang.org/x/exp/maps"
 )
 
 func LocalOnlySplitProducts(mt gog_integration.Media, fix bool) error {
@@ -45,7 +46,7 @@ func LocalOnlySplitProducts(mt gog_integration.Media, fix bool) error {
 
 			if fix {
 				fa := nod.Begin(" removing local only %s...", splitPt)
-				if err := vangogh_local_data.Cut(localOnlyProducts, splitPt, mt); err != nil {
+				if err := vangogh_local_data.Cut(maps.Keys(localOnlyProducts), splitPt, mt); err != nil {
 					return fa.EndWithError(err)
 				}
 				fa.EndWithResult("done")

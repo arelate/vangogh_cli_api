@@ -1,17 +1,30 @@
 package rest
 
 import (
+	"github.com/arelate/gog_integration"
+	"github.com/arelate/vangogh_local_data"
+	"github.com/boggydigital/nod"
+	"golang.org/x/exp/maps"
 	"net/http"
 )
 
-func DeleteWishlist(ids map[string]bool, w http.ResponseWriter) {
+func DeleteWishlist(
+	httpClient *http.Client,
+	ids map[string]bool,
+	mt gog_integration.Media,
+	w http.ResponseWriter) {
 
 	// DELETE /wishlist?id
 
-	//if err := cli.Wishlist(gog_integration.Game, nil, maps.Keys(ids)); err != nil {
-	//	http.Error(w, nod.Error(err).Error(), http.StatusInternalServerError)
-	//	return
-	//}
+	if pids, err := vangogh_local_data.RemoveFromLocalWishlist(maps.Keys(ids), mt); err == nil {
+		if err := gog_integration.RemoveFromWishlist(httpClient, pids...); err != nil {
+			http.Error(w, nod.Error(err).Error(), http.StatusInternalServerError)
+			return
+		}
+	} else {
+		http.Error(w, nod.Error(err).Error(), http.StatusInternalServerError)
+		return
+	}
 
 	w.WriteHeader(http.StatusOK)
 }
