@@ -10,6 +10,8 @@ import (
 	"os"
 )
 
+const vangoghSamplingRate = 24
+
 func DehydratedImages() error {
 
 	dia := nod.NewProgress(" %s...", vangogh_local_data.DehydratedImageProperty)
@@ -38,7 +40,7 @@ func DehydratedImages() error {
 			absLocalImagePath := vangogh_local_data.AbsLocalImagePath(imageId)
 			if fi, err := os.Open(absLocalImagePath); err == nil {
 				if jpegImage, _, err := image.Decode(fi); err == nil {
-					gifImage := issa.GIFImage(jpegImage, issa.StdPalette(), issa.DefaultSampling)
+					gifImage := issa.GIFImage(jpegImage, issa.StdPalette(), vangoghSamplingRate)
 
 					if dhi, err := issa.Dehydrate(gifImage); err == nil {
 						dehydratedImages[id] = []string{dhi}
