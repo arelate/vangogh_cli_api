@@ -1,12 +1,10 @@
 package cli
 
 import (
-	"encoding/json"
 	"fmt"
 	"github.com/arelate/gog_integration"
 	"github.com/arelate/vangogh_local_data"
 	"github.com/boggydigital/coost"
-	"github.com/boggydigital/kvas"
 	"github.com/boggydigital/nod"
 	"net/url"
 	"strings"
@@ -50,182 +48,30 @@ func Tag(idSet map[string]bool, operation, tagName string) error {
 
 	tagId := ""
 	if operation != createOp {
-		tagId, err = tagIdByName(tagName, rxa)
+		tagId, err = vangogh_local_data.TagIdByName(tagName, rxa)
 		if err != nil {
 			return err
 		}
 	}
 
+	hc, err := coost.NewHttpClientFromFile(vangogh_local_data.AbsCookiePath(), gog_integration.GogHost)
+	if err != nil {
+		return ta.EndWithError(err)
+	}
+
+	toa := nod.NewProgress(" %s tag %s...", operation, tagName)
+	defer toa.End()
+
 	switch operation {
 	case createOp:
-		return createTag(tagName, rxa)
+		return vangogh_local_data.CreateTag(hc, tagName, rxa)
 	case deleteOp:
-		return deleteTag(tagName, tagId, rxa)
+		return vangogh_local_data.DeleteTag(hc, tagName, tagId, rxa)
 	case addOp:
-		return addTag(idSet, tagName, tagId, rxa)
+		return vangogh_local_data.AddTag(hc, idSet, tagId, rxa, toa)
 	case removeOp:
-		return removeTag(idSet, tagName, tagId, rxa)
+		return vangogh_local_data.RemoveTag(hc, idSet, tagId, rxa, toa)
 	default:
 		return ta.EndWithError(fmt.Errorf("unknown tag operation %s", operation))
 	}
-}
-
-func postResp(url *url.URL, respVal interface{}) error {
-	hc, err := coost.NewHttpClientFromFile(vangogh_local_data.AbsCookiePath(), gog_integration.GogHost)
-	if err != nil {
-		return err
-	}
-
-	resp, err := hc.Post(url.String(), "", nil)
-	if err != nil {
-		return err
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode < 200 || resp.StatusCode > 299 {
-		return fmt.Errorf("unexpected status: %s", resp.Status)
-	}
-
-	return json.NewDecoder(resp.Body).Decode(&respVal)
-}
-
-func tagIdByName(tagName string, rxa kvas.ReduxAssets) (string, error) {
-	if err := rxa.IsSupported(vangogh_local_data.TagNameProperty); err != nil {
-		return "", err
-	}
-
-	tagIds := rxa.Match(map[string][]string{vangogh_local_data.TagNameProperty: {tagName}}, true)
-	if len(tagIds) == 0 {
-		return "", fmt.Errorf("unknown tag-name %s", tagName)
-	}
-	if len(tagIds) > 1 {
-		return "", fmt.Errorf("ambiguous tag-name %s, matching tag-ids: %v",
-			tagName,
-			tagIds)
-	}
-	tagId := ""
-	for ti := range tagIds {
-		tagId = ti
-	}
-	return tagId, nil
-}
-
-func createTag(tagName string, rxa kvas.ReduxAssets) error {
-
-	cta := nod.Begin(" creating tag %s...", tagName)
-	defer cta.End()
-
-	if err := rxa.IsSupported(vangogh_local_data.TagNameProperty); err != nil {
-		return cta.EndWithError(err)
-	}
-
-	createTagUrl := gog_integration.CreateTagUrl(tagName)
-	var ctResp gog_integration.CreateTagResp
-	if err := postResp(createTagUrl, &ctResp); err != nil {
-		return cta.EndWithError(err)
-	}
-	if ctResp.Id == "" {
-		return cta.EndWithError(fmt.Errorf("invalid create tag response"))
-	}
-
-	if err := rxa.AddVal(vangogh_local_data.TagNameProperty, ctResp.Id, tagName); err != nil {
-		return cta.EndWithError(err)
-	}
-
-	cta.EndWithResult("done")
-
-	return nil
-}
-
-func deleteTag(tagName, tagId string, rxa kvas.ReduxAssets) error {
-
-	dta := nod.Begin(" deleting tag %s...", tagName)
-	defer dta.End()
-
-	if err := rxa.IsSupported(vangogh_local_data.TagNameProperty); err != nil {
-		return dta.EndWithError(err)
-	}
-
-	deleteTagUrl := gog_integration.DeleteTagUrl(tagId)
-	var dtResp gog_integration.DeleteTagResp
-	if err := postResp(deleteTagUrl, &dtResp); err != nil {
-		return dta.EndWithError(err)
-	}
-	if dtResp.Status != "deleted" {
-		return dta.EndWithError(fmt.Errorf("invalid delete tag response"))
-	}
-
-	if err := rxa.CutVal(vangogh_local_data.TagNameProperty, tagId, tagName); err != nil {
-		return dta.EndWithError(err)
-	}
-
-	dta.EndWithResult("done")
-
-	return nil
-}
-
-func addTag(idSet map[string]bool, tagName, tagId string, rxa kvas.ReduxAssets) error {
-
-	ata := nod.NewProgress(" adding tag %s to item(s)...", tagName)
-	defer ata.End()
-
-	if err := rxa.IsSupported(vangogh_local_data.TagNameProperty, vangogh_local_data.TitleProperty); err != nil {
-		return ata.EndWithError(err)
-	}
-
-	ata.TotalInt(len(idSet))
-
-	for id := range idSet {
-		addTagUrl := gog_integration.AddTagUrl(id, tagId)
-		var artResp gog_integration.AddRemoveTagResp
-		if err := postResp(addTagUrl, &artResp); err != nil {
-			return ata.EndWithError(err)
-		}
-		if !artResp.Success {
-			return ata.EndWithError(fmt.Errorf("failed to add tag %s", tagName))
-		}
-
-		if err := rxa.AddVal(vangogh_local_data.TagIdProperty, id, tagId); err != nil {
-			return ata.EndWithError(err)
-		}
-
-		ata.Increment()
-	}
-
-	ata.EndWithResult("done")
-
-	return nil
-}
-
-func removeTag(idSet map[string]bool, tagName, tagId string, rxa kvas.ReduxAssets) error {
-
-	rta := nod.NewProgress(" removing tag %s from item(s)...", tagName)
-	defer rta.End()
-
-	if err := rxa.IsSupported(vangogh_local_data.TagNameProperty, vangogh_local_data.TitleProperty); err != nil {
-		return rta.EndWithError(err)
-	}
-
-	rta.TotalInt(len(idSet))
-
-	for id := range idSet {
-		removeTagUrl := gog_integration.RemoveTagUrl(id, tagId)
-		var artResp gog_integration.AddRemoveTagResp
-		if err := postResp(removeTagUrl, &artResp); err != nil {
-			return rta.EndWithError(err)
-		}
-		if !artResp.Success {
-			return rta.EndWithError(fmt.Errorf("failed to remove tag %s", tagName))
-		}
-
-		if err := rxa.CutVal(vangogh_local_data.TagIdProperty, id, tagId); err != nil {
-			return rta.EndWithError(err)
-		}
-
-		rta.Increment()
-	}
-
-	rta.EndWithResult("done")
-
-	return nil
 }
