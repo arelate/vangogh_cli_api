@@ -20,6 +20,7 @@ func HandleFuncs() {
 		"/updates":   middleware.GetMethodOnly(nod.RequestLog(http.HandlerFunc(GetUpdates))),
 		"/wishlist":  nod.RequestLog(http.HandlerFunc(RouteWishlist)),
 		"/local_tag": nod.RequestLog(http.HandlerFunc(RouteLocalTag)),
+		"/tag":       nod.RequestLog(http.HandlerFunc(RouteTag)),
 	}
 
 	for p, h := range patternHandlers {
