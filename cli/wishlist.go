@@ -55,10 +55,10 @@ func wishlistAdd(
 	ids []string,
 	mt gog_integration.Media) ([]string, error) {
 
-	waa := nod.Begin(" adding product(s) to local wishlist...")
+	waa := nod.NewProgress(" adding product(s) to local wishlist...")
 	defer waa.End()
 
-	pids, err := vangogh_local_data.AddToLocalWishlist(ids, mt)
+	pids, err := vangogh_local_data.AddToLocalWishlist(ids, mt, waa)
 	if err != nil {
 		waa.EndWithError(err)
 	} else {
@@ -72,10 +72,10 @@ func wishlistRemove(
 	ids []string,
 	mt gog_integration.Media) ([]string, error) {
 
-	wra := nod.Begin(" removing product(s) from local wishlist...")
+	wra := nod.NewProgress(" removing product(s) from local wishlist...")
 	defer wra.End()
 
-	pids, err := vangogh_local_data.RemoveFromLocalWishlist(ids, mt)
+	pids, err := vangogh_local_data.RemoveFromLocalWishlist(ids, mt, wra)
 	if err != nil {
 		wra.EndWithError(err)
 	} else {

@@ -17,7 +17,7 @@ func PutWishlist(
 	// PUT /wishlist?id
 
 	if len(ids) > 0 {
-		if pids, err := vangogh_local_data.AddToLocalWishlist(maps.Keys(ids), mt); err == nil {
+		if pids, err := vangogh_local_data.AddToLocalWishlist(maps.Keys(ids), mt, nil); err == nil {
 			if err := gog_integration.AddToWishlist(httpClient, pids...); err != nil {
 				http.Error(w, nod.Error(err).Error(), http.StatusInternalServerError)
 				return

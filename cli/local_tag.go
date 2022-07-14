@@ -3,6 +3,7 @@ package cli
 import (
 	"github.com/arelate/vangogh_local_data"
 	"github.com/boggydigital/nod"
+	"golang.org/x/exp/maps"
 	"net/url"
 )
 
@@ -23,26 +24,15 @@ func LocalTag(idSet map[string]bool, operation string, tagName string) error {
 	lta := nod.NewProgress("%s local tag %s...", operation, tagName)
 	defer lta.End()
 
-	rxa, err := vangogh_local_data.ConnectReduxAssets(vangogh_local_data.LocalTagsProperty)
-	if err != nil {
-		return lta.EndWithError(err)
-	}
-
-	lta.TotalInt(len(idSet))
-
-	for id := range idSet {
-		switch operation {
-		case "add":
-			if err := rxa.AddVal(vangogh_local_data.LocalTagsProperty, id, tagName); err != nil {
-				return err
-			}
-		case "remove":
-			if err := rxa.CutVal(vangogh_local_data.LocalTagsProperty, id, tagName); err != nil {
-				return err
-			}
+	switch operation {
+	case "add":
+		if err := vangogh_local_data.AddLocalTag(maps.Keys(idSet), tagName, lta); err != nil {
+			return err
 		}
-
-		lta.Increment()
+	case "remove":
+		if err := vangogh_local_data.RemoveLocalTag(maps.Keys(idSet), tagName, lta); err != nil {
+			return err
+		}
 	}
 
 	lta.EndWithResult("done")

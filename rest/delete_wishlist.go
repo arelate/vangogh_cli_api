@@ -16,7 +16,7 @@ func DeleteWishlist(
 
 	// DELETE /wishlist?id
 
-	if pids, err := vangogh_local_data.RemoveFromLocalWishlist(maps.Keys(ids), mt); err == nil {
+	if pids, err := vangogh_local_data.RemoveFromLocalWishlist(maps.Keys(ids), mt, nil); err == nil {
 		if err := gog_integration.RemoveFromWishlist(httpClient, pids...); err != nil {
 			http.Error(w, nod.Error(err).Error(), http.StatusInternalServerError)
 			return
