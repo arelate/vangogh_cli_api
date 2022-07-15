@@ -27,14 +27,18 @@ func PatchTag(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := vangogh_local_data.AddTags(hc, []string{id}, add, nil); err != nil {
-		http.Error(w, nod.Error(err).Error(), http.StatusInternalServerError)
-		return
+	if len(add) > 0 {
+		if err := vangogh_local_data.AddTags(hc, []string{id}, add, nil); err != nil {
+			http.Error(w, nod.Error(err).Error(), http.StatusInternalServerError)
+			return
+		}
 	}
 
-	if err := vangogh_local_data.RemoveTags(hc, []string{id}, rem, nil); err != nil {
-		http.Error(w, nod.Error(err).Error(), http.StatusInternalServerError)
-		return
+	if len(rem) > 0 {
+		if err := vangogh_local_data.RemoveTags(hc, []string{id}, rem, nil); err != nil {
+			http.Error(w, nod.Error(err).Error(), http.StatusInternalServerError)
+			return
+		}
 	}
 
 	w.WriteHeader(http.StatusOK)
