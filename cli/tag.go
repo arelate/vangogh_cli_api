@@ -6,6 +6,7 @@ import (
 	"github.com/arelate/vangogh_local_data"
 	"github.com/boggydigital/coost"
 	"github.com/boggydigital/nod"
+	"golang.org/x/exp/maps"
 	"net/url"
 	"strings"
 )
@@ -37,18 +38,11 @@ func Tag(idSet map[string]bool, operation, tagName string) error {
 	//matching default GOG.com capitalization for tags
 	tagName = strings.ToUpper(tagName)
 
-	rxa, err := vangogh_local_data.ConnectReduxAssets(
-		vangogh_local_data.TagNameProperty,
-		vangogh_local_data.TagIdProperty,
-		vangogh_local_data.TitleProperty,
-	)
-	if err != nil {
-		return err
-	}
-
+	var err error
 	tagId := ""
+
 	if operation != createOp {
-		tagId, err = vangogh_local_data.TagIdByName(tagName, rxa)
+		tagId, err = vangogh_local_data.TagIdByName(tagName)
 		if err != nil {
 			return err
 		}
@@ -62,15 +56,17 @@ func Tag(idSet map[string]bool, operation, tagName string) error {
 	toa := nod.NewProgress(" %s tag %s...", operation, tagName)
 	defer toa.End()
 
+	ids := maps.Keys(idSet)
+
 	switch operation {
 	case createOp:
-		return vangogh_local_data.CreateTag(hc, tagName, rxa)
+		return vangogh_local_data.CreateTag(hc, tagName)
 	case deleteOp:
-		return vangogh_local_data.DeleteTag(hc, tagName, tagId, rxa)
+		return vangogh_local_data.DeleteTag(hc, tagName, tagId)
 	case addOp:
-		return vangogh_local_data.AddTag(hc, idSet, tagId, rxa, toa)
+		return vangogh_local_data.AddTags(hc, ids, []string{tagId}, toa)
 	case removeOp:
-		return vangogh_local_data.RemoveTag(hc, idSet, tagId, rxa, toa)
+		return vangogh_local_data.RemoveTags(hc, ids, []string{tagId}, toa)
 	default:
 		return ta.EndWithError(fmt.Errorf("unknown tag operation %s", operation))
 	}

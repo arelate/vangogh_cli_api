@@ -26,11 +26,11 @@ func LocalTag(idSet map[string]bool, operation string, tagName string) error {
 
 	switch operation {
 	case "add":
-		if err := vangogh_local_data.AddLocalTag(maps.Keys(idSet), tagName, lta); err != nil {
+		if err := vangogh_local_data.AddLocalTags(maps.Keys(idSet), []string{tagName}, lta); err != nil {
 			return err
 		}
 	case "remove":
-		if err := vangogh_local_data.RemoveLocalTag(maps.Keys(idSet), tagName, lta); err != nil {
+		if err := vangogh_local_data.RemoveLocalTags(maps.Keys(idSet), []string{tagName}, lta); err != nil {
 			return err
 		}
 	}
