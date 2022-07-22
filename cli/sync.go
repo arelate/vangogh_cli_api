@@ -103,38 +103,25 @@ func Sync(
 			}
 		}
 
-		//get main - detail data
-		for _, pt := range vangogh_local_data.DetailProducts() {
-
-			var skipList wits.KeyValues
-
-			if _, err := os.Stat(vangogh_local_data.AbsSkipListPath()); err == nil {
-				slFile, err := os.Open(vangogh_local_data.AbsSkipListPath())
-				if err != nil {
-					slFile.Close()
-					return sa.EndWithError(err)
-				}
-
-				skipList, err = wits.ReadKeyValues(slFile)
-				slFile.Close()
-				if err != nil {
-					return sa.EndWithError(err)
-				}
-			}
-
-			skipIds := skipList[pt.String()]
-			if len(skipIds) > 0 {
-				sa.Log("skipping %s ids: %v", pt, skipIds)
-			} else {
-				sa.Log("no skip list for %s", pt)
-			}
-
-			if err := GetData(map[string]bool{}, skipIds, pt, mt, since, true, true); err != nil {
-				return sa.EndWithError(err)
-			}
+		//get GOG.com main - detail data
+		if err := getDetailData(vangogh_local_data.GOGDetailProducts(), mt, since); err != nil {
+			return sa.EndWithError(err)
 		}
 
-		//reduce data, but don't dehydrate images yet. New images won't be downloaded at this point yet
+		//reduce Steam AppId
+		if err := Reduce(mt, since, []string{vangogh_local_data.SteamAppIdProperty}, false); err != nil {
+			return sa.EndWithError(err)
+		}
+
+		//get Steam main - detail data
+		//this needs to happen after reduce, since Steam AppId - GOG.com ProductId
+		//connection is established at reduce. And the earlier data set cannot be retrieved post reduce,
+		//since SteamAppList is fetched with initial data
+		if err := getDetailData(vangogh_local_data.SteamDetailProducts(), mt, since); err != nil {
+			return sa.EndWithError(err)
+		}
+
+		// finally, reduce all properties
 		if err := Reduce(mt, since, vangogh_local_data.ReduxProperties(), false); err != nil {
 			return sa.EndWithError(err)
 		}
@@ -198,4 +185,32 @@ func Sync(
 
 	// print new or updated
 	return Summary(mt, since)
+}
+
+func getDetailData(pts []vangogh_local_data.ProductType, mt gog_integration.Media, since int64) error {
+	for _, pt := range pts {
+
+		var skipList wits.KeyValues
+
+		if _, err := os.Stat(vangogh_local_data.AbsSkipListPath()); err == nil {
+			slFile, err := os.Open(vangogh_local_data.AbsSkipListPath())
+			if err != nil {
+				slFile.Close()
+				return err
+			}
+
+			skipList, err = wits.ReadKeyValues(slFile)
+			slFile.Close()
+			if err != nil {
+				return err
+			}
+		}
+
+		skipIds := skipList[pt.String()]
+		if err := GetData(map[string]bool{}, skipIds, pt, mt, since, true, true); err != nil {
+			return err
+		}
+	}
+
+	return nil
 }

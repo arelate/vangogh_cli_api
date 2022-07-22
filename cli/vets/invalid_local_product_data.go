@@ -14,7 +14,12 @@ func InvalidLocalProductData(mt gog_integration.Media, fix bool) error {
 	invalidProducts := make(map[vangogh_local_data.ProductType][]string)
 
 	allProductTypes := make(map[vangogh_local_data.ProductType]bool)
-	for _, pt := range append(vangogh_local_data.RemoteProducts(), vangogh_local_data.LocalProducts()...) {
+
+	pts := vangogh_local_data.GOGRemoteProducts()
+	pts = append(pts, vangogh_local_data.SteamRemoteProducts()...)
+	pts = append(pts, vangogh_local_data.LocalProducts()...)
+
+	for _, pt := range pts {
 		allProductTypes[pt] = true
 	}
 
