@@ -33,6 +33,8 @@ func GetRedux(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
+		ids = make(map[string]bool)
+
 		//the code above enforced a single property value for 'all' branch
 		for _, id := range rxa.Keys(properties[0]) {
 			ids[id] = true
