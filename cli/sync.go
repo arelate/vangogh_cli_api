@@ -8,7 +8,9 @@ import (
 	"github.com/boggydigital/wits"
 	"net/url"
 	"os"
+	"strconv"
 	"strings"
+	"time"
 )
 
 const (
@@ -91,6 +93,23 @@ func Sync(
 
 	sa := nod.Begin("syncing source data...")
 	defer sa.End()
+
+	syncEventsRxa, err := vangogh_local_data.ConnectReduxAssets(vangogh_local_data.SyncEventsProperty)
+	if err != nil {
+		return sa.EndWithError(err)
+	}
+
+	syncStart := since
+	if syncStart == 0 {
+		syncStart = time.Now().Unix()
+	}
+
+	if err := syncEventsRxa.AddVal(
+		vangogh_local_data.SyncEventsProperty,
+		vangogh_local_data.SyncStartKey,
+		strconv.Itoa(int(syncStart))); err != nil {
+		return sa.EndWithError(err)
+	}
 
 	if syncOpts.data {
 		//get array and paged data
@@ -183,8 +202,20 @@ func Sync(
 
 	sa.EndWithResult("done")
 
-	// print new or updated
-	return Summary(mt, since)
+	if err := syncEventsRxa.AddVal(
+		vangogh_local_data.SyncEventsProperty,
+		vangogh_local_data.SyncCompleteKey,
+		strconv.Itoa(int(time.Now().Unix()))); err != nil {
+		return sa.EndWithError(err)
+	}
+
+	// summarize sync updates
+	if err := Summarize(mt, syncStart); err != nil {
+		return sa.EndWithError(err)
+	}
+
+	// print new, updated
+	return Summary(mt)
 }
 
 func getDetailData(pts []vangogh_local_data.ProductType, mt gog_integration.Media, since int64) error {
