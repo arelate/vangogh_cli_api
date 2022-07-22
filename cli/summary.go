@@ -34,6 +34,7 @@ func Summarize(mt gog_integration.Media, since int64) error {
 
 	summary := make(map[string][]string)
 
+	//set new values for each section
 	for section, ids := range updates {
 		sortedIds, err := vangogh_local_data.SortIds(
 			maps.Keys(ids),
@@ -44,6 +45,14 @@ func Summarize(mt gog_integration.Media, since int64) error {
 			return err
 		}
 		summary[section] = sortedIds
+	}
+
+	//clean sections filled earlier that don't exist anymore
+	for _, section := range rxa.Keys(vangogh_local_data.LastSyncUpdatesProperty) {
+		if _, ok := updates[section]; ok {
+			continue
+		}
+		summary[section] = nil
 	}
 
 	return rxa.BatchReplaceValues(vangogh_local_data.LastSyncUpdatesProperty, summary)

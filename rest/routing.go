@@ -8,19 +8,17 @@ import (
 
 func HandleFuncs() {
 	patternHandlers := map[string]http.Handler{
-		"/all_redux": middleware.GetMethodOnly(nod.RequestLog(http.HandlerFunc(GetAllRedux))),
 		"/data":      middleware.GetMethodOnly(nod.RequestLog(http.HandlerFunc(GetData))),
-		"/has_data":  middleware.GetMethodOnly(nod.RequestLog(http.HandlerFunc(GetHasData))),
 		"/digest":    IfReduxModifiedSince(middleware.GetMethodOnly(nod.RequestLog(http.HandlerFunc(GetDigest)))),
 		"/downloads": middleware.GetMethodOnly(nod.RequestLog(http.HandlerFunc(GetDownloads))),
-		"/keys":      middleware.GetMethodOnly(nod.RequestLog(http.HandlerFunc(GetKeys))),
-		"/redux":     IfReduxModifiedSince(middleware.GetMethodOnly(nod.RequestLog(http.HandlerFunc(GetRedux)))),
+		"/has_data":  middleware.GetMethodOnly(nod.RequestLog(http.HandlerFunc(GetHasData))),
 		"/has_redux": IfReduxModifiedSince(middleware.GetMethodOnly(nod.RequestLog(http.HandlerFunc(GetHasRedux)))),
+		"/local_tag": middleware.PatchMethodOnly(nod.RequestLog(http.HandlerFunc(PatchLocalTag))),
+		"/redux":     IfReduxModifiedSince(middleware.GetMethodOnly(nod.RequestLog(http.HandlerFunc(GetRedux)))),
 		"/search":    IfReduxModifiedSince(middleware.GetMethodOnly(nod.RequestLog(http.HandlerFunc(Search)))),
+		"/tag":       middleware.PatchMethodOnly(nod.RequestLog(http.HandlerFunc(PatchTag))),
 		"/updates":   middleware.GetMethodOnly(nod.RequestLog(http.HandlerFunc(GetUpdates))),
 		"/wishlist":  nod.RequestLog(http.HandlerFunc(RouteWishlist)),
-		"/local_tag": middleware.PatchMethodOnly(nod.RequestLog(http.HandlerFunc(PatchLocalTag))),
-		"/tag":       middleware.PatchMethodOnly(nod.RequestLog(http.HandlerFunc(PatchTag))),
 	}
 
 	for p, h := range patternHandlers {
