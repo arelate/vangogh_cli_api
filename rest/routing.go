@@ -17,7 +17,6 @@ func HandleFuncs() {
 		"/redux":     IfReduxModifiedSince(middleware.GetMethodOnly(nod.RequestLog(http.HandlerFunc(GetRedux)))),
 		"/search":    IfReduxModifiedSince(middleware.GetMethodOnly(nod.RequestLog(http.HandlerFunc(Search)))),
 		"/tag":       middleware.PatchMethodOnly(nod.RequestLog(http.HandlerFunc(PatchTag))),
-		"/updates":   middleware.GetMethodOnly(nod.RequestLog(http.HandlerFunc(GetUpdates))),
 		"/wishlist":  nod.RequestLog(http.HandlerFunc(RouteWishlist)),
 	}
 
