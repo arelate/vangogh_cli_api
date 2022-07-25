@@ -146,6 +146,12 @@ func Sync(
 		}
 	}
 
+	// summarize sync updates now, since other updates are media files
+	// and won't affect the summaries
+	if err := Summarize(mt, syncStart); err != nil {
+		return sa.EndWithError(err)
+	}
+
 	// get items (embedded into descriptions)
 	if syncOpts.items {
 		if err := GetItems(map[string]bool{}, mt, since); err != nil {
@@ -173,7 +179,7 @@ func Sync(
 		pr.EndWithResult("done")
 	}
 
-	// get downloads Updates
+	// get downloads updates
 	if syncOpts.downloadsUpdates {
 		if err := UpdateDownloads(
 			mt,
@@ -206,11 +212,6 @@ func Sync(
 		vangogh_local_data.SyncEventsProperty,
 		vangogh_local_data.SyncCompleteKey,
 		strconv.Itoa(int(time.Now().Unix()))); err != nil {
-		return sa.EndWithError(err)
-	}
-
-	// summarize sync updates
-	if err := Summarize(mt, syncStart); err != nil {
 		return sa.EndWithError(err)
 	}
 
