@@ -2,7 +2,6 @@ package cli
 
 import (
 	"github.com/arelate/gog_integration"
-	"github.com/arelate/vangogh_cli_api/cli/reductions"
 	"github.com/arelate/vangogh_local_data"
 	"github.com/boggydigital/nod"
 	"github.com/boggydigital/wits"
@@ -127,8 +126,10 @@ func Sync(
 			return sa.EndWithError(err)
 		}
 
-		//reduce Steam AppId
-		if err := Reduce(mt, since, []string{vangogh_local_data.SteamAppIdProperty}, false); err != nil {
+		//reduce Title and Steam AppId
+		if err := Reduce(mt, since, []string{
+			vangogh_local_data.TitleProperty,
+			vangogh_local_data.SteamAppIdProperty}, true); err != nil {
 			return sa.EndWithError(err)
 		}
 
@@ -172,11 +173,10 @@ func Sync(
 			return sa.EndWithError(err)
 		}
 
-		pr := nod.Begin("reducing post image download...")
-		if err := reductions.DehydratedImages(); err != nil {
-			return pr.EndWithError(err)
+		// dehydrating images after downloading
+		if err := DehydrateImages(); err != nil {
+			return sa.EndWithError(err)
 		}
-		pr.EndWithResult("done")
 	}
 
 	// get downloads updates

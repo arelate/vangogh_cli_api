@@ -1,20 +1,22 @@
-package reductions
+package cli
 
 import (
 	"github.com/arelate/vangogh_local_data"
 	"github.com/boggydigital/issa"
 	"github.com/boggydigital/nod"
 	"image"
-	_ "image/jpeg"
-	_ "image/png"
+	"net/url"
 	"os"
 )
 
 const vangoghSamplingRate = 24
 
-func DehydratedImages() error {
+func DehydrateImagesHandler(u *url.URL) error {
+	return DehydrateImages()
+}
 
-	dia := nod.NewProgress(" %s...", vangogh_local_data.DehydratedImageProperty)
+func DehydrateImages() error {
+	dia := nod.NewProgress("dehydrating images...")
 	defer dia.End()
 
 	rxa, err := vangogh_local_data.ConnectReduxAssets(
@@ -50,7 +52,7 @@ func DehydratedImages() error {
 				} else {
 					dia.Error(err)
 				}
-			} else {
+			} else if !os.IsNotExist(err) {
 				dia.Error(err)
 			}
 

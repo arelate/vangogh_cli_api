@@ -23,10 +23,10 @@ func ReduceHandler(u *url.URL) error {
 		vangogh_local_data.MediaFromUrl(u),
 		since,
 		vangogh_local_data.PropertiesFromUrl(u),
-		vangogh_local_data.FlagFromUrl(u, "dehydrate-images"))
+		vangogh_local_data.FlagFromUrl(u, "properties-only"))
 }
 
-func Reduce(mt gog_integration.Media, since int64, properties []string, dehydrateImages bool) error {
+func Reduce(mt gog_integration.Media, since int64, properties []string, propertiesOnly bool) error {
 
 	propSet := make(map[string]bool)
 	for _, p := range properties {
@@ -122,56 +122,52 @@ func Reduce(mt gog_integration.Media, since int64, properties []string, dehydrat
 		pta.EndWithResult("done")
 	}
 
-	//language-names are reduced separately from general pipeline,
-	//given we'll be filling the blanks from api-products-v2 using
-	//GetLanguages property that returns map[string]string
-	langCodeSet, err := reductions.GetLanguageCodes(rxa)
-	if err != nil {
-		return ra.EndWithError(err)
-	}
-
-	if err := reductions.LanguageNames(langCodeSet); err != nil {
-		return ra.EndWithError(err)
-	}
-
-	if err := reductions.NativeLanguageNames(langCodeSet); err != nil {
-		return ra.EndWithError(err)
-	}
-
-	//tag-names are reduced separately from other types,
-	//given it is most convenient to reduce from account-pages
-	if err := reductions.TagNames(mt); err != nil {
-		return ra.EndWithError(err)
-	}
-
-	//orders are reduced separately from other types
-	if err := reductions.Orders(since); err != nil {
-		return ra.EndWithError(err)
-	}
-
-	if err := reductions.Types(mt); err != nil {
-		return ra.EndWithError(err)
-	}
-
-	if err := reductions.Wishlisted(mt); err != nil {
-		return ra.EndWithError(err)
-	}
-
-	if err := reductions.Owned(mt); err != nil {
-		return ra.EndWithError(err)
-	}
-
 	if err := reductions.SteamAppId(since); err != nil {
 		return ra.EndWithError(err)
 	}
 
-	if err := reductions.SteamTags(since); err != nil {
-		return ra.EndWithError(err)
-	}
+	if !propertiesOnly {
+		//language-names are reduced separately from general pipeline,
+		//given we'll be filling the blanks from api-products-v2 using
+		//GetLanguages property that returns map[string]string
+		langCodeSet, err := reductions.GetLanguageCodes(rxa)
+		if err != nil {
+			return ra.EndWithError(err)
+		}
 
-	if dehydrateImages {
-		if err := reductions.DehydratedImages(); err != nil {
-			ra.EndWithError(err)
+		if err := reductions.LanguageNames(langCodeSet); err != nil {
+			return ra.EndWithError(err)
+		}
+
+		if err := reductions.NativeLanguageNames(langCodeSet); err != nil {
+			return ra.EndWithError(err)
+		}
+
+		//tag-names are reduced separately from other types,
+		//given it is most convenient to reduce from account-pages
+		if err := reductions.TagNames(mt); err != nil {
+			return ra.EndWithError(err)
+		}
+
+		//orders are reduced separately from other types
+		if err := reductions.Orders(since); err != nil {
+			return ra.EndWithError(err)
+		}
+
+		if err := reductions.Types(mt); err != nil {
+			return ra.EndWithError(err)
+		}
+
+		if err := reductions.Wishlisted(mt); err != nil {
+			return ra.EndWithError(err)
+		}
+
+		if err := reductions.Owned(mt); err != nil {
+			return ra.EndWithError(err)
+		}
+
+		if err := reductions.SteamTags(since); err != nil {
+			return ra.EndWithError(err)
 		}
 	}
 
